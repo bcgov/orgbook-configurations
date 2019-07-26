@@ -16,7 +16,7 @@
         "name": "${NAME}",
         "labels": {
           "name": "${NAME}",
-          "app": "${APP_NAME}",
+          "app": "${APP_NAME}${SUFFIX}",
           "app-group": "${APP_GROUP}"
         }
       }
@@ -28,7 +28,7 @@
         "name": "${NAME}",
         "labels": {
           "name": "${NAME}",
-          "app": "${APP_NAME}",
+          "app": "${APP_NAME}${SUFFIX}",
           "app-group": "${APP_GROUP}"
         }
       },

@@ -74,6 +74,13 @@
             "value": "db"
         },
         {
+            "name": "SUFFIX",
+            "displayName": "Suffix",
+            "description": "A name suffix used for all objects",
+            "required": false,
+            "value": "-indy-cat"
+        },
+        {
             "name": "APP_NAME",
             "displayName": "App Name",
             "description": "Used to group components together in the OpenShift console.",

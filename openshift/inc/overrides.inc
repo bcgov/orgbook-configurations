@@ -3,6 +3,10 @@
 # ================================================================================================================
 # Functions
 # ----------------------------------------------------------------------------------------------------------------
+toLower() {
+  echo $(echo ${@} | tr '[:upper:]' '[:lower:]')
+}
+
 printStatusMsg(){
   (
     _msg=${1}
@@ -33,14 +37,14 @@ writeParameter(){
   (
     _paramName=${1}
     _defaultValue=${2}
-    _encode=${3}
+    _encode=$(toLower ${3})
 
-    if [ -z "${_encode}" ]; then
-      echo "${_paramName}=${!_paramName:-${_defaultValue}}" >> ${_overrideParamFile}
-    else
+    if [ ! -z "${_encode}" ] && [ "${_encode}" = "true" ] ; then
       # The key/value pair must be contained on a single line
       _encodedValue=$(echo -n "${!_paramName:-${_defaultValue}}"|base64 -w 0)
       echo "${_paramName}=${_encodedValue}" >> ${_overrideParamFile}
+    else
+      echo "${_paramName}=${!_paramName:-${_defaultValue}}" >> ${_overrideParamFile}
     fi
   )
 }

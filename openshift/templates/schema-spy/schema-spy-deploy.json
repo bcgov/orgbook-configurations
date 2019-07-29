@@ -234,7 +234,7 @@
               {
                 "name": "${NAME}${SUFFIX}-config-volume",
                 "configMap": {
-                  "name": "${CONFIG_MAP_NAME}",
+                  "name": "${CONFIG_MAP_NAME}${SUFFIX}",
                   "items": [
                     {
                       "key": "${CONFIG_FILE_NAME}",

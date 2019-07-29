@@ -4,7 +4,7 @@
 # ----------------------------------------------------------------------------------------------------------------
 # The results need to be encoded as OpenShift template parameters for use with oc process.
 # ================================================================================================================
-CONFIG_MAP_NAME=rabbitmq-enabled-plugins
+CONFIG_MAP_NAME=msg-queue-indy-cat-enabled-plugins
 SOURCE_FILE=$( dirname "$0" )/enabled_plugins
 
 OUTPUT_FORMAT=json
@@ -15,8 +15,8 @@ generateConfigMap "${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OU
 
 # Randomly generate a set of credentials without asking ...
 printStatusMsg "Creating a set of random user credentials ..."
-writeParameter "DEFAULT_USER_NAME" $(generateUsername) "true"
-writeParameter "DEFAULT_PASSWORD" $(generatePassword) "true"
+writeParameter "DEFAULT_USER_NAME" $(generateUsername) "false"
+writeParameter "DEFAULT_PASSWORD" $(generatePassword) "false"
 
 SPECIALDEPLOYPARMS="--param-file=${_overrideParamFile}"
 echo ${SPECIALDEPLOYPARMS}

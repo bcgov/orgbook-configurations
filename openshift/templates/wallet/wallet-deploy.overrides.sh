@@ -8,9 +8,9 @@
 
 # Randomly generate a set of credentials without asking ...
 printStatusMsg "Creating a set of random user credentials ..."
-writeParameter "POSTGRESQL_USER" $(generateUsername) "true"
-writeParameter "POSTGRESQL_PASSWORD" $(generatePassword) "true"
-writeParameter "POSTGRESQL_ADMIN_PASSWORD" $(generatePassword) "true"
+writeParameter "POSTGRESQL_USER" $(generateUsername) "false"
+writeParameter "POSTGRESQL_PASSWORD" $(generatePassword) "false"
+writeParameter "POSTGRESQL_ADMIN_PASSWORD" $(generatePassword) "false"
 
 SPECIALDEPLOYPARMS="--param-file=${_overrideParamFile}"
 echo ${SPECIALDEPLOYPARMS}

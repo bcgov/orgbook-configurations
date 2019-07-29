@@ -210,7 +210,7 @@ parameters:
   displayName: Application Hostname
   description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
   required: false
-  value: iiwbook-agent.vonx.io
+  value: 
 - name: IMAGE_NAMESPACE
   displayName: Namespace containing application images.
   required: true

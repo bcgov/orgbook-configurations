@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------
 # The generated config map is used to update the Backup configuration.
 # ========================================================================
-CONFIG_MAP_NAME=blacklist-conf
+CONFIG_MAP_NAME=blacklist-conf-indy-cat
 SOURCE_FILE=$( dirname "$0" )/config/blacklist.conf
 
 OUTPUT_FORMAT=json

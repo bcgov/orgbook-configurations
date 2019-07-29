@@ -7,7 +7,7 @@
 #
 # The generated config map is used to update the Caddy configuration
 # ========================================================================
-CONFIG_MAP_NAME=caddy-conf
+CONFIG_MAP_NAME=schema-spy-caddy-conf-indy-cat
 SOURCE_FILE=$( dirname "$0" )/Caddyfile
 OUTPUT_FORMAT=json
 OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
@@ -17,8 +17,8 @@ generateConfigMap "${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OU
 
 # Randomly generate a set of credentials without asking ...
 printStatusMsg "Creating a set of random user credentials ..."
-writeParameter "SCHEMASPY_USER" $(generateUsername) "true"
-writeParameter "SCHEMASPY_PASSWORD" $(generatePassword) "true"
+writeParameter "SCHEMASPY_USER" $(generateUsername) "false"
+writeParameter "SCHEMASPY_PASSWORD" $(generatePassword) "false"
 
 SPECIALDEPLOYPARMS="--param-file=${_overrideParamFile}"
 echo ${SPECIALDEPLOYPARMS}

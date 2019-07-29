@@ -391,7 +391,7 @@
       "name": "TOB_THEME",
       "displayName": "TheOrgBook Theme Name",
       "description": "The name of the theme to be used for the site.",
-      "value": "default"
+      "value": "bcgov"
     },
     {
       "name": "CPU_REQUEST",

@@ -410,7 +410,7 @@
           "kind": "DeploymentConfig",
           "name": "${NAME}${SUFFIX}"
         },
-        "minReplicas": 2,
+        "minReplicas": 1,
         "maxReplicas": 5
       }
     }

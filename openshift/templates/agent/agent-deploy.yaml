@@ -270,7 +270,7 @@ parameters:
   displayName: Webhook URL
   description: The webhook endpoint
   required: true
-  value: http://iiw-book-service:8080/webhooks/agentcb
+  value: http://api-indy-cat:8080/webhooks/agentcb
 - name: AGENT_ADMIN_PORT
   displayName: Agent Admin Port
   description: The admin port on which the service will listen.

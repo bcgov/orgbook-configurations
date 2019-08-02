@@ -16,6 +16,34 @@ printStatusMsg(){
   )
 }
 
+getOperation() {
+  (
+    echo $(toLower ${OPERATION})
+  )
+}
+
+createOperation() {
+  (
+    action=$(getOperation)
+    if [ ${action} = "create" ]; then
+      return 0
+    else
+      return 1
+    fi
+  )
+}
+
+updateOperation() {
+  (
+    action=$(getOperation)
+    if [ ${action} = "update" ]; then
+      return 0
+    else
+      return 1
+    fi
+  )
+}
+
 readParameter(){
   (
     _msg=${1}

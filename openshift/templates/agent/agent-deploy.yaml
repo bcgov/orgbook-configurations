@@ -16,13 +16,17 @@ objects:
   spec:
     ports:
     - name: ${NAME}-admin
-      port: ${{INDY_ADMIN_PORT}}
+      port: ${{AGENT_ADMIN_PORT}}
       protocol: TCP
-      targetPort: ${{INDY_ADMIN_PORT}}
-    - name: ${NAME}-agent
-      port: ${{INDY_AGENT_PORT}}
+      targetPort: ${{AGENT_ADMIN_PORT}}
+    - name: ${NAME}-http
+      port: ${{AGENT_HTTP_PORT}}
       protocol: TCP
-      targetPort: ${{INDY_AGENT_PORT}}
+      targetPort: ${{AGENT_HTTP_PORT}}
+    - name: ${NAME}-ws
+      port: ${{AGENT_WS_PORT}}
+      protocol: TCP
+      targetPort: ${{AGENT_WS_PORT}}
     selector:
       name: ${NAME}${SUFFIX}
 
@@ -37,7 +41,7 @@ objects:
   spec:
     host: ${APPLICATION_DOMAIN}
     port:
-      targetPort: ${NAME}-agent
+      targetPort: ${NAME}-http
     tls:
       insecureEdgeTerminationPolicy: Redirect
       termination: edge
@@ -46,21 +50,19 @@ objects:
       name: ${NAME}${SUFFIX}
       weight: 100
 
-- kind: PersistentVolumeClaim
+- kind: Secret
   apiVersion: v1
   metadata:
-    name: ${NAME}${SUFFIX}
+    name: ${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}
     labels:
       name: ${NAME}${SUFFIX}
       app: ${APP_NAME}${SUFFIX}
       app-group: ${APP_GROUP}
-  spec:
-    accessModes:
-    - ReadWriteOnce
-    resources:
-      requests:
-        storage: ${PERSISTENT_VOLUME_SIZE}
-    storageClassName: ${PERSISTENT_VOLUME_CLASS}
+  stringData:
+    key: ${WALLET_KEY}
+    seed: ${WALLET_SEED}
+    did: ${WALLET_DID}
+  type: Opaque
 
 - kind: DeploymentConfig
   apiVersion: v1
@@ -87,55 +89,111 @@ objects:
         containers:
         - name: ${NAME}${SUFFIX}
           command:
+          # Note:
+          #  - The wallet-name cannot contain '-'s.
           - bash
           - -c
-          - aca-py 
-            -it http 0.0.0.0 ${AGENT_PORT} 
-            -ot http 
-            --admin 0.0.0.0 ${ADMIN_PORT}
-            -e "${SITE_URL}" 
-            --wallet-type indy 
-            --seed "${INDY_SEED}" 
-            --genesis-transactions "${GENESIS_TRANSACTIONS}" 
-            --accept-invites 
-            --accept-requests 
-            --label "${LABEL}"
+          - $(echo aca-py
+            --inbound-transport http '0.0.0.0' ${HTTP_INTERFACE_PORT}
+            --inbound-transport ws '0.0.0.0' ${WS_INTERFACE_PORT}
+            --endpoint ${AGENT_ENDPOINT}
+            --outbound-transport ws
+            --outbound-transport http
+            --genesis-url "${LEDGER_URL}/genesis"
+            --auto-accept-invites
+            --auto-accept-requests
+            --auto-ping-connection
+            --auto-respond-messages
+            --auto-respond-credential-offer
+            --auto-respond-presentation-request
+            --auto-verify-presentation
+            --wallet-type 'indy'
+            --wallet-name "$(echo ${AGENT_WALLET_NAME} | tr '[:upper:]' '[:lower:]' | sed "s~-~_~g")"
+            --wallet-key "${WALLET_ENCRYPTION_KEY}"
+            --wallet-storage-type "${WALLET_TYPE}"
+            --wallet-storage-config "$(eval echo \"${WALLET_STORAGE_CONFIGURATION}\")"
+            --wallet-storage-creds "$(eval echo \"${WALLET_STORAGE_CREDENTIALS}\")"
+            --seed "${INDY_WALLET_SEED}"
+            --admin '0.0.0.0' ${ADMIN_INTERFACE_PORT}
+            --admin-insecure-mode
+            --label "${AGENT_NAME}"
+            --label debug
+            --protocol indy_catalyst_issuer_registration);
           env:
-          - name: ADMIN_PORT
-            value: ${INDY_ADMIN_PORT}
-          - name: AGENT_PORT
-            value: ${INDY_AGENT_PORT}
-          - name: INDY_SEED
-            value: ${INDY_WALLET_SEED}
-          - name: GENESIS_TRANSACTIONS
+          - name: LEDGER_URL
+            value: ${LEDGER_BASE_URL}
+          - name: AGENT_WALLET_NAME
+            value: ${NAME}${SUFFIX}-wallet
+          - name: WALLET_TYPE
+            value: ${WALLET_STORAGE_TYPE}
+          - name: POSTGRESQL_WALLET_HOST
+            value: ${WALLET_HOST}${SUFFIX}
+          - name: POSTGRESQL_WALLET_PORT
+            value: ${WALLET_HOST_PORT}
+          - name: WALLET_STORAGE_CONFIGURATION
+            value: ${WALLET_STORAGE_CONFIG}
+          - name: WALLET_STORAGE_CREDENTIALS
+            value: ${WALLET_STORAGE_CREDS}
+          - name: POSTGRESQL_WALLET_USER
             valueFrom:
-              configMapKeyRef:
-                key: genesis
-                name: ${NAME}${SUFFIX}
-          - name: SITE_URL
-            value: ${AGENT_URL}
+              secretKeyRef:
+                name: ${WALLET_HOST}${SUFFIX}
+                key: database-user
+          - name: POSTGRESQL_WALLET_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ${WALLET_HOST}${SUFFIX}
+                key: database-password
+          - name: POSTGRESQL_WALLET_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ${WALLET_HOST}${SUFFIX}
+                key: admin-password
+          - name: WALLET_ENCRYPTION_KEY
+            valueFrom:
+              secretKeyRef:
+                name: ${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}
+                key: key
+          - name: INDY_WALLET_SEED
+            valueFrom:
+              secretKeyRef:
+                name: ${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}
+                key: seed
+          - name: WALLET_DID
+            valueFrom:
+              secretKeyRef:
+                name: ${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}
+                key: did
           - name: WEBHOOK_URL
             value: ${WEBHOOK_URL}
-          - name: LABEL
-            value: ${DISPLAY_LABEL}
-          image: " "
+          - name: HTTP_INTERFACE_PORT
+            value: ${AGENT_HTTP_PORT}
+          - name: WS_INTERFACE_PORT
+            value: ${AGENT_WS_PORT}
+          - name: ADMIN_INTERFACE_PORT
+            value: ${AGENT_ADMIN_PORT}
+          - name: AGENT_NAME
+            value: ${AGENT_LABEL_NAME}
+          - name: AGENT_ENDPOINT
+            value: ${AGENT_BASE_URL}
+          image:
           ports:
-          - containerPort: ${{INDY_ADMIN_PORT}}
+          - containerPort: ${{AGENT_ADMIN_PORT}}
             protocol: TCP
-          - containerPort: ${{INDY_AGENT_PORT}}
+          - containerPort: ${{AGENT_HTTP_PORT}}
             protocol: TCP
           readinessProbe:
             timeoutSeconds: 30
             initialDelaySeconds: 3
             httpGet:
-              path: "/"
-              port: ${{INDY_AGENT_PORT}}
+              path: /
+              port: ${{AGENT_HTTP_PORT}}
           livenessProbe:
             timeoutSeconds: 30
             initialDelaySeconds: 300
             httpGet:
-              path: "/"
-              port: ${{INDY_AGENT_PORT}}
+              path: /
+              port: ${{AGENT_HTTP_PORT}}
           imagePullPolicy: IfNotPresent
           resources:
             limits:
@@ -146,18 +204,11 @@ objects:
               memory: ${MEMORY_REQUEST}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
-          volumeMounts:
-          - name: ${NAME}${SUFFIX}-data
-            mountPath: ${MOUNT_PATH}
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
         securityContext: {}
         terminationGracePeriodSeconds: 30
-        volumes:
-        - name: ${NAME}${SUFFIX}-data
-          persistentVolumeClaim:
-            claimName: ${NAME}${SUFFIX}
     triggers:
     - type: ConfigChange
     - type: ImageChange
@@ -169,21 +220,6 @@ objects:
           kind: ImageStreamTag
           name: ${NAME}:${TAG_NAME}
           namespace: ${IMAGE_NAMESPACE}
-
-- kind: ConfigMap
-  apiVersion: v1
-  metadata:
-    name: ${NAME}${SUFFIX}
-    labels:
-      name: ${NAME}${SUFFIX}
-      app: ${APP_NAME}${SUFFIX}
-      app-group: ${APP_GROUP}
-  data:
-    genesis: |
-      {"reqSignature":{},"txn":{"data":{"data":{"alias":"Node1","blskey":"4N8aUNHSgjQVgkpm8nhNEfDf6txHznoYREg9kirmJrkivgL4oSEimFF6nsQ6M41QvhM2Z33nves5vfSn9n1UwNFJBYtWVnHYMATn76vLuL3zU88KyeAYcHfsih3He6UHcXDxcaecHVz6jhCYz1P2UZn2bDVruL5wXpehgBfBaLKm3Ba","client_ip":"52.224.127.162","client_port":9702,"node_ip":"52.224.127.162","node_port":9701,"services":["VALIDATOR"]},"dest":"Gw6pDLhcBcoQesN72qfotTgFa7cbuqZpkX3Xo6pLhPhv"},"metadata":{"from":"Th7MpTaRZVRYnPiabds81Y"},"type":"0"},"txnMetadata":{"seqNo":1,"txnId":"fea82e10e894419fe2bea7d96296a6d46f50f93f9eeda954ec461b2ed2950b62"},"ver":"1"}
-      {"reqSignature":{},"txn":{"data":{"data":{"alias":"Node2","blskey":"37rAPpXVoxzKhz7d9gkUe52XuXryuLXoM6P6LbWDB7LSbG62Lsb33sfG7zqS8TK1MXwuCHj1FKNzVpsnafmqLG1vXN88rt38mNFs9TENzm4QHdBzsvCuoBnPH7rpYYDo9DZNJePaDvRvqJKByCabubJz3XXKbEeshzpz4Ma5QYpJqjk","client_ip":"52.224.127.162","client_port":9704,"node_ip":"52.224.127.162","node_port":9703,"services":["VALIDATOR"]},"dest":"8ECVSk179mjsjKRLWiQtssMLgp6EPhWXtaYyStWPSGAb"},"metadata":{"from":"EbP4aYNeTHL6q385GuVpRV"},"type":"0"},"txnMetadata":{"seqNo":2,"txnId":"1ac8aece2a18ced660fef8694b61aac3af08ba875ce3026a160acbc3a3af35fc"},"ver":"1"}
-      {"reqSignature":{},"txn":{"data":{"data":{"alias":"Node3","blskey":"3WFpdbg7C5cnLYZwFZevJqhubkFALBfCBBok15GdrKMUhUjGsk3jV6QKj6MZgEubF7oqCafxNdkm7eswgA4sdKTRc82tLGzZBd6vNqU8dupzup6uYUf32KTHTPQbuUM8Yk4QFXjEf2Usu2TJcNkdgpyeUSX42u5LqdDDpNSWUK5deC5","client_ip":"52.224.127.162","client_port":9706,"node_ip":"52.224.127.162","node_port":9705,"services":["VALIDATOR"]},"dest":"DKVxG2fXXTU8yT5N7hGEbXB3dfdAnYv1JczDUHpmDxya"},"metadata":{"from":"4cU41vWW82ArfxJxHkzXPG"},"type":"0"},"txnMetadata":{"seqNo":3,"txnId":"7e9f355dffa78ed24668f0e0e369fd8c224076571c51e2ea8be5f26479edebe4"},"ver":"1"}
-      {"reqSignature":{},"txn":{"data":{"data":{"alias":"Node4","blskey":"2zN3bHM1m4rLz54MJHYSwvqzPchYp8jkHswveCLAEJVcX6Mm1wHQD1SkPYMzUDTZvWvhuE6VNAkK3KxVeEmsanSmvjVkReDeBEMxeDaayjcZjFGPydyey1qxBHmTvAnBKoPydvuTAqx5f7YNNRAdeLmUi99gERUU7TD8KfAa6MpQ9bw","client_ip":"52.224.127.162","client_port":9708,"node_ip":"52.224.127.162","node_port":9707,"services":["VALIDATOR"]},"dest":"4PS3EDQ3dW1tci1Bp6543CfuuebjFrg36kLAUcskGfaA"},"metadata":{"from":"TWwCRQRZ2ZHMJFn9TzLp7W"},"type":"0"},"txnMetadata":{"seqNo":4,"txnId":"aa5e817d7cc626170eca175822029339a444eb0ee8f0bd20d3b0b76e566fb008"},"ver":"1"}
 
 parameters:
 - name: NAME
@@ -210,61 +246,105 @@ parameters:
   displayName: Application Hostname
   description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
   required: false
-  value: 
+  value: orgbook-agent-dev.pathfinder.gov.bc.ca
 - name: IMAGE_NAMESPACE
   displayName: Namespace containing application images.
   required: true
-  value: devex-von-image-tools
+  value: devex-von-tools
 - name: TAG_NAME
   displayName: Environment TAG name
   description: The TAG name for this environment, e.g., dev, test, prod.
   required: true
   value: dev
-- name: INDY_ADMIN_PORT
-  displayName: Admin Port
-  description: The admin port on which the service will listen.
+- name: AGENT_LABEL_NAME
+  displayName: Agent Label/Name
+  description: The label/name of the agent
   required: true
-  value: "4000"
-- name: INDY_AGENT_PORT
-  displayName: Agent Port
-  description: The agent port on which the service will listen.
+  value: agent
+- name: AGENT_BASE_URL
+  displayName: Agent endpoint
+  description: The endpoint of the agent
   required: true
-  value: "11000"
-- name: INDY_WALLET_SEED
-  displayName: Indy Seed
-  description: The indy seed for the agent.
-  required: true
-  value: "000000000000000000000000Steward1"
-- name: AGENT_URL
-  displayName: Site URL
-  description: The URL for the site
-  required: true
-  value: https://iiwbook-agent.vonx.io
+  value: https://orgbook-agent-dev.pathfinder.gov.bc.ca
 - name: WEBHOOK_URL
   displayName: Webhook URL
   description: The webhook endpoint
   required: true
-  value: http://iiw-book-service:8080/webhooks
-- name: DISPLAY_LABEL
-  displayName: Display Label
-  description: Display label
+  value: http://iiw-book-service:8080/webhooks/agentcb
+- name: AGENT_ADMIN_PORT
+  displayName: Agent Admin Port
+  description: The admin port on which the service will listen.
   required: true
-  value: IIW
-- name: MOUNT_PATH
-  displayName: Mount Path
-  description: The path to mount the persistent volume.
+  value: "8024"
+- name: AGENT_HTTP_PORT
+  displayName: Agent Http Port
+  description: The http port on which the service will listen.
   required: true
-  value: /home/indy/.indy_client/wallet
-- name: PERSISTENT_VOLUME_SIZE
-  displayName: Persistent Volume Size
-  description: The size of the persistent volume , e.g. 512Mi, 1Gi, 2Gi.
+  value: "8021"
+- name: AGENT_WS_PORT
+  displayName: Agent WS Port
+  description: The WS port on which the service will listen.
   required: true
-  value: 5Gi
-- name: PERSISTENT_VOLUME_CLASS
-  displayName: Persistent Volume Class name
-  description: The class of the volume; gluster-file, gluster-block, gluster-file-db
+  value: "8023"
+- name: LEDGER_BASE_URL
+  displayName: Ledger URL
+  description: The URL to the ledger.
+  required: true
+  value: http://dev.bcovrin.vonx.io
+# ===============================================================================
+# Wallet Configuration
+#--------------------------------------------------------------------------------
+- name: WALLET_STORAGE_TYPE
+  displayName: Wallet Storage Type
+  description: The wallet storage type.  Your choice of 'postgres' or 'sqlite' at
+    the moment.  If not defined, defaults to 'sqlite' for compatibility
   required: false
-  value: gluster-file-db
+  value: postgres_storage
+- name: WALLET_HOST
+  displayName: PostgreSql Wallet Hostname
+  required: true
+  description: Hostname of the deployed database hosting the wallet.  Only used when WALLET_STORAGE_TYPE = postgres_storage.
+  value: wallet
+- name: WALLET_HOST_PORT
+  displayName: PostgreSql Wallet Port
+  required: true
+  description: The port number of the deployed database hosting the wallet.  Only used when WALLET_STORAGE_TYPE = postgres_storage.
+  value: '5432'
+- name: WALLET_STORAGE_CONFIG
+  displayName: Wallet Storage Configuration
+  required: true
+  description: Wallet storage configuration
+  value: '{\"url\":\"${POSTGRESQL_WALLET_HOST}:${POSTGRESQL_WALLET_PORT}\",\"max_connections\":5}'
+- name: WALLET_STORAGE_CREDS
+  displayName: Wallet Storage Credential Configuration
+  required: true
+  description: Wallet storage credential configuration
+  value: '{\"account\":\"${POSTGRESQL_WALLET_USER}\",\"password\":\"${POSTGRESQL_WALLET_PASSWORD}\",\"admin_account\":\"postgres\",\"admin_password\":\"${POSTGRESQL_WALLET_ADMIN_PASSWORD}\"}'
+- name: WALLET_CREDENTIAL_STORE_NAME
+  displayName: Wallet Credential Store Name
+  description: The name of the wallet credential store (aka The name of the secret
+    that contains the wallet credentials).
+  required: true
+  value: agent-wallet-credentials
+- name: WALLET_KEY
+  displayName: Wallet Encryption Key
+  description: The encryption key to be used for the wallets.  Needs to be basee64 encoded.
+  required: true
+  generate: expression
+  from: "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+- name: WALLET_SEED
+  displayName: Indy Wallet Seed
+  description: The Seed used for the indy wallet.  Needs to be basee64 encoded.
+  required: true
+  generate: expression
+  from: "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+- name: WALLET_DID
+  displayName: Indy Wallet DID
+  description: The DID associated to the indy wallet.  Needs to be basee64 encoded.
+  required: false
+  generate: expression
+  from: "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+# ===============================================================================
 - name: CPU_REQUEST
   displayName: Resources CPU Request
   description: The resources CPU request (in cores) for this build.

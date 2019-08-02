@@ -66,7 +66,14 @@
           {
             "name": "8080-tcp",
             "port": 8080,
+            "protocol": "TCP",
             "targetPort": 8080
+          },
+          {
+            "name": "agent-webhook",
+            "port": "${{AGENT_WEBHOOK_PORT}}",
+            "protocol": "TCP",
+            "targetPort": "${{AGENT_WEBHOOK_PORT}}"
           }
         ],
         "selector": {
@@ -251,20 +258,16 @@
                     "value": "${SKIP_INDEXING_ON_STARTUP}"
                   },
                   {
-                    "name": "ENABLE_REALTIME_INDEXING",
-                    "value": "${ENABLE_REALTIME_INDEXING}"
-                  },
-                  {
-                    "name": "ENABLE_SUGGESTER_REBUILD",
-                    "value": "${ENABLE_SUGGESTER_REBUILD}"
-                  },
-                  {
-                    "name": "GENESIS_URL",
-                    "value": "${GENESIS_URL}"
+                    "name": "INDY_DISABLED",
+                    "value": "${INDY_DISABLED}"
                   },
                   {
                     "name": "LEDGER_URL",
                     "value": "${LEDGER_URL}"
+                  },
+                  {
+                    "name": "GENESIS_URL",
+                    "value": "${GENESIS_URL}"
                   },
                   {
                     "name": "LEDGER_PROTOCOL_VERSION",
@@ -273,6 +276,48 @@
                   {
                     "name": "AUTO_REGISTER_DID",
                     "value": "${AUTO_REGISTER_DID}"
+                  },
+                  {
+                    "name": "TOB_THEME",
+                    "value": "${TOB_THEME}"
+                  },
+                  {
+                    "name": "ENABLE_REALTIME_INDEXING",
+                    "value": "${ENABLE_REALTIME_INDEXING}"
+                  },
+                  {
+                    "name": "ENABLE_SUGGESTER_REBUILD",
+                    "value": "${ENABLE_SUGGESTER_REBUILD}"
+                  },
+                  {
+                    "name": "APPLICATION_URL",
+                    "value": "${APPLICATION_URL}"
+                  },
+                  {
+                    "name": "RABBITMQ_USER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${MSG_QUEUE_DEPLOYMENT_NAME}${SUFFIX}",
+                        "key": "default-user"
+                      }
+                    }
+                  },
+                  {
+                    "name": "RABBITMQ_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${MSG_QUEUE_DEPLOYMENT_NAME}${SUFFIX}",
+                        "key": "default-password"
+                      }
+                    }
+                  },
+                  {
+                    "name": "AGENT_ADMIN_URL",
+                    "value": "${AGENT_ADMIN_URL}"
+                  },
+                  {
+                    "name": "AGENT_WEBHOOK_PORT",
+                    "value": "${AGENT_WEBHOOK_PORT}"
                   },
                   {
                     "name": "USE_AUTHENTICATION",
@@ -315,14 +360,6 @@
                     }
                   },
                   {
-                    "name": "TOB_THEME",
-                    "value": "${TOB_THEME}"
-                  },
-                  {
-                    "name": "APPLICATION_URL",
-                    "value": "${APPLICATION_URL}"
-                  },
-                  {
                     "name": "FEEDBACK_TARGET_EMAIL",
                     "valueFrom": {
                       "secretKeyRef": {
@@ -339,32 +376,6 @@
                         "key": "smtp-host"
                       }
                     }
-                  },
-                  {
-                    "name": "RABBITMQ_USER",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${MSG_QUEUE_DEPLOYMENT_NAME}${SUFFIX}",
-                        "key": "default-user"
-                      }
-                    }
-                  },
-                  {
-                    "name": "RABBITMQ_PASSWORD",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${MSG_QUEUE_DEPLOYMENT_NAME}${SUFFIX}",
-                        "key": "default-password"
-                      }
-                    }
-                  },
-                  {
-                    "name": "AGENT_ADMIN_URL",
-                    "value": "${AGENT_ADMIN_URL}"
-                  },
-                  {
-                    "name": "AGENT_WEBHOOK_PORT",
-                    "value": "${AGENT_WEBHOOK_PORT}"
                   }
                 ],
                 "resources": {
@@ -444,7 +455,7 @@
       "name": "APPLICATION_DOMAIN",
       "displayName": "Application Hostname",
       "description": "The exposed hostname that will route to the Django service, if left blank a value will be defaulted.",
-      "value": ""
+      "value": "orgbook-api-dev.pathfinder.gov.bc.ca"
     },
     {
       "name": "ROUTE_PATH",
@@ -696,7 +707,7 @@
       "displayName": "Application url",
       "description": "This service's url.",
       "required": true,
-      "value": "https://orgbook.gov.bc.ca"
+      "value": "https://orgbook-dev.pathfinder.gov.bc.ca"
     },
     {
       "name": "EMAIL_SETTINGS_STORE_NAME",
@@ -728,11 +739,24 @@
     },
     {
       "name": "AGENT_ADMIN_URL",
-      "value": "${AGENT_ADMIN_URL}"
+      "displayName": "Agent Admin URL",
+      "description": "Agent admin URL.",
+      "required": true,
+      "value": "http://agent-indy-cat:8024"
     },
     {
       "name": "AGENT_WEBHOOK_PORT",
-      "value": "${AGENT_WEBHOOK_PORT}"
+      "displayName": "Agent Webhook Port",
+      "description": "Agent webhook port",
+      "required": true,
+      "value": "8020"
+    },
+    {
+      "name": "INDY_DISABLED",
+      "displayName": "Indy Disabled",
+      "description": "Indy Disabled",
+      "required": false,
+      "value": ""
     },
     {
       "name": "CPU_REQUEST",

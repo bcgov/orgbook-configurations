@@ -54,6 +54,22 @@
       }
     },
     {
+      "kind": "Secret",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}${SUFFIX}",
+        "labels": {
+          "name": "${NAME}${SUFFIX}",
+          "app": "${APP_NAME}${SUFFIX}",
+          "app-group": "${APP_GROUP}"
+        }
+      },
+      "stringData": {
+        "webhook-url": "${WEBHOOK_URL}"
+      },
+      "type": "Opaque"
+    },
+    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
@@ -204,7 +220,12 @@
                   },
                   {
                     "name": "WEBHOOK_URL",
-                    "value": "${WEBHOOK_URL}"
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${NAME}${SUFFIX}",
+                        "key": "webhook-url"
+                      }
+                    }
                   },
                   {
                     "name": "ENVIRONMENT_FRIENDLY_NAME",

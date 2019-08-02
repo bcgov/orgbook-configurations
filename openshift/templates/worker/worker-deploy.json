@@ -39,7 +39,7 @@
               "from": {
                 "kind": "ImageStreamTag",
                 "namespace": "${IMAGE_NAMESPACE}",
-                "name": "${NAME}:${TAG_NAME}"
+                "name": "${SOURCE_IMAGE_NAME}:${TAG_NAME}"
               }
             }
           },
@@ -71,27 +71,19 @@
                     "protocol": "TCP"
                   }
                 ],
-                "readinessProbe": {
-                  "failureThreshold": 5,
-                  "periodSeconds": 30,
-                  "initialDelaySeconds": 3,
-                  "timeoutSeconds": 20,
-                  "httpGet": {
-                    "path": "/health",
-                    "port": 8080
-                  }
-                },
-                "livenessProbe": {
-                  "failureThreshold": 5,
-                  "periodSeconds": 60,
-                  "initialDelaySeconds": 30,
-                  "timeoutSeconds": 20,
-                  "httpGet": {
-                    "path": "/health",
-                    "port": 8080
-                  }
-                },
                 "env": [
+                  {
+                    "name": "APP_SCRIPT",
+                    "value": "${APP_SCRIPT}"
+                  },
+                  {
+                    "name": "APP_FILE",
+                    "value": "${APP_FILE}"
+                  },
+                  {
+                    "name": "APP_CONFIG",
+                    "value": "${APP_CONFIG}"
+                  },
                   {
                     "name": "DATABASE_SERVICE_NAME",
                     "value": "${DATABASE_SERVICE_NAME}${SUFFIX}"
@@ -123,78 +115,22 @@
                     }
                   },
                   {
-                    "name": "WALLET_TYPE",
-                    "value": "${WALLET_TYPE}"
-                  },
-                  {
-                    "name": "POSTGRESQL_WALLET_HOST",
-                    "value": "${POSTGRESQL_WALLET_HOST}${SUFFIX}"
-                  },
-                  {
-                    "name": "POSTGRESQL_WALLET_PORT",
-                    "value": "${POSTGRESQL_WALLET_PORT}"
-                  },
-                  {
-                    "name": "POSTGRESQL_WALLET_USER",
+                    "name": "RABBITMQ_USER",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${POSTGRESQL_WALLET_HOST}${SUFFIX}",
-                        "key": "database-user"
+                        "name": "${RABBITMQ_SVC_NAME}${SUFFIX}",
+                        "key": "default-user"
                       }
                     }
                   },
                   {
-                    "name": "POSTGRESQL_WALLET_PASSWORD",
+                    "name": "RABBITMQ_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${POSTGRESQL_WALLET_HOST}${SUFFIX}",
-                        "key": "database-password"
+                        "name": "${RABBITMQ_SVC_NAME}${SUFFIX}",
+                        "key": "default-password"
                       }
                     }
-                  },
-                  {
-                    "name": "POSTGRESQL_WALLET_ADMIN_PASSWORD",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${POSTGRESQL_WALLET_HOST}${SUFFIX}",
-                        "key": "admin-password"
-                      }
-                    }
-                  },
-                  {
-                    "name": "WALLET_ENCRYPTION_KEY",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}",
-                        "key": "key"
-                      }
-                    }
-                  },
-                  {
-                    "name": "INDY_WALLET_SEED",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}",
-                        "key": "seed"
-                      }
-                    }
-                  },
-                  {
-                    "name": "INDY_WALLET_DID",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}",
-                        "key": "did"
-                      }
-                    }
-                  },
-                  {
-                    "name": "APP_FILE",
-                    "value": "${APP_FILE}"
-                  },
-                  {
-                    "name": "APP_CONFIG",
-                    "value": "${APP_CONFIG}"
                   },
                   {
                     "name": "DJANGO_SECRET_KEY",
@@ -213,66 +149,29 @@
                     "value": "${SOLR_CORE_NAME}"
                   },
                   {
-                    "name": "SKIP_INDEXING_ON_STARTUP",
-                    "value": "${SKIP_INDEXING_ON_STARTUP}"
+                    "name": "INDY_WALLET_SEED",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}",
+                        "key": "seed"
+                      }
+                    }
                   },
                   {
-                    "name": "ENABLE_REALTIME_INDEXING",
-                    "value": "${ENABLE_REALTIME_INDEXING}"
+                    "name": "INDY_WALLET_TYPE",
+                    "value": "${INDY_WALLET_TYPE}"
                   },
                   {
-                    "name": "ENABLE_SUGGESTER_REBUILD",
-                    "value": "${ENABLE_SUGGESTER_REBUILD}"
-                  },
-                  {
-                    "name": "GENESIS_URL",
-                    "value": "${GENESIS_URL}"
+                    "name": "INDY_WALLET_URL",
+                    "value": "${INDY_WALLET_URL}"
                   },
                   {
                     "name": "LEDGER_URL",
                     "value": "${LEDGER_URL}"
                   },
                   {
-                    "name": "LEDGER_PROTOCOL_VERSION",
-                    "value": "${LEDGER_PROTOCOL_VERSION}"
-                  },
-                  {
-                    "name": "AUTO_REGISTER_DID",
-                    "value": "${AUTO_REGISTER_DID}"
-                  },
-                  {
                     "name": "TOB_THEME",
                     "value": "${TOB_THEME}"
-                  },
-                  {
-                    "name": "APPLICATION_URL",
-                    "value": "${APPLICATION_URL}"
-                  },
-                  {
-                    "name": "DEMO_SITE",
-                    "value": "${DEMO_SITE}"
-                  },
-                  {
-                    "name": "APP_SCRIPT",
-                    "value": "${APP_SCRIPT}"
-                  },
-                  {
-                    "name": "RABBITMQ_USER",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${RABBITMQ_SVC_NAME}${SUFFIX}",
-                        "key": "default-user"
-                      }
-                    }
-                  },
-                  {
-                    "name": "RABBITMQ_PASSWORD",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${RABBITMQ_SVC_NAME}${SUFFIX}",
-                        "key": "default-password"
-                      }
-                    }
                   }
                 ],
                 "resources": {
@@ -307,7 +206,7 @@
           "kind": "DeploymentConfig",
           "name": "${NAME}${SUFFIX}"
         },
-        "minReplicas": 2,
+        "minReplicas": 1,
         "maxReplicas": 6
       }
     }
@@ -370,25 +269,18 @@
       "value": "OrgBook"
     },
     {
-      "name": "WALLET_TYPE",
+      "name": "INDY_WALLET_TYPE",
       "displayName": "Wallet Storage Type",
       "description": "The wallet storage type.  Your choice of 'postgres' or 'sqlite' at the moment.  If not defined, defaults to 'sqlite' for compatibility",
       "required": false,
       "value": "postgres_storage"
     },
     {
-      "name": "POSTGRESQL_WALLET_HOST",
-      "displayName": "PostgreSql Wallet Hostname",
-      "required": true,
-      "description": "Hostname of the deployed database hosting the wallet.  Only used when WALLET_TYPE = postgres_storage.",
-      "value": "wallet"
-    },
-    {
-      "name": "POSTGRESQL_WALLET_PORT",
-      "displayName": "PostgreSql Wallet Port",
-      "required": true,
-      "description": "The port number of the deployed database hosting the wallet.  Only used when WALLET_TYPE = postgres_storage.",
-      "value": "5432"
+      "name": "INDY_WALLET_URL",
+      "displayName": "Indy Wallet URL",
+      "description": "Indy Wallet URL",
+      "required": false,
+      "value": ""
     },
     {
       "name": "WALLET_CREDENTIAL_STORE_NAME",
@@ -401,7 +293,7 @@
       "name": "APP_FILE",
       "displayName": "Application File",
       "description": "Used to run the application from a Python script. This should be a path to a Python file (defaults to app.py unless set to null) that will be passed to the Python interpreter to start the application (optional).",
-      "value": "app-vonx.py"
+      "value": ""
     },
     {
       "name": "APP_CONFIG",
@@ -437,25 +329,11 @@
       "value": "the_org_book"
     },
     {
-      "name": "SKIP_INDEXING_ON_STARTUP",
-      "displayName": "Skip Indexing On Startup",
-      "description": "Set this flag to `true` to skip indexing on startup as part of the database migration; set to `all` to skip indexing and suggester build, set to `false` otherwise.  When there are a large number of records to index, indexing at startup can cause startup delays and issues.",
+      "name": "SOURCE_IMAGE_NAME",
+      "displayName": "Source Image Name",
+      "description": "The name of the image to use for this resource.",
       "required": true,
-      "value": "all"
-    },
-    {
-      "name": "ENABLE_REALTIME_INDEXING",
-      "displayName": "Enable Realtime Indexing",
-      "description": "Flag to enable/disable realtime search indexing.  Set to 1 to enable, leave it blank to disable.  Having realtime indexing enabled during onboarding can cause performance issues.",
-      "required": false,
-      "value": "1"
-    },
-    {
-      "name": "ENABLE_SUGGESTER_REBUILD",
-      "displayName": "Enable Suggester Rebuild",
-      "description": "Flag to enable/disable search suggester rebuilding.  Set to 1 to enable, leave it blank to disable.  Having this enabled can cause issues with very large data-sets.",
-      "required": false,
-      "value": ""
+      "value": "api"
     },
     {
       "name": "TAG_NAME",
@@ -472,13 +350,6 @@
       "value": "db"
     },
     {
-      "name": "GENESIS_URL",
-      "displayName": "Genesis Url",
-      "description": "URL for downloading a copy of the genesis file defining the ledger connection for the environment.  Used when connecting the the Sovrin Ledger.",
-      "required": false,
-      "value": ""
-    },
-    {
       "name": "LEDGER_URL",
       "displayName": "VON network ledger url.",
       "description": "URL for a running instance of the von-network.  Used when connecting to the BCovrin Ledger.",
@@ -486,39 +357,11 @@
       "value": "http://dev.bcovrin.vonx.io"
     },
     {
-      "name": "LEDGER_PROTOCOL_VERSION",
-      "displayName": "Ledger Protocol Version",
-      "description": "Used to specify the protocol version for the ledger.  Defaults if left blank.",
-      "required": false,
-      "value": ""
-    },
-    {
-      "name": "AUTO_REGISTER_DID",
-      "displayName": "Auto Register DID",
-      "description": "Flag to indicate whether or not to auto-register with the ledger.  Only works with the BCovrin, which has an endpoint for self registration.",
-      "required": false,
-      "value": "1"
-    },
-    {
       "name": "TOB_THEME",
       "displayName": "TheOrgBook Theme",
       "description": "The theme to use for the tob-api.  This defines which customizations to load for the application.",
       "required": true,
       "value": "bcgov"
-    },
-    {
-      "name": "APPLICATION_URL",
-      "displayName": "Application url",
-      "description": "This service's url.",
-      "required": true,
-      "value": "https://orgbook.gov.bc.ca"
-    },
-    {
-      "name": "DEMO_SITE",
-      "displayName": "Demo Site Flag",
-      "description": "Set to True to indicate the site is a Demo site, False otherwise.",
-      "required": false,
-      "value": "True"
     },
     {
       "name": "APP_SCRIPT",
@@ -532,7 +375,7 @@
       "displayName": "RabbitMQ Service Name",
       "description": "The name of the RabbitMQ service.",
       "required": true,
-      "value": "ms-queue"
+      "value": "msg-queue"
     },
     {
       "name": "CPU_REQUEST",

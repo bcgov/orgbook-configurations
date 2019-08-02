@@ -31,24 +31,6 @@
       "kind": "Secret",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}",
-        "labels": {
-          "name": "${NAME}${SUFFIX}",
-          "app": "${APP_NAME}${SUFFIX}",
-          "app-group": "${APP_GROUP}"
-        }
-      },
-      "stringData": {
-        "key": "${WALLET_ENCRYPTION_KEY}",
-        "seed": "${INDY_WALLET_SEED}",
-        "did": "${INDY_WALLET_DID}"
-      },
-      "type": "Opaque"
-    },
-    {
-      "kind": "Secret",
-      "apiVersion": "v1",
-      "metadata": {
         "name": "${NAME}${SUFFIX}",
         "labels": {
           "name": "${NAME}${SUFFIX}",
@@ -203,6 +185,18 @@
                 },
                 "env": [
                   {
+                    "name": "APP_FILE",
+                    "value": "${APP_FILE}"
+                  },
+                  {
+                    "name": "APP_CONFIG",
+                    "value": "${APP_CONFIG}"
+                  },
+                  {
+                    "name": "APP_MODULE",
+                    "value": "${APP_MODULE}"
+                  },
+                  {
                     "name": "DATABASE_SERVICE_NAME",
                     "value": "${DATABASE_SERVICE_NAME}${SUFFIX}"
                   },
@@ -233,78 +227,8 @@
                     }
                   },
                   {
-                    "name": "WALLET_TYPE",
-                    "value": "${WALLET_TYPE}"
-                  },
-                  {
-                    "name": "POSTGRESQL_WALLET_HOST",
-                    "value": "${POSTGRESQL_WALLET_HOST}${SUFFIX}"
-                  },
-                  {
-                    "name": "POSTGRESQL_WALLET_PORT",
-                    "value": "${POSTGRESQL_WALLET_PORT}"
-                  },
-                  {
-                    "name": "POSTGRESQL_WALLET_USER",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${POSTGRESQL_WALLET_HOST}${SUFFIX}",
-                        "key": "database-user"
-                      }
-                    }
-                  },
-                  {
-                    "name": "POSTGRESQL_WALLET_PASSWORD",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${POSTGRESQL_WALLET_HOST}${SUFFIX}",
-                        "key": "database-password"
-                      }
-                    }
-                  },
-                  {
-                    "name": "POSTGRESQL_WALLET_ADMIN_PASSWORD",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${POSTGRESQL_WALLET_HOST}${SUFFIX}",
-                        "key": "admin-password"
-                      }
-                    }
-                  },
-                  {
-                    "name": "WALLET_ENCRYPTION_KEY",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}",
-                        "key": "key"
-                      }
-                    }
-                  },
-                  {
-                    "name": "INDY_WALLET_SEED",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}",
-                        "key": "seed"
-                      }
-                    }
-                  },
-                  {
-                    "name": "INDY_WALLET_DID",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${WALLET_CREDENTIAL_STORE_NAME}${SUFFIX}",
-                        "key": "did"
-                      }
-                    }
-                  },
-                  {
-                    "name": "APP_FILE",
-                    "value": "${APP_FILE}"
-                  },
-                  {
-                    "name": "APP_CONFIG",
-                    "value": "${APP_CONFIG}"
+                    "name": "DEMO_SITE",
+                    "value": "${DEMO_SITE}"
                   },
                   {
                     "name": "DJANGO_SECRET_KEY",
@@ -417,8 +341,30 @@
                     }
                   },
                   {
-                    "name": "DEMO_SITE",
-                    "value": "${DEMO_SITE}"
+                    "name": "RABBITMQ_USER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${MSG_QUEUE_DEPLOYMENT_NAME}${SUFFIX}",
+                        "key": "default-user"
+                      }
+                    }
+                  },
+                  {
+                    "name": "RABBITMQ_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${MSG_QUEUE_DEPLOYMENT_NAME}${SUFFIX}",
+                        "key": "default-password"
+                      }
+                    }
+                  },
+                  {
+                    "name": "AGENT_ADMIN_URL",
+                    "value": "${AGENT_ADMIN_URL}"
+                  },
+                  {
+                    "name": "AGENT_WEBHOOK_PORT",
+                    "value": "${AGENT_WEBHOOK_PORT}"
                   }
                 ],
                 "resources": {
@@ -584,12 +530,22 @@
       "name": "APP_FILE",
       "displayName": "Application File",
       "description": "Used to run the application from a Python script. This should be a path to a Python file (defaults to app.py unless set to null) that will be passed to the Python interpreter to start the application (optional).",
+      "required": false,
       "value": "app-vonx.py"
     },
     {
       "name": "APP_CONFIG",
       "displayName": "Application Configuration File Path",
-      "description": "Relative path to Gunicorn configuration file (optional)."
+      "description": "Relative path to Gunicorn configuration file (optional).",
+      "required": false,
+      "value": ""
+    },
+    {
+      "name": "APP_MODULE",
+      "displayName": "Application Module",
+      "description": "The python module for application startup.",
+      "required": false,
+      "value": "api_indy.tob_anchor.boot:init_app"
     },
     {
       "name": "DJANGO_SECRET_KEY",
@@ -653,6 +609,13 @@
       "description": "The name associated to the database deployment resources.  In particular, this is used to wire up the credentials associated to the database.",
       "required": true,
       "value": "db"
+    },
+    {
+      "name": "MSG_QUEUE_DEPLOYMENT_NAME",
+      "displayName": "Msg Queue Deployment Name",
+      "description": "The name associated to the msg queue deployment resources.  In particular, this is used to wire up the credentials associated to the database.",
+      "required": true,
+      "value": "msg-queue"
     },
     {
       "name": "GENESIS_URL",
@@ -762,6 +725,14 @@
       "description": "Set to True to indicate the site is a Demo site, False otherwise.",
       "required": false,
       "value": "True"
+    },
+    {
+      "name": "AGENT_ADMIN_URL",
+      "value": "${AGENT_ADMIN_URL}"
+    },
+    {
+      "name": "AGENT_WEBHOOK_PORT",
+      "value": "${AGENT_WEBHOOK_PORT}"
     },
     {
       "name": "CPU_REQUEST",

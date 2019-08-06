@@ -115,6 +115,10 @@
                     }
                   },
                   {
+                    "name": "RABBITMQ_SVC_NAME",
+                    "value": "${RABBITMQ_SVC_NAME}${SUFFIX}"
+                  },
+                  {
                     "name": "RABBITMQ_USER",
                     "valueFrom": {
                       "secretKeyRef": {
@@ -403,7 +407,7 @@
       "displayName": "Resources Memory Limit",
       "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
       "required": true,
-      "value": "512Mi"
+      "value": "1.25Gi"
     }
   ]
 }

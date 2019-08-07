@@ -294,6 +294,10 @@
                     "value": "${APPLICATION_URL}"
                   },
                   {
+                    "name": "RABBITMQ_SVC_NAME",
+                    "value": "${MSG_QUEUE_DEPLOYMENT_NAME}${SUFFIX}"
+                  },
+                  {
                     "name": "RABBITMQ_USER",
                     "valueFrom": {
                       "secretKeyRef": {

@@ -93,7 +93,7 @@ objects:
           #  - The wallet-name cannot contain '-'s.
           - bash
           - -c
-          - $(echo aca-py
+          - $(echo aca-py start
             --inbound-transport http '0.0.0.0' ${HTTP_INTERFACE_PORT}
             --inbound-transport ws '0.0.0.0' ${WS_INTERFACE_PORT}
             --endpoint ${AGENT_ENDPOINT}

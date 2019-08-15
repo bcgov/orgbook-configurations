@@ -2,7 +2,7 @@
   "kind": "Template",
   "apiVersion": "v1",
   "metadata": {
-    "name": "angular-on-nginx"
+    "name": "${NAME}"
   },
   "objects": [
     {

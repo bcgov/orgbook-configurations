@@ -1,0 +1,6 @@
+load 'pipeline/config.groovy'
+load 'pipeline/functions.groovy'
+
+node {
+  load 'pipeline/pipeline.groovy'
+}

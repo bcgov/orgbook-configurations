@@ -1,7 +1,7 @@
 node {
 
-  config = load "../workspace@script/jenkins/frontend/pipeline/config.groovy"
-  utils = load "../workspace@script/jenkins/frontend/pipeline/functions.groovy"
+  def config = readProperties  file: '../workspace@script/jenkins/frontend/pipeline/config.groovy'
+  def utils = load "../workspace@script/jenkins/frontend/pipeline/functions.groovy"
 
   stage('Checkout Source') {
     script {

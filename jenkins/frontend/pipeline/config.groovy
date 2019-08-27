@@ -22,8 +22,8 @@ class config {
 
   // Build configuration
   public static final String  APP_NAME = "frontend"
-  public static final String  ARTIFACTS_NAME = "${this.APP_NAME}-artifacts"
-  public static final String  RUNTIME_NAME = "${this.APP_NAME}-runtime"
+  public static String  ARTIFACTS_NAME = "${this.APP_NAME}-artifacts"
+  public static String  RUNTIME_NAME = "${this.APP_NAME}-runtime"
 
   // Deployment Environment TAGs
   public static final String[] DEPLOYMENT_ENVIRONMENT_TAGS = ['dev', 'test', 'prod']

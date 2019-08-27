@@ -1,0 +1,47 @@
+def PIPELINE_NAME = "agent"
+
+node {
+
+  def config = load "../workspace@script/jenkins/${PIPELINE_NAME}/config.groovy"
+  def utils = load "../workspace@script/jenkins/utils.groovy"
+
+  config.BUILDS.each {
+    stage("Build ${it}") {
+      script {
+        openshift.withCluster() {
+          openshift.withProject() {
+            echo "Building the ${it} image ..."
+            utils.build("${it}", config.WAIT_TIMEOUT)
+          }
+        }
+      }
+    }
+  }
+
+  stage("Deploy ${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}") {
+    script {
+      openshift.withCluster() {
+        openshift.withProject() {
+
+          echo "Tagging ${config.APP_NAME} for deployment to ${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]} ..."
+
+          // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
+          // Tag the images for deployment based on the image's hash
+          def IMAGE_HASH = utils.getImageTagHash("${config.APP_NAME}")
+          echo "IMAGE_HASH: ${IMAGE_HASH}"
+          openshift.tag("${config.APP_NAME}@${IMAGE_HASH}", "${config.APP_NAME}:${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}")
+        }
+
+        echo "Watching rollout of ${config.APP_NAME}${config.SUFFIX} in ${config.NAME_SPACE}-${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]} ..."
+        openshift.withProject("${config.NAME_SPACE}-${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}") {
+            def dc = openshift.selector('dc', "${config.APP_NAME}${config.SUFFIX}")
+            // Wait for the deployment to complete.
+            // This will wait until the desired replicas are all available
+            dc.rollout().status()
+        }
+
+        echo "Deployment Complete."
+      }
+    }
+  }
+}

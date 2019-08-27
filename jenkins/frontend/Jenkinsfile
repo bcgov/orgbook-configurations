@@ -33,7 +33,7 @@ def SUFFIX = '-indy-cat'
 
 node {
 
-  utils = load "./pipeline/pipeline.groovy"
+  utils = load "../workspace@script/jenkins/frontend/pipeline/functions.groovy"
 
   stage('Checkout Source') {
     script {

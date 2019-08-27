@@ -33,3 +33,5 @@ def NAME_SPACE = 'devex-von-bc-tob'
 
 // Instance Suffix
 def SUFFIX = '-indy-cat'
+
+return this;

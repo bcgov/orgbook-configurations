@@ -75,4 +75,29 @@ String getImageTagHash(String imageName, String tag = "") {
   return istag.out.tokenize('@')[1].trim()
 }
 
+void deploy(String appName, String appSuffix, String namespace, String envTag) {
+  openshift.withCluster() {
+    openshift.withProject() {
+
+      echo "Tagging ${appName} for deployment to ${envTag} ..."
+
+      // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
+      // Tag the images for deployment based on the image's hash
+      def IMAGE_HASH = getImageTagHash("${appName}")
+      echo "IMAGE_HASH: ${IMAGE_HASH}"
+      openshift.tag("${appName}@${IMAGE_HASH}", "${appName}:${envTag}")
+    }
+
+    echo "Watching rollout of ${appName}${appSuffix} in ${namespace}-${envTag} ..."
+    openshift.withProject("${namespace}-${envTag}") {
+        def dc = openshift.selector('dc', "${appName}${appSuffix}")
+        // Wait for the deployment to complete.
+        // This will wait until the desired replicas are all available
+        dc.rollout().status()
+    }
+
+    echo "Deployment Complete."
+  }
+}
+
 return this;

@@ -20,7 +20,7 @@ node {
 
   stage("Deploy ${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}") {
     script {
-      utils.deply("${config.APP_NAME}",
+      utils.deploy("${config.APP_NAME}",
                   "${config.SUFFIX}",
                   "${config.NAME_SPACE}",
                   "${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}")

@@ -1,6 +1,8 @@
+def PIPELINE_NAME = "frontend"
+
 node {
 
-  def config = load "../workspace@script/jenkins/frontend/config.groovy"
+  def config = load "../workspace@script/jenkins/${PIPELINE_NAME}/config.groovy"
   def utils = load "../workspace@script/jenkins/utils.groovy"
 
   stage('Checkout Source') {

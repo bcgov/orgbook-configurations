@@ -1,0 +1,98 @@
+def PIPELINE_NAME = "frontend"
+
+node {
+
+  def config = load "../workspace@script/jenkins/${PIPELINE_NAME}/config.groovy"
+  def utils = load "../workspace@script/jenkins/utils.groovy"
+
+  stage('Checkout Source') {
+    script {
+
+      echo "Cleaning out working directory ..."
+      deleteDir()
+
+      echo "Checking out the main indy-catalyst credential-registry client code ..."
+      utils.sparseCheckout("${config.SOURCE_REPO}", 
+                           "${config.SOURCE_REPO_BRANCH}",
+                           "${config.SOURCE_REPO_WORKING_DIRECTORY}", 
+                           "${config.SOURCE_REPO_CONTEXT_DIRECTORY}")
+
+      if (config.THEME_REPO) {
+        echo "Checking out custom theme source code ..."
+        utils.sparseCheckout("${config.THEME_REPO}", 
+                             "${config.THEME_REPO_BRANCH}",
+                             "${config.THEME_REPO_WORKING_DIRECTORY}", 
+                             "${config.THEME_REPO_CONTEXT_DIRECTORY}")
+
+        echo "Copying the custom themes into the theme directory ..."
+        sh (
+          returnStdout: true,
+          script: "cp -r ${config.THEME_REPO_WORKING_DIRECTORY}/${config.THEME_REPO_CONTEXT_DIRECTORY}* ${config.SOURCE_REPO_WORKING_DIRECTORY}/${config.SOURCE_REPO_THEME_DIRECTORY}"
+        )
+      }
+    }
+  }
+
+  stage("Build ${config.ARTIFACTS_NAME} ...") {
+    script {
+      openshift.withCluster() {
+        openshift.withProject() {
+          echo "Building the application artifacts ..."
+          utils.build("${config.ARTIFACTS_NAME}",
+                      config.WAIT_TIMEOUT,
+                      "${config.SOURCE_REPO_WORKING_DIRECTORY}",
+                      "TOB_THEME=${config.TOB_THEME_NAME}")
+        }
+      }
+    }
+  }
+
+  stage("Build ${config.RUNTIME_NAME}") {
+    script {
+      openshift.withCluster() {
+        openshift.withProject() {
+          echo "Building the ${config.RUNTIME_NAME} image ..."
+          utils.build("${config.RUNTIME_NAME}", config.WAIT_TIMEOUT)
+        }
+      }
+    }
+  }
+
+  stage("Build ${config.APP_NAME}") {
+    script {
+      openshift.withCluster() {
+        openshift.withProject() {
+          echo "Building the ${config.APP_NAME} image ..."
+          utils.build("${config.APP_NAME}", config.WAIT_TIMEOUT)
+        }
+      }
+    }
+  }
+
+  stage("Deploy ${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}") {
+    script {
+      openshift.withCluster() {
+        openshift.withProject() {
+
+          echo "Tagging ${config.APP_NAME} for deployment to ${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]} ..."
+
+          // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
+          // Tag the images for deployment based on the image's hash
+          def IMAGE_HASH = utils.getImageTagHash("${config.APP_NAME}")
+          echo "IMAGE_HASH: ${IMAGE_HASH}"
+          openshift.tag("${config.APP_NAME}@${IMAGE_HASH}", "${config.APP_NAME}:${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}")
+        }
+
+        echo "Watching rollout of ${config.APP_NAME}${config.SUFFIX} in ${config.NAME_SPACE}-${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]} ..."
+        openshift.withProject("${config.NAME_SPACE}-${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}") {
+            def dc = openshift.selector('dc', "${config.APP_NAME}${config.SUFFIX}")
+            // Wait for the deployment to complete.
+            // This will wait until the desired replicas are all available
+            dc.rollout().status()
+        }
+
+        echo "Deployment Complete."
+      }
+    }
+  }
+}

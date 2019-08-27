@@ -1,5 +1,5 @@
 // Utility functions
-// Import this file into another pipeline using 'load'.
+// Import this file into the pipeline using 'load'.
 
 void sparseCheckout(String repositoryUrl, String branch, String workingDirectory, String contextDirectory) {
   echo "Performing a sparse checkout ..."

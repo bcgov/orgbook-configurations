@@ -9,11 +9,6 @@ node {
       echo "Cleaning out working directory ..."
       deleteDir()
 
-      echo "config.SOURCE_REPO: ${config.SOURCE_REPO}"
-      echo "config.SOURCE_REPO_BRANCH: ${config.SOURCE_REPO_BRANCH}"
-      echo "config.SOURCE_REPO_WORKING_DIRECTORY: ${config.SOURCE_REPO_WORKING_DIRECTORY}"
-      echo "config.SOURCE_REPO_CONTEXT_DIRECTORY: ${config.SOURCE_REPO_CONTEXT_DIRECTORY}"
-
       echo "Checking out the main indy-catalyst credential-registry client code ..."
       utils.sparseCheckout("${config.SOURCE_REPO}", 
                            "${config.SOURCE_REPO_BRANCH}",

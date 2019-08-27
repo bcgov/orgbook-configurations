@@ -1,6 +1,6 @@
 // Utility functions
 // Import this file into another pipeline using 'load'.
-class config implements Serializable {
+class config {
   // Wait timeout in minutes
   public static final int WAIT_TIMEOUT = 10
 
@@ -34,3 +34,5 @@ class config implements Serializable {
   // Instance Suffix
   public static final String  SUFFIX = '-indy-cat'
 }
+
+return new config();

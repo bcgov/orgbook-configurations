@@ -1,6 +1,6 @@
 // Utility functions
 // Import this file into another pipeline using 'load'.
-class config {
+class config implements Serializable {
   // Wait timeout in minutes
   public static final int WAIT_TIMEOUT = 10
 

@@ -74,3 +74,5 @@ String getImageTagHash(String imageName, String tag = "") {
   def istag = openshift.raw("get istag ${imageName}:${tag} -o template --template='{{.image.dockerImageReference}}'")
   return istag.out.tokenize('@')[1].trim()
 }
+
+return this;

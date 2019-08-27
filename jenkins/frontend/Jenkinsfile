@@ -1,5 +1,122 @@
+// Wait timeout in minutes
+def WAIT_TIMEOUT = 10
+
+// Source repository configuration
+def SOURCE_REPO = "https://github.com/bcgov/indy-catalyst.git"
+def SOURCE_REPO_BRANCH = "master"
+def SOURCE_REPO_CONTEXT_DIRECTORY = "credential-registry/client/tob-web/"
+def SOURCE_REPO_WORKING_DIRECTORY = "indy-catalyst"
+def SOURCE_REPO_THEME_DIRECTORY = "credential-registry/client/tob-web/src/themes/"
+
+// Theme repository configuration
+def THEME_REPO = "https://github.com/bcgov/indy-catalyst.git"
+def THEME_REPO_BRANCH = "master"
+def THEME_REPO_CONTEXT_DIRECTORY = "starter-kits/credential-registry/client/tob-web/themes/"
+def THEME_REPO_WORKING_DIRECTORY = "themes"
+
+// Theme configuration
+def TOB_THEME_NAME = "bcgov"
+
+// Build configuration
+def APP_NAME = "frontend"
+def ARTIFACTS_NAME = "${APP_NAME}-artifacts"
+def RUNTIME_NAME = "${APP_NAME}-runtime"
+
+// Deployment Environment TAGs
+def DEPLOYMENT_ENVIRONMENT_TAGS = ['dev', 'test', 'prod']
+
+// The name of the project namespace(s).
+def NAME_SPACE = 'devex-von-bc-tob'
+
+// Instance Suffix
+def SUFFIX = '-indy-cat'
+
 node {
-  load 'pipeline/config.groovy'
-  load 'pipeline/functions.groovy'
-  load 'pipeline/pipeline.groovy'
+
+  utils = load "./pipeline/pipeline.groovy"
+
+  stage('Checkout Source') {
+    script {
+
+      echo "Cleaning out working directory ..."
+      deleteDir()
+
+      echo "Checking out the main indy-catalyst credential-registry client code ..."
+      utils.sparseCheckout("${SOURCE_REPO}", "${SOURCE_REPO_BRANCH}","${SOURCE_REPO_WORKING_DIRECTORY}", "${SOURCE_REPO_CONTEXT_DIRECTORY}")
+
+      if (THEME_REPO) {
+        echo "Checking out custom theme source code ..."
+        utils.sparseCheckout("${THEME_REPO}", "${THEME_REPO_BRANCH}","${THEME_REPO_WORKING_DIRECTORY}", "${THEME_REPO_CONTEXT_DIRECTORY}")
+
+        echo "Copying the custom themes into the theme directory ..."
+        sh (
+          returnStdout: true,
+          script: "cp -r ${THEME_REPO_WORKING_DIRECTORY}/${THEME_REPO_CONTEXT_DIRECTORY}* ${SOURCE_REPO_WORKING_DIRECTORY}/${SOURCE_REPO_THEME_DIRECTORY}"
+        )
+      }
+    }
+  }
+
+  stage("Build ${ARTIFACTS_NAME} ...") {
+    script {
+      openshift.withCluster() {
+        openshift.withProject() {
+          echo "Building the application artifacts ..."
+          utils.build("${ARTIFACTS_NAME}",
+                      WAIT_TIMEOUT,
+                      "${SOURCE_REPO_WORKING_DIRECTORY}",
+                      "TOB_THEME=${TOB_THEME_NAME}")
+        }
+      }
+    }
+  }
+
+  stage("Build ${RUNTIME_NAME}") {
+    script {
+      openshift.withCluster() {
+        openshift.withProject() {
+          echo "Building the ${RUNTIME_NAME} image ..."
+          utils.build("${RUNTIME_NAME}", WAIT_TIMEOUT)
+        }
+      }
+    }
+  }
+
+  stage("Build ${APP_NAME}") {
+    script {
+      openshift.withCluster() {
+        openshift.withProject() {
+          echo "Building the ${APP_NAME} image ..."
+          utils.build("${APP_NAME}", WAIT_TIMEOUT)
+        }
+      }
+    }
+  }
+
+  stage("Deploy ${DEPLOYMENT_ENVIRONMENT_TAGS[0]}") {
+    script {
+      openshift.withCluster() {
+        openshift.withProject() {
+
+          echo "Tagging ${APP_NAME} for deployment to ${DEPLOYMENT_ENVIRONMENT_TAGS[0]} ..."
+
+          // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
+          // Tag the images for deployment based on the image's hash
+          def IMAGE_HASH = utils.getImageTagHash("${APP_NAME}")
+          echo "IMAGE_HASH: ${IMAGE_HASH}"
+          openshift.tag("${APP_NAME}@${IMAGE_HASH}", "${APP_NAME}:${DEPLOYMENT_ENVIRONMENT_TAGS[0]}")
+        }
+
+        echo "Watching rollout of ${APP_NAME}${SUFFIX} in ${NAME_SPACE}-${DEPLOYMENT_ENVIRONMENT_TAGS[0]} ..."
+        openshift.withProject("${NAME_SPACE}-${DEPLOYMENT_ENVIRONMENT_TAGS[0]}") {
+            def dc = openshift.selector('dc', "${APP_NAME}${SUFFIX}")
+            // Wait for the deployment to complete.
+            // This will wait until the desired replicas are all available
+            dc.rollout().status()
+        }
+
+        echo "Deployment Complete."
+      }
+    }
+  }
 }

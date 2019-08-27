@@ -1,6 +1,6 @@
 node {
 
-  def config = readProperties  file: '../workspace@script/jenkins/frontend/pipeline/config.groovy'
+  def config = load "../workspace@script/jenkins/frontend/pipeline/config.groovy"
   def utils = load "../workspace@script/jenkins/frontend/pipeline/functions.groovy"
 
   stage('Checkout Source') {
@@ -9,6 +9,7 @@ node {
       echo "Cleaning out working directory ..."
       deleteDir()
 
+      echo "SOURCE_REPO: ${SOURCE_REPO}"
 
       echo "config.SOURCE_REPO: ${config.SOURCE_REPO}"
       echo "config.SOURCE_REPO_BRANCH: ${config.SOURCE_REPO_BRANCH}"

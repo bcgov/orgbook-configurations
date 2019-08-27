@@ -1,7 +1,7 @@
-// Pipeline Configuration Properties
-// Import this file into the pipeline using 'load'.
 import ../baseConfig
 
+// Pipeline Configuration Properties
+// Import this file into the pipeline using 'load'.
 class config extends baseConfig {
   // // Wait timeout in minutes
   // public static final int WAIT_TIMEOUT = 10

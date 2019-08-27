@@ -1,3 +1,5 @@
+package baseConfig;
+
 // Pipeline Configuration Properties
 // Import this file into the pipeline using 'load'.
 class baseConfig {

@@ -1,4 +1,4 @@
-import ../baseConfig
+import ../baseConfig;
 
 // Pipeline Configuration Properties
 // Import this file into the pipeline using 'load'.

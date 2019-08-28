@@ -1,0 +1,34 @@
+library identifier: 'von-lib@pipeline-refactor', retriever: modernSCM(
+  [$class: 'GitSCMSource',
+   remote: 'https://github.com/WadeBarnes/orgbook-configurations.git',
+  branches: [[name: "*/pipeline-refactor"]]])
+
+
+def PIPELINE_NAME = "api"
+
+node {
+
+  def config = load "../workspace@script/jenkins/${PIPELINE_NAME}/config.groovy"
+
+  config.BUILDS.each {
+    stage("Build ${it}") {
+      script {
+        openshift.withCluster() {
+          openshift.withProject() {
+            echo "Building the ${it} image ..."
+            build("${it}", config.WAIT_TIMEOUT)
+          }
+        }
+      }
+    }
+  }
+
+  stage("Deploy ${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}") {
+    script {
+      deploy("${config.APP_NAME}",
+             "${config.SUFFIX}",
+             "${config.NAME_SPACE}",
+             "${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}")
+    }
+  }
+}

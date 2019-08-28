@@ -1,14 +1,12 @@
 def PIPELINE_NAME = "api"
-
-def libConfig = load "../workspace@script/jenkins/libConfig.groovy"
-library identifier: "${libConfig.LIB_NAME}@${libConfig.LIB_BRANCH}", 
-        retriever: modernSCM(
-          [$class: 'GitSCMSource',
-          remote: "${libConfig.LIB_REPO}",
-          branches: [[name: "*/${libConfig.LIB_BRANCH}"]]])  
-
 node {
   def config = load "../workspace@script/jenkins/${PIPELINE_NAME}/config.groovy"
+  def libConfig = load "../workspace@script/jenkins/libConfig.groovy"
+  library identifier: "${libConfig.LIB_NAME}@${libConfig.LIB_BRANCH}", 
+          retriever: modernSCM(
+            [$class: 'GitSCMSource',
+            remote: "${libConfig.LIB_REPO}",
+            branches: [[name: "*/${libConfig.LIB_BRANCH}"]]])  
 
   config.BUILDS.each {
     stage("Build ${it}") {

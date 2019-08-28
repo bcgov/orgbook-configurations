@@ -1,8 +1,8 @@
 def PIPELINE_NAME = "api"
 
 def LIB_NAME= "orgbook-lib"
-def LIB_REPO = "https://github.com/WadeBarnes/orgbook-configurations.git"
-def LIB_BRANCH = "pipeline-refactor"
+def LIB_REPO = "https://github.com/bcgov/orgbook-configurations.git"
+def LIB_BRANCH = "master"
 library identifier: "${LIB_NAME}@${LIB_BRANCH}", 
         retriever: modernSCM(
           [$class: 'GitSCMSource',

@@ -1,9 +1,6 @@
 // Pipeline Configuration Properties
 // Import this file into the pipeline using 'load'.
-class config {
-  // Wait timeout in minutes
-  public static final int WAIT_TIMEOUT = 10
-
+class config extends orgbook.baseConfig {
   // Source repository configuration
   public static final String SOURCE_REPO = "https://github.com/bcgov/indy-catalyst.git"
   public static final String  SOURCE_REPO_BRANCH = "master"
@@ -25,15 +22,6 @@ class config {
   public static String  ARTIFACTS_NAME = "${this.APP_NAME}-artifacts"
   public static String  RUNTIME_NAME = "${this.APP_NAME}-runtime"
   public static final String[] BUILDS = ["${this.RUNTIME_NAME}", "${this.APP_NAME}"]
-
-  // Deployment Environment TAGs
-  public static final String[] DEPLOYMENT_ENVIRONMENT_TAGS = ['dev', 'test', 'prod']
-
-  // The name of the project namespace(s).
-  public static final String  NAME_SPACE = 'devex-von-bc-tob'
-
-  // Instance Suffix
-  public static final String  SUFFIX = '-indy-cat'
 }
 
 return new config();

@@ -1,9 +1,16 @@
 def PIPELINE_NAME = "agent"
 
-node {
+def LIB_NAME= "orgbook-lib"
+def LIB_REPO = "https://github.com/bcgov/orgbook-configurations.git"
+def LIB_BRANCH = "master"
+library identifier: "${LIB_NAME}@${LIB_BRANCH}", 
+        retriever: modernSCM(
+          [$class: 'GitSCMSource',
+          remote: "${LIB_REPO}",
+          branches: [[name: "*/${LIB_BRANCH}"]]])  
 
+node {
   def config = load "../workspace@script/jenkins/${PIPELINE_NAME}/config.groovy"
-  def utils = load "../workspace@script/jenkins/utils.groovy"
 
   config.BUILDS.each {
     stage("Build ${it}") {
@@ -11,7 +18,7 @@ node {
         openshift.withCluster() {
           openshift.withProject() {
             echo "Building the ${it} image ..."
-            utils.build("${it}", config.WAIT_TIMEOUT)
+            build(openshift, "${it}", config.WAIT_TIMEOUT)
           }
         }
       }
@@ -20,10 +27,10 @@ node {
 
   stage("Deploy ${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}") {
     script {
-      utils.deploy("${config.APP_NAME}",
-                  "${config.SUFFIX}",
-                  "${config.NAME_SPACE}",
-                  "${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}")
+      deploy("${config.APP_NAME}",
+             "${config.SUFFIX}",
+             "${config.NAME_SPACE}",
+             "${config.DEPLOYMENT_ENVIRONMENT_TAGS[0]}")
     }
   }
 }

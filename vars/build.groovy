@@ -1,4 +1,10 @@
 void call(String buildConfigName, int waitTimeout = 10, String contextDirectory = '', String envVars = '') {
+  
+  echo "buildConfigName: ${buildConfigName}"
+  echo "waitTimeout: ${waitTimeout}"
+  echo "contextDirectory: ${contextDirectory}"
+  echo "envVars: ${envVars}"
+    
   def buildFromDir = ''
 
   // Find all of the build configurations associated to the application ...

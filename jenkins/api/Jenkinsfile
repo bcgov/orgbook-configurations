@@ -13,6 +13,11 @@ node {
   config.BUILDS.each {
     stage("Build ${it}") {
       script {
+      
+        echo "config.NAME_SPACE: ${config.NAME_SPACE}"
+        echo "config.APP_NAME: ${config.APP_NAME}"
+        echo "it: ${it}"
+
         openshift.withCluster() {
           openshift.withProject() {
             echo "Building the ${it} image ..."

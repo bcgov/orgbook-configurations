@@ -18,12 +18,8 @@ node {
         echo "config.APP_NAME: ${config.APP_NAME}"
         echo "it: ${it}"
 
-        openshift.withCluster() {
-          openshift.withProject() {
-            echo "Building the ${it} image ..."
-            build("${it}", config.WAIT_TIMEOUT)
-          }
-        }
+        echo "Building the ${it} image ..."
+        build("${it}", config.WAIT_TIMEOUT)
       }
     }
   }

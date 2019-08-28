@@ -1,4 +1,4 @@
-def PIPELINE_NAME = "db"
+def PIPELINE_NAME = "schema-spy"
 
 def LIB_NAME= "orgbook-lib"
 def LIB_REPO = "https://github.com/bcgov/orgbook-configurations.git"

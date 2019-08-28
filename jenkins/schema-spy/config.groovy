@@ -2,7 +2,7 @@
 // Import this file into the pipeline using 'load'.
 class config extends orgbook.baseConfig {
   // Build configuration
-  public static final String  APP_NAME = "db"
+  public static final String  APP_NAME = "schema-spy"
   public static final String[] BUILDS = ["${this.APP_NAME}"]
 }
 

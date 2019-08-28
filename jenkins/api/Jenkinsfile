@@ -1,4 +1,4 @@
-def PIPELINE_NAME = "agent"
+def PIPELINE_NAME = "api"
 
 def LIB_NAME= "orgbook-lib"
 def LIB_REPO = "https://github.com/bcgov/orgbook-configurations.git"

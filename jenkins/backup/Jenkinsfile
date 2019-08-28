@@ -1,13 +1,11 @@
 def PIPELINE_NAME = "backup"
 
-def LIB_NAME= "orgbook-lib"
-def LIB_REPO = "https://github.com/bcgov/orgbook-configurations.git"
-def LIB_BRANCH = "master"
-library identifier: "${LIB_NAME}@${LIB_BRANCH}", 
+def libConfig = readProperties file:"../workspace@script/jenkins/libConfig"
+library identifier: "${libConfig.LIB_NAME}@${libConfig.LIB_BRANCH}", 
         retriever: modernSCM(
           [$class: 'GitSCMSource',
-          remote: "${LIB_REPO}",
-          branches: [[name: "*/${LIB_BRANCH}"]]])  
+          remote: "${libConfig.LIB_REPO}",
+          branches: [[name: "*/${libConfig.LIB_BRANCH}"]]])  
 
 node {
   def config = load "../workspace@script/jenkins/${PIPELINE_NAME}/config.groovy"

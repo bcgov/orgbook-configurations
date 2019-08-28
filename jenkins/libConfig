@@ -1,0 +1,3 @@
+LIB_NAME= "orgbook-lib"
+LIB_REPO = "https://github.com/bcgov/orgbook-configurations.git"
+LIB_BRANCH = "master"

@@ -13,8 +13,12 @@ node {
   config.BUILDS.each {
     stage("Build ${it}") {
       script {
-        echo "Building the ${it} image ..."
-        build(openshift, "${it}", config.WAIT_TIMEOUT)
+        openshift.withCluster() {
+          openshift.withProject() {
+            echo "Building the ${it} image ..."
+            build(openshift, "${it}", config.WAIT_TIMEOUT)
+          }
+        }
       }
     }
   }

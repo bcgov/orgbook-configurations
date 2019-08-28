@@ -1,5 +1,5 @@
     
-package von;
+package orgbook;
 
 class baseConfig {
   // Wait timeout in minutes

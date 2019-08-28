@@ -1,4 +1,6 @@
-String call(String imageName, String tag = "") {
+import com.openshift.jenkins.plugins.OpenShiftDSL;
+
+String call(OpenShiftDSL openshift, String imageName, String tag = "") {
 
   if(!tag?.trim()) {
     tag = "latest"

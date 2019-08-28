@@ -6,7 +6,7 @@ void call(String appName, String appSuffix, String namespace, String envTag) {
 
       // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
       // Tag the images for deployment based on the image's hash
-      def IMAGE_HASH = getImageTagHash("${appName}")
+      def IMAGE_HASH = getImageTagHash(openshift, "${appName}")
       echo "IMAGE_HASH: ${IMAGE_HASH}"
       openshift.tag("${appName}@${IMAGE_HASH}", "${appName}:${envTag}")
     }

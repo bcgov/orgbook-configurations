@@ -221,7 +221,7 @@
       "displayName": "Name",
       "description": "The name assigned to all of the OpenShift resources associated to the server instance.",
       "required": true,
-      "value": "worker"
+      "value": "msg-queue-worker"
     },
     {
       "name": "SUFFIX",

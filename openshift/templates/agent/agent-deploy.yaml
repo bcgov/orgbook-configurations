@@ -111,7 +111,7 @@ objects:
             --endpoint ${AGENT_ENDPOINT}
             --outbound-transport ws
             --outbound-transport http
-            --genesis-url "${LEDGER_URL}/genesis"
+            --genesis-url "${GENESIS_URL}"
             --auto-accept-invites
             --auto-accept-requests
             --auto-ping-connection
@@ -132,8 +132,8 @@ objects:
             --log-level ${AGENT_LOG_LEVEL}
             --protocol indy_catalyst_issuer_registration);
           env:
-          - name: LEDGER_URL
-            value: ${LEDGER_BASE_URL}
+          - name: GENESIS_URL
+            value: ${GENESIS_FILE_URL}
           - name: AGENT_WALLET_NAME
             value: ${NAME}${SUFFIX}-wallet
           - name: WALLET_TYPE
@@ -311,11 +311,11 @@ parameters:
   description: The WS port on which the service will listen.
   required: true
   value: "8023"
-- name: LEDGER_BASE_URL
-  displayName: Ledger URL
-  description: The URL to the ledger.
+- name: GENESIS_FILE_URL
+  displayName: Genesis File URL
+  description: The URL from which the genesis file can be downloaded.
   required: true
-  value: http://dev.bcovrin.vonx.io
+  value: http://dev.bcovrin.vonx.io/genesis
 - name: LOG_LEVEL
   displayName: Log Level
   description: The logging level for the agent.

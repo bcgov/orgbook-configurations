@@ -64,6 +64,18 @@ objects:
     did: ${WALLET_DID}
   type: Opaque
 
+- kind: Secret
+  apiVersion: v1
+  metadata:
+    name: ${NAME}${SUFFIX}
+    labels:
+      name: ${NAME}${SUFFIX}
+      app: ${APP_NAME}${SUFFIX}
+      app-group: ${APP_GROUP}
+  stringData:
+    admin-api-key: ${ADMIN_API_KEY}
+  type: Opaque
+
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:
@@ -115,9 +127,9 @@ objects:
             --wallet-storage-creds "$(eval echo \"${WALLET_STORAGE_CREDENTIALS}\")"
             --seed "${INDY_WALLET_SEED}"
             --admin '0.0.0.0' ${ADMIN_INTERFACE_PORT}
-            --admin-insecure-mode
+            --$([[ ! -z "${AGENT_ADMIN_API_KEY}" ]] && echo "admin-api-key ${AGENT_ADMIN_API_KEY}" || echo "admin-insecure-mode")
             --label "${AGENT_NAME}"
-            --label debug
+            --log-level ${AGENT_LOG_LEVEL}
             --protocol indy_catalyst_issuer_registration);
           env:
           - name: LEDGER_URL
@@ -172,10 +184,17 @@ objects:
             value: ${AGENT_WS_PORT}
           - name: ADMIN_INTERFACE_PORT
             value: ${AGENT_ADMIN_PORT}
+          - name: AGENT_ADMIN_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: ${NAME}${SUFFIX}
+                key: admin-api-key
           - name: AGENT_NAME
             value: ${AGENT_LABEL_NAME}
           - name: AGENT_ENDPOINT
             value: ${AGENT_BASE_URL}
+          - name: AGENT_LOG_LEVEL
+            value: ${LOG_LEVEL}
           image:
           ports:
           - containerPort: ${{AGENT_ADMIN_PORT}}
@@ -276,6 +295,12 @@ parameters:
   description: The admin port on which the service will listen.
   required: true
   value: "8024"
+- name: ADMIN_API_KEY
+  displayName: Agent Admin API Key
+  description: The key used to authenticate client requests to the admin api.
+  required: true
+  generate: expression
+  from: "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
 - name: AGENT_HTTP_PORT
   displayName: Agent Http Port
   description: The http port on which the service will listen.
@@ -291,6 +316,11 @@ parameters:
   description: The URL to the ledger.
   required: true
   value: http://dev.bcovrin.vonx.io
+- name: LOG_LEVEL
+  displayName: Log Level
+  description: The logging level for the agent.
+  required: true
+  value: WARNING
 # ===============================================================================
 # Wallet Configuration
 #--------------------------------------------------------------------------------

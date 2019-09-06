@@ -317,7 +317,16 @@
                   },
                   {
                     "name": "AGENT_ADMIN_URL",
-                    "value": "${AGENT_ADMIN_URL}"
+                    "value": "http://${AGENT_SERVICE_NAME}${SUFFIX}:${AGENT_ADMIN_PORT}"
+                  },
+                  {
+                    "name": "AGENT_ADMIN_API_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${AGENT_SERVICE_NAME}${SUFFIX}",
+                        "key": "admin-api-key"
+                      }
+                    }
                   },
                   {
                     "name": "AGENT_WEBHOOK_PORT",
@@ -742,11 +751,18 @@
       "value": "True"
     },
     {
-      "name": "AGENT_ADMIN_URL",
-      "displayName": "Agent Admin URL",
-      "description": "Agent admin URL.",
+      "name": "AGENT_SERVICE_NAME",
+      "displayName": "Agent Service name",
+      "description": "Agent service name",
       "required": true,
-      "value": "http://agent-indy-cat:8024"
+      "value": "agent"
+    },
+    {
+      "name": "AGENT_ADMIN_PORT",
+      "displayName": "Agent Admin Port",
+      "description": "Agent admin port",
+      "required": true,
+      "value": "8024"
     },
     {
       "name": "AGENT_WEBHOOK_PORT",

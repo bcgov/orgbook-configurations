@@ -167,7 +167,7 @@ function resetDatabase() {
   fi
 
   dropAndRecreateDatabaseWithMigrations ${_apiPodName}${resourceSuffix} ${_dbPodName}${resourceSuffix}
-  rebuildSearchIndex ${_apiPodName}${resourceSuffix}
+  rebuildSearchIndex ${_apiPodName}
   echoWarning "\nThe project's database has been reset."
 }
 
@@ -234,10 +234,10 @@ resetSearchIndex() {
     exit 1
   fi
 
-  deleteSearchIndex "${_solrPodName}${resourceSuffix}"
+  deleteSearchIndex "${_solrPodName}"
   recyclePods "${_solrPodName}${resourceSuffix}"
   printAndWait "Wait for the ${_solrPodName}${resourceSuffix} pod to completely start up before continuing."
-  rebuildSearchIndex "${_apiPodName}${resourceSuffix}"
+  rebuildSearchIndex "${_apiPodName}"
 }
 
 function resetSolrCore() {
@@ -248,10 +248,10 @@ function resetSolrCore() {
     exit 1
   fi
 
-  deleteSolrCore "${_solrPodName}${resourceSuffix}"
+  deleteSolrCore "${_solrPodName}"
   recyclePods "${_solrPodName}${resourceSuffix}"
   printAndWait "Wait for the ${_solrPodName}${resourceSuffix} pod to completely start up before continuing."
-  rebuildSearchIndex "${_apiPodName}${resourceSuffix}"
+  rebuildSearchIndex "${_apiPodName}"
 }
 
 function deleteSolrCore() {
@@ -286,8 +286,7 @@ function rebuildSearchIndex() {
   fi
 
   echoWarning "\nRebuilding the search index ..."
-  echoWarning "The command may start interactively in the pod.  Please answer 'y' to the question if you are prompted."
-  runInContainerInteractively ${_apiPodName}${resourceSuffix} './rebuildSearchIndex.sh'
+  runInContainer ${_apiPodName}${resourceSuffix} './rebuildSearchIndex.sh'
   exitOnError
 }
 

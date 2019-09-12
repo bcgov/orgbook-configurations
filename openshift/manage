@@ -55,6 +55,11 @@ usage () {
     indexSynced
       - Check to see if the search-engine indexes are syned with the database credentials.
 
+    getDbDiskUsage
+      - Get the disk usage information for a given database pod.
+        For example;
+          $0 -e dev getDbDiskUsage wallet-indy-cat
+
     scaleUp
       - Scale up one or more pods.
         For example;
@@ -384,6 +389,10 @@ case "${_cmd}" in
     apiPodName=${1:-api}
     dbPodName=${2:-db}
     indexSynced "${apiPodName}" "${dbPodName}"
+    ;;
+  getdbdiskusage)
+    dbPodName=${1}
+    getPostgreSqlDatabaseDiskUsage ${dbPodName}
     ;;
 
   scaleup)

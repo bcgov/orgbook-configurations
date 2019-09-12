@@ -279,7 +279,7 @@ parameters:
   displayName: Agent Label/Name
   description: The label/name of the agent
   required: true
-  value: agent
+  value: icob-agent
 - name: AGENT_BASE_URL
   displayName: Agent endpoint
   description: The endpoint of the agent

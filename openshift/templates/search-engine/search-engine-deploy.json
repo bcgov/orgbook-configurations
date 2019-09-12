@@ -235,7 +235,7 @@
       "displayName": "Persistent Volume Size",
       "description": "The size of the persistent volume , e.g. 512Mi, 1Gi, 2Gi.",
       "required": true,
-      "value": "1Gi"
+      "value": "5Gi"
     },
     {
       "name": "MOUNT_PATH",

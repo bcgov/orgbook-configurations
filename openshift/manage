@@ -60,6 +60,20 @@ usage () {
         For example;
           $0 -e dev getDbDiskUsage wallet-indy-cat
 
+    listDatabases <podName/>
+      - List the databases hosted on a given postgresql pod instance.
+      Example;
+        $0 -e dev listdatabases wallet
+
+    getRecordCounts <podName/> [<databaseName/>]
+      - Gets a list of tables and the total number of record in each table.
+        Examples;
+          $0 -e dev getrecordcounts wallet agent_indy_cat_wallet
+            - Get the record counts for the 'agent_indy_cat_wallet' database off the 'wallet' pod.
+
+          $0 -e dev getrecordcounts event-db
+          - Get the record counts for the '${POSTGRESQL_DATABASE}' (the pod's default database) database off the 'event-db' pod.
+
     scaleUp
       - Scale up one or more pods.
         For example;
@@ -393,6 +407,19 @@ case "${_cmd}" in
   getdbdiskusage)
     dbPodName=${1}
     getPostgreSqlDatabaseDiskUsage ${dbPodName}
+    ;;
+  listdatabases)
+    dbPodName=${1}
+    listDatabases "${dbPodName}"
+    ;;
+  getrecordcounts)
+    if (( $# <= 1 )); then
+      dbPodName=${1}
+    else
+      dbPodName=${1}
+      databaseName=${2}
+    fi
+    getRecordCounts "${dbPodName}" "${databaseName}"
     ;;
 
   scaleup)

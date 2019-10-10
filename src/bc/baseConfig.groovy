@@ -1,5 +1,5 @@
     
-package orgbook;
+package bc;
 
 class baseConfig {
   // Wait timeout in minutes

@@ -1,6 +1,6 @@
 // Pipeline Configuration Properties
 // Import this file into the pipeline using 'load'.
-class config extends orgbook.baseConfig {
+class config extends bc.baseConfig {
   // Source repository configuration
   public static final String SOURCE_REPO = "https://github.com/bcgov/indy-catalyst.git"
   public static final String  SOURCE_REPO_BRANCH = "master"

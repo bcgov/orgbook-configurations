@@ -4,6 +4,8 @@
 *.crt
 *.key
 
+*.local.*
+
 # General
 .env
 

@@ -138,7 +138,7 @@
               {
                 "name": "${NAME}${SUFFIX}-config-volume",
                 "configMap": {
-                  "name": "${CONFIG_MAP_NAME}",
+                  "name": "${CONFIG_MAP_NAME}${SUFFIX}",
                   "items": [
                     {
                       "key": "${CONFIG_FILE_NAME}",
@@ -163,10 +163,6 @@
                     "value": "${BACKUP_DIR}"
                   },
                   {
-                    "name": "NUM_BACKUPS",
-                    "value": "${NUM_BACKUPS}"
-                  },
-                  {
                     "name": "DAILY_BACKUPS",
                     "value": "${DAILY_BACKUPS}"
                   },
@@ -179,11 +175,7 @@
                     "value": "${MONTHLY_BACKUPS}"
                   },
                   {
-                    "name": "BACKUP_PERIOD",
-                    "value": "${BACKUP_PERIOD}"
-                  },
-                  {
-                    "name": "DB_USER",
+                    "name": "DB_INDY_CAT_USER",
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${DATABASE_DEPLOYMENT_NAME}${SUFFIX}",
@@ -192,7 +184,7 @@
                     }
                   },
                   {
-                    "name": "DB",
+                    "name": "DB_INDY_CAT_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${DATABASE_DEPLOYMENT_NAME}${SUFFIX}",
@@ -201,7 +193,7 @@
                     }
                   },
                   {
-                    "name": "WALLET_USER",
+                    "name": "WALLET_INDY_CAT_USER",
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${WALLET_DB_HOST_NAME}${SUFFIX}",
@@ -210,7 +202,7 @@
                     }
                   },
                   {
-                    "name": "WALLET_PASSWORD",
+                    "name": "WALLET_INDY_CAT_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${WALLET_DB_HOST_NAME}${SUFFIX}",
@@ -313,7 +305,7 @@
       "displayName": "Image Namespace",
       "description": "The namespace of the OpenShift project containing the imagestream for the application.",
       "required": true,
-      "value": "backup-container"
+      "value": "devex-von-tools"
     },
     {
       "name": "TAG_NAME",
@@ -386,25 +378,18 @@
       "value": "/backups/"
     },
     {
-      "name": "NUM_BACKUPS",
-      "displayName": "The number of backup files to be retained",
-      "description": "The number of backup files to be retained.  Used for the `daily` backup strategy.  Ignored when using the `rolling` backup strategy.",
-      "required": false,
-      "value": ""
-    },
-    {
       "name": "DAILY_BACKUPS",
       "displayName": "Number of Daily Backups to Retain",
       "description": "The number of daily backup files to be retained.  Used for the `rolling` backup strategy.",
       "required": false,
-      "value": ""
+      "value": "2"
     },
     {
       "name": "WEEKLY_BACKUPS",
       "displayName": "Number of Weekly Backups to Retain",
       "description": "The number of weekly backup files to be retained.  Used for the `rolling` backup strategy.",
       "required": false,
-      "value": ""
+      "value": "1"
     },
     {
       "name": "MONTHLY_BACKUPS",
@@ -412,13 +397,6 @@
       "description": "The number of monthly backup files to be retained.  Used for the `rolling` backup strategy.",
       "required": false,
       "value": "0"
-    },
-    {
-      "name": "BACKUP_PERIOD",
-      "displayName": "Period (d,m,s) between backups in a format used by the sleep command",
-      "description": "Period (d,m,s) between backups in a format used by the sleep command",
-      "required": true,
-      "value": "1d"
     },
     {
       "name": "DATABASE_SERVER_TIMEOUT",
@@ -460,7 +438,7 @@
       "displayName": "Backup Volume Size",
       "description": "The size of the persistent volume used to store the backups, e.g. 512Mi, 1Gi, 2Gi.  Ensure this is sized correctly.  Refer to the container documentation for details.",
       "required": true,
-      "value": "1Gi"
+      "value": "30Gi"
     },
     {
       "name": "BACKUP_VOLUME_CLASS",
@@ -481,7 +459,7 @@
       "displayName": "Backup Volume Size",
       "description": "The size of the persistent volume used for restoring and verifying backups, e.g. 512Mi, 1Gi, 2Gi.  Ensure this is sized correctly.  It should be large enough to contain your largest database.",
       "required": true,
-      "value": "1Gi"
+      "value": "20Gi"
     },
     {
       "name": "VERIFICATION_VOLUME_CLASS",

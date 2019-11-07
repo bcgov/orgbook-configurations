@@ -26,11 +26,12 @@ TAG_NAME=test
 # CONFIG_FILE_NAME=backup.conf
 # CONFIG_MAP_NAME=backup-conf
 # CONFIG_MOUNT_PATH=/
-# BACKUP_VOLUME_NAME=backup
-# BACKUP_VOLUME_SIZE=30Gi
-# BACKUP_VOLUME_CLASS=nfs-backup
+BACKUP_VOLUME_NAME=bk-devex-von-bc-tob-test-xjrmkhsnshay
+BACKUP_VOLUME_SIZE=120Gi
+BACKUP_VOLUME_CLASS=nfs-backup
 # VERIFICATION_VOLUME_NAME=backup-verification
-# VERIFICATION_VOLUME_SIZE=20Gi
+# This is not enough, need 50Gi for verification, but that puts the environment over quota.
+VERIFICATION_VOLUME_SIZE=40Gi
 # VERIFICATION_VOLUME_CLASS=gluster-file-db
 # VERIFICATION_VOLUME_MOUNT_PATH=/var/lib/pgsql/data
 # CPU_REQUEST=0

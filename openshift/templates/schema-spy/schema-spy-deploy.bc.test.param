@@ -14,7 +14,7 @@ APPLICATION_DOMAIN=schema-spy-indy-cat-test.pathfinder.gov.bc.ca
 # OUTPUT_PATH=/var/www/html/doc
 # SCHEMASPY_USER=[a-zA-Z_][a-zA-Z0-9_]{10}
 # SCHEMASPY_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
-TAG_NAME=test
+TAG_NAME=bc-test
 # DATABASE_DEPLOYMENT_NAME=db
 # CONFIG_FILE_NAME=Caddyfile
 # CONFIG_MAP_NAME=schema-spy-caddy-conf

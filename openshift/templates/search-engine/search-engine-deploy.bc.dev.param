@@ -1,0 +1,19 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: .
+# Template File: ../openshift/templates/search-engine/search-engine-deploy.json
+#=========================================================
+# NAME=search-engine
+# SUFFIX=-indy-cat
+# APP_NAME=OrgBook
+# APP_GROUP=indy-catalyst
+# IMAGE_NAMESPACE=devex-von-tools
+TAG_NAME=dev
+# PERSISTENT_VOLUME_SIZE=5Gi
+# MOUNT_PATH=/opt/solr/server/solr/mycores
+# CORE_NAME=the_org_book
+# PERSISTENT_VOLUME_CLASS=gluster-block
+# CPU_REQUEST=10m
+# CPU_LIMIT=1000m
+# MEMORY_REQUEST=10Mi
+# MEMORY_LIMIT=3000Mi

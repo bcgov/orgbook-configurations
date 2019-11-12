@@ -1,0 +1,29 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: .
+# Template File: ../openshift/templates/msg-queue-worker/msg-queue-worker-deploy.json
+#=========================================================
+# NAME=msg-queue-worker
+# SUFFIX=-indy-cat
+# APP_NAME=OrgBook
+# APP_GROUP=indy-catalyst
+# IMAGE_NAMESPACE=devex-von-tools
+# DATABASE_SERVICE_NAME=db
+# DATABASE_ENGINE=postgresql
+# DATABASE_NAME=OrgBook
+# APP_FILE=
+# APP_CONFIG=
+# #DJANGO_SECRET_KEY=[\w]{50}
+# DJANGO_DEBUG=False
+# SOLR_SERVICE_NAME=search-engine
+# SOLR_CORE_NAME=the_org_book
+# SOURCE_IMAGE_NAME=api
+TAG_NAME=bc-test
+# DATABASE_DEPLOYMENT_NAME=db
+# TOB_THEME=bcgov
+# APP_SCRIPT=start-celery-worker.sh
+# RABBITMQ_SVC_NAME=msg-queue
+# CPU_REQUEST=10m
+# CPU_LIMIT=500m
+# MEMORY_REQUEST=10Mi
+# MEMORY_LIMIT=1.25Gi

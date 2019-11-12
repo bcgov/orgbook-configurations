@@ -1,0 +1,27 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: .
+# Template File: ../openshift/templates/frontend/frontend-deploy.json
+#=========================================================
+# NAME=frontend
+# SUFFIX=-indy-cat
+# APP_NAME=OrgBook
+# APP_GROUP=indy-catalyst
+# IMAGE_NAMESPACE=devex-von-tools
+# REAL_IP_FROM=172.51.0.0/16
+# API_URL=http://api-indy-cat:8080/api/v2/
+# API_SERVICE_NAME=api-indy-cat
+# API_PATH=/api/v2/
+# AdditionalRealIpFromRules=
+# IpFilterRules=
+# BLACK_LIST_CONFIG_FILE_NAME=blacklist.conf
+# BLACK_LIST_CONFIG_MAP_NAME=blacklist-conf
+# BLACK_LIST_CONFIG_MOUNT_PATH=/etc/nginx/
+APPLICATION_DOMAIN=orgbook-dev.pathfinder.gov.bc.ca 
+TAG_NAME=dev
+# HTTP_BASIC=
+# TOB_THEME=bcgov
+# CPU_REQUEST=10m
+# CPU_LIMIT=250m
+# MEMORY_REQUEST=100Mi
+# MEMORY_LIMIT=256Mi

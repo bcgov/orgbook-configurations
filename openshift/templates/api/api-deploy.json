@@ -393,8 +393,8 @@
           "kind": "DeploymentConfig",
           "name": "${NAME}${SUFFIX}"
         },
-        "minReplicas": 2,
-        "maxReplicas": 5
+        "minReplicas": "${{MIN_REPLICAS}}",
+        "maxReplicas": "${{MAX_REPLICAS}}"
       }
     }
   ],
@@ -655,6 +655,20 @@
       "value": "8024"
     },
     {
+      "name": "MIN_REPLICAS",
+      "displayName": "Minimum Replicas",
+      "description": "The minimum number of pods to have running.",
+      "required": true,
+      "value": "2"
+    },
+    {
+      "name": "MAX_REPLICAS",
+      "displayName": "Maximum Replicas",
+      "description": "The maximum number of pods to have running.",
+      "required": true,
+      "value": "7"
+    },
+    {
       "name": "CPU_REQUEST",
       "displayName": "Resources CPU Request",
       "description": "The resources CPU request (in cores) for this build.",
@@ -666,7 +680,7 @@
       "displayName": "Resources CPU Limit",
       "description": "The resources CPU limit (in cores) for this build.",
       "required": true,
-      "value": "750m"
+      "value": "300m"
     },
     {
       "name": "MEMORY_REQUEST",
@@ -680,7 +694,7 @@
       "displayName": "Resources Memory Limit",
       "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
       "required": true,
-      "value": "512Mi"
+      "value": "256Mi"
     }
   ]
 }

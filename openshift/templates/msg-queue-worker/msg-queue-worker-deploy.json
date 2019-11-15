@@ -189,8 +189,8 @@
           "kind": "DeploymentConfig",
           "name": "${NAME}${SUFFIX}"
         },
-        "minReplicas": 1,
-        "maxReplicas": 6
+        "minReplicas": "${{MIN_REPLICAS}}",
+        "maxReplicas": "${{MAX_REPLICAS}}"
       }
     }
   ],
@@ -331,6 +331,20 @@
       "description": "The name of the RabbitMQ service.",
       "required": true,
       "value": "msg-queue"
+    },
+    {
+      "name": "MIN_REPLICAS",
+      "displayName": "Minimum Replicas",
+      "description": "The minimum number of pods to have running.",
+      "required": true,
+      "value": "2"
+    },
+    {
+      "name": "MAX_REPLICAS",
+      "displayName": "Maximum Replicas",
+      "description": "The maximum number of pods to have running.",
+      "required": true,
+      "value": "6"
     },
     {
       "name": "CPU_REQUEST",

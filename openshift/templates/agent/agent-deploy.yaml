@@ -239,6 +239,21 @@ objects:
           name: ${NAME}:${TAG_NAME}
           namespace: ${IMAGE_NAMESPACE}
 
+- kind: HorizontalPodAutoscaler
+  apiVersion: autoscaling/v1
+  metadata:
+    name: ${NAME}${SUFFIX}
+    labels:
+      name: ${NAME}${SUFFIX}
+      app: ${APP_NAME}${SUFFIX}
+      app-group: ${APP_GROUP}
+  spec:
+    scaleTargetRef:
+      kind: DeploymentConfig
+      name: ${NAME}${SUFFIX}
+    minReplicas: ${{MIN_REPLICAS}}
+    maxReplicas: ${{MAX_REPLICAS}}
+
 parameters:
 - name: NAME
   displayName: Name
@@ -374,6 +389,17 @@ parameters:
   generate: expression
   from: "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
 # ===============================================================================
+- name: MIN_REPLICAS
+  displayName: Minimum Replicas
+  description: The minimum number of pods to have running.
+  required: true
+  value: '2'
+- name: MAX_REPLICAS
+  displayName: Maximum Replicas
+  description: The maximum number of pods to have running.
+  required: true
+  value: '8'
+# ===============================================================================
 - name: CPU_REQUEST
   displayName: Resources CPU Request
   description: The resources CPU request (in cores) for this build.
@@ -383,7 +409,7 @@ parameters:
   displayName: Resources CPU Limit
   description: The resources CPU limit (in cores) for this build.
   required: true
-  value: 1000m
+  value: 750m
 - name: MEMORY_REQUEST
   displayName: Resources Memory Request
   description: The resources Memory request (in Mi, Gi, etc) for this build.
@@ -393,4 +419,4 @@ parameters:
   displayName: Resources Memory Limit
   description: The resources Memory limit (in Mi, Gi, etc) for this build.
   required: true
-  value: 1Gi
+  value: 512Mi

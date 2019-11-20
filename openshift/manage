@@ -65,6 +65,11 @@ usage () {
       Example;
         $0 -e dev listdatabases wallet
 
+    getConnections <podName/>
+      - List database connection statistics for a given postgresql pod instance.
+      Example;
+        $0 -e dev getconnections wallet
+
     getRecordCounts <podName/> [<databaseName/>]
       - Gets a list of tables and the total number of record in each table.
         Examples;
@@ -420,6 +425,10 @@ case "${_cmd}" in
       databaseName=${2}
     fi
     getRecordCounts "${dbPodName}" "${databaseName}"
+    ;;
+  getconnections)
+    dbPodName=${1}
+    getConnections "${dbPodName}"
     ;;
 
   scaleup)

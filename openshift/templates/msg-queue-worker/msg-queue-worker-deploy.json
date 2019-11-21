@@ -137,20 +137,45 @@
                     }
                   },
                   {
+                    "name": "AGENT_ADMIN_URL",
+                    "value": "http://${AGENT_SERVICE_NAME}${SUFFIX}:${AGENT_ADMIN_PORT}"
+                  },
+                  {
+                    "name": "AGENT_ADMIN_API_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${AGENT_SERVICE_NAME}${SUFFIX}",
+                        "key": "admin-api-key"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SOLR_SERVICE_NAME",
+                    "value": "${SOLR_SERVICE_NAME}${SUFFIX}"
+                  },
+                  {
+                    "name": "SOLR_CORE_NAME",
+                    "value": "${SOLR_CORE_NAME}"
+                  },
+                  {
+                    "name": "SKIP_INDEXING_ON_STARTUP",
+                    "value": "${SKIP_INDEXING_ON_STARTUP}"
+                  },
+                  {
+                    "name": "ENABLE_REALTIME_INDEXING",
+                    "value": "${ENABLE_REALTIME_INDEXING}"
+                  },
+                  {
+                    "name": "ENABLE_SUGGESTER_REBUILD",
+                    "value": "${ENABLE_SUGGESTER_REBUILD}"
+                  },
+                  {
                     "name": "DJANGO_SECRET_KEY",
                     "value": "${DJANGO_SECRET_KEY}"
                   },
                   {
                     "name": "DJANGO_DEBUG",
                     "value": "${DJANGO_DEBUG}"
-                  },
-                  {
-                    "name": "SOLR_SERVICE_NAME",
-                    "value": "${SOLR_SERVICE_NAME}"
-                  },
-                  {
-                    "name": "SOLR_CORE_NAME",
-                    "value": "${SOLR_CORE_NAME}"
                   },
                   {
                     "name": "TOB_THEME",
@@ -291,6 +316,27 @@
       "value": "the_org_book"
     },
     {
+      "name": "SKIP_INDEXING_ON_STARTUP",
+      "displayName": "Skip Indexing On Startup",
+      "description": "Set this flag to `true` to skip indexing on startup as part of the database migration; set to `all` to skip indexing and suggester build, set to `false` otherwise.  When there are a large number of records to index, indexing at startup can cause startup delays and issues.",
+      "required": true,
+      "value": "all"
+    },
+    {
+      "name": "ENABLE_REALTIME_INDEXING",
+      "displayName": "Enable Realtime Indexing",
+      "description": "Flag to enable/disable realtime search indexing.  Set to 1 to enable, leave it blank to disable.  Having realtime indexing enabled during onboarding can cause performance issues.",
+      "required": false,
+      "value": "1"
+    },
+    {
+      "name": "ENABLE_SUGGESTER_REBUILD",
+      "displayName": "Enable Suggester Rebuild",
+      "description": "Flag to enable/disable search suggester rebuilding.  Set to 1 to enable, leave it blank to disable.  Having this enabled can cause issues with very large data-sets.",
+      "required": false,
+      "value": ""
+    },
+    {
       "name": "SOURCE_IMAGE_NAME",
       "displayName": "Source Image Name",
       "description": "The name of the image to use for this resource.",
@@ -333,6 +379,20 @@
       "value": "msg-queue"
     },
     {
+      "name": "AGENT_SERVICE_NAME",
+      "displayName": "Agent Service name",
+      "description": "Agent service name",
+      "required": true,
+      "value": "agent"
+    },
+    {
+      "name": "AGENT_ADMIN_PORT",
+      "displayName": "Agent Admin Port",
+      "description": "Agent admin port",
+      "required": true,
+      "value": "8024"
+    },
+    {
       "name": "MIN_REPLICAS",
       "displayName": "Minimum Replicas",
       "description": "The minimum number of pods to have running.",
@@ -358,7 +418,7 @@
       "displayName": "Resources CPU Limit",
       "description": "The resources CPU limit (in cores) for this build.",
       "required": true,
-      "value": "750m"
+      "value": "500m"
     },
     {
       "name": "MEMORY_REQUEST",
@@ -372,7 +432,7 @@
       "displayName": "Resources Memory Limit",
       "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
       "required": true,
-      "value": "1.25Gi"
+      "value": "2000Mi"
     }
   ]
 }

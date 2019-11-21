@@ -341,7 +341,7 @@
       "displayName": "Persistent Volume Size",
       "description": "The size of the persistent volume , e.g. 512Mi, 1Gi, 2Gi.",
       "required": true,
-      "value": "60Gi"
+      "value": "160Gi"
     },
     {
       "name": "PERSISTENT_VOLUME_CLASS",

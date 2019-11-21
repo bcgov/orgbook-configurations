@@ -398,7 +398,7 @@ parameters:
   displayName: Maximum Replicas
   description: The maximum number of pods to have running.
   required: true
-  value: '8'
+  value: '17'
 # ===============================================================================
 - name: CPU_REQUEST
   displayName: Resources CPU Request

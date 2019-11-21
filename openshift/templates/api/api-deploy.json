@@ -666,7 +666,7 @@
       "displayName": "Maximum Replicas",
       "description": "The maximum number of pods to have running.",
       "required": true,
-      "value": "7"
+      "value": "16"
     },
     {
       "name": "CPU_REQUEST",

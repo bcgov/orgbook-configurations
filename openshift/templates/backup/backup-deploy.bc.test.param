@@ -32,7 +32,7 @@ BACKUP_VOLUME_CLASS=nfs-backup
 # VERIFICATION_VOLUME_NAME=backup-verification
 # This is not enough, need 50Gi for verification, but that puts the environment over quota.
 VERIFICATION_VOLUME_SIZE=40Gi
-# VERIFICATION_VOLUME_CLASS=gluster-file-db
+VERIFICATION_VOLUME_CLASS=netapp-file-standard
 # VERIFICATION_VOLUME_MOUNT_PATH=/var/lib/pgsql/data
 # CPU_REQUEST=0
 # CPU_LIMIT=0

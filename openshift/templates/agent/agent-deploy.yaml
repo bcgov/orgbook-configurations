@@ -129,6 +129,7 @@ objects:
             --$([[ ! -z "${AGENT_ADMIN_API_KEY}" ]] && echo "admin-api-key ${AGENT_ADMIN_API_KEY}" || echo "admin-insecure-mode")
             --label "${AGENT_NAME}"
             --log-level ${AGENT_LOG_LEVEL}
+            $([[ ! -z "${TIMING}" ]] && echo "--timing" || echo "")
             --plugin indy_catalyst_issuer_registration);
           env:
           - name: GENESIS_URL
@@ -194,6 +195,8 @@ objects:
             value: ${AGENT_BASE_URL}
           - name: AGENT_LOG_LEVEL
             value: ${LOG_LEVEL}
+          - name: TIMING
+            value: ${AGENT_TIMING}
           image:
           ports:
           - containerPort: ${{AGENT_ADMIN_PORT}}
@@ -335,6 +338,11 @@ parameters:
   description: The logging level for the agent.
   required: true
   value: WARNING
+- name: AGENT_TIMING
+  displayName: Collect agent timing information.
+  description: Enable/Disable collection of agent timing information.  Controls the inclusion/exclusion of the agent '--timing' startup parameter.  Defaults to disabled.
+  required: false
+  value: ''
 # ===============================================================================
 # Wallet Configuration
 #--------------------------------------------------------------------------------

@@ -19,6 +19,7 @@ AGENT_BASE_URL=https://orgbook-agent-test.pathfinder.gov.bc.ca
 # AGENT_WS_PORT=8023
 GENESIS_FILE_URL=http://test.bcovrin.vonx.io/genesis
 # LOG_LEVEL=WARNING
+# AGENT_TIMING=
 # WALLET_STORAGE_TYPE=postgres_storage
 # WALLET_HOST=wallet
 # WALLET_HOST_PORT=5432

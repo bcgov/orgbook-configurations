@@ -24,6 +24,17 @@ usage () {
 
   Commands:
   ========
+    reset
+      - Reset the environment.
+      - All data will be lost.
+        The following operations will be performed:
+          - The process pauses at the beginning to ensure the related ICIA reset process has started.
+          - The wallet is reset, by restoring initial copy of ICOB Wallet.
+          - The 'db' is reset and reinitialized.
+          - The search indexes are reset.
+          - The process pauses to ensure the related ICIA registration process has had time to complete.
+          - The ICIA registration is verified.\n
+
     resetDatabase
       - Drop and recreate the database.
       - Rebuild search indexes.
@@ -31,12 +42,6 @@ usage () {
     deleteDatabase
       - Deletes all databases off a pod and recycles the pod leaving it in a clean state.
       - Useful when database credentials change.
-
-    # hardReset
-    #   - Delete the persistent indy wallet information.
-    #   - Drop and recreate the database.
-    #   - Rebuild search indexes.
-    #   - Register the environment's DID with the ledger.
 
     resetSearchIndex
       - Delete and recreate the search index for a given environment.
@@ -190,7 +195,7 @@ function resetDatabase() {
     exit 1
   fi
 
-  dropAndRecreateDatabaseWithMigrations ${_apiPodName}${resourceSuffix} ${_dbPodName}${resourceSuffix}
+  dropAndRecreateDatabaseWithMigrations -a ${_apiPodName}${resourceSuffix} ${_dbPodName}${resourceSuffix}
   rebuildSearchIndex ${_apiPodName}
   echoWarning "\nThe project's database has been reset."
 }
@@ -207,48 +212,129 @@ function deleteDatabase() {
   echoWarning "\nThe databases on ${_dbPodName}${resourceSuffix} have been deleted."
 }
 
-# This function needs to be rethought and refactored to support the indy-cat changes.
-# ===================================================================================
-# hardReset() {
-#   _apiPodName=${1}
-#   _dbPodName=${2}
-#   _walletDbPodName=${3}
-#   if [ -z "${_apiPodName}" ] || [ -z "${_dbPodName}" ] || [ -z "${_walletDbPodName}" ]; then
-#     echo -e \\n"resetDatabase; Missing parameter!"\\n
-#     exit 1
-#   fi
+function reset() {
+  (
+    agentPod=${1}
+    apiPod=${2} # aka controller
+    msgQueuePod=${3}
+    msgQueueWorkerPod=${4}
+    walletDbPod=${5}
+    backupPod=${6}
+    walletDbName=${7} # Example; agent_indy_cat_wallet
+    walletDbBackupSpec=${8} # Example; "wallet-indy-cat:5432/${walletDbName}"
+    walletDbBackupFileFilter=${9} # Example; /backups/initialized-wallet
+    walletDbAdminPasswordKey=${10}
+    dbPod=${11}
+    targetNamespace=$(getProjectName)
 
-#   printAndWait "If you are using GreenLight, use the GreenLight manage script to reset the GreenLight pods.\nWait for all of the pods to completely shut down before continuing."
+    if (( $# < 10 )); then
+      echo -e \\n"reset; Missing parameter!"\\n
+      exit 1
+    fi
 
-#   switchProject
-#   exitOnError
+    # Explain what is about to happen and wait for confirmation ...
+txtMsg=$(cat <<-EOF
+The [${targetNamespace}] ICOB environment will be reset using the following settings:
+  - agentPod: ${agentPod}${resourceSuffix}
+  - apiPod: ${apiPod}${resourceSuffix}
+  - msgQueuePod: ${msgQueuePod}${resourceSuffix}
+  - msgQueueWorkerPod: ${msgQueueWorkerPod}${resourceSuffix}
+  - walletDbPod: ${walletDbPod}${resourceSuffix}
+  - backupPod: ${backupPod}${resourceSuffix}
+  - walletDbName: ${walletDbName}
+  - walletDbBackupSpec: ${walletDbBackupSpec}
+  - walletDbBackupFileFilter: ${walletDbBackupFileFilter}
+  - walletDbAdminPasswordKey: ${walletDbAdminPasswordKey}
+  - dbPod: ${dbPod}${resourceSuffix}
 
-#   # Scale down the API pod ...
-#   scaleDown ${_apiPodName}
-#   exitOnError
-#   printAndWait "Wait for the ${_apiPodName} pod to completely shut down before continuing."
+The following operations will be performed (ALL DATA WILL BE LOST):
+  - The process will pause at the beginning to ensure the related ICIA reset process has started.
+  - The wallet will be reset, by restoring initial copy of ICOB Wallet.
+  - The 'db' will be reset and reinitialized.
+  - The search indexes will be reset.
+  - The process will pause to ensure the related ICIA registration process has had time to complete.
+  - The ICIA registration will be verified.\n
+EOF
+)
 
-#   # Drop and recreate the application database ...
-#   dropAndRecreatedbDatabase ${_dbPodName}
-#   exitOnError
+    printAndAskToContinue "${txtMsg}"
 
-#   # Drop the wallet databases ...
-#   if podExists ${_walletDbPodName}; then
-#     deleteAndRecreateDatabase ${_walletDbPodName}
-#     exitOnError
-#   fi
+    # - scaledown ICIA controller and agent
+    printAndWait "Please ensure the reset process in the corresponding ICIA environment has been started and it has indicated it is safe to process before continuing ..."
 
-#   # Bring the API pod back up ...
-#   printAndWait "If you are resetting the ledger, wait for the ledger to completely start up before continuing."
-#   scaleUp ${_apiPodName}
-#   exitOnError
-#   printAndWait "Wait for the ${_apiPodName} pod to completely start up before continuing."
+    # - scaledown ICOB agent, api, msg-queue, and msg-queue-worker
+    echo "Scaling down ${agentPod}${resourceSuffix}, ${apiPod}${resourceSuffix}, ${msgQueuePod}${resourceSuffix} and ${msgQueueWorkerPod}${resourceSuffix} ..."
+    scaleDown -w "${apiPod}${resourceSuffix}" "${msgQueueWorkerPod}${resourceSuffix}" "${agentPod}${resourceSuffix}" "${msgQueuePod}${resourceSuffix}"
+    exitOnError
 
-#   rebuildSearchIndex ${_apiPodName}
+    # - reset ICOB Wallet Database, by restoring initial copy of ICOB Wallet.
+    echo "Resetting ${walletDbPod}${resourceSuffix} ..."
+    if isScaledUp ${backupPod}${resourceSuffix}; then
+      local backupStarted=1
+    else
+      local unset backupStarted
+      scaleUp -w "${backupPod}${resourceSuffix}"
+      exitOnError
+    fi
 
-#   echoWarning "\nThe project's database and indy wallets have been reset."
-#   echoWarning "If you are using GreenLight, use the GreenLight manage script to scale the GreenLight pods up."
-# }
+    runInContainer -i \
+      ${backupPod}${resourceSuffix} \
+      "./backup.sh -s -a $(getSecret ${walletDbPod}${resourceSuffix} ${walletDbAdminPasswordKey}) -r ${walletDbBackupSpec} -f ${walletDbBackupFileFilter}"
+    exitOnError
+
+    if [ -z ${backupStarted} ]; then
+      # Leave the backup container in the same state we found it.
+      scaleDown "${backupPod}${resourceSuffix}"
+      exitOnError
+    fi
+
+    # - verify ICOB  Wallet - There should only be 4 items.
+    recordCounts=$(getRecordCounts "${walletDbPod}" "${walletDbName}")
+    numItems=$(echo "${recordCounts}" | grep items | awk '{print $5}')
+    if (( ${numItems} == 4 )); then
+      echo "Wallet 'items' count verified; ${numItems} items found."
+    else
+      echoError "Wallet 'items' count verification failed; ${numItems} items found.  Please fix the issue and try again."
+      exit 1
+    fi
+    exitOnError
+
+    # - scaleup ICOB agent
+    echo "Scaling up ${agentPod}${resourceSuffix} ..."
+    scaleUp -w "${agentPod}${resourceSuffix}"
+    exitOnError
+
+    # - reset ICOB database
+    resetDatabase "${apiPod}" "${dbPod}"
+    exitOnError
+
+    # - scaleup ICOB msg-queue and msg-queue-worker
+    echo "Scaling up ${agentPod}${resourceSuffix}, ${apiPod}${resourceSuffix}, ${msgQueuePod}${resourceSuffix} and ${msgQueueWorkerPod}${resourceSuffix} ..."
+    scaleUp -w "${msgQueuePod}${resourceSuffix}" "${msgQueueWorkerPod}${resourceSuffix}"
+    exitOnError
+    printAndWait "The ICOB reset process is complete.  Please wait here for the associated ICIA instance to finish it's registration process before continuing ..."
+
+    # - verify ICIA registered with ICOB
+    #   - >= 3 credential_type records
+    #   - >= 3 schema records
+    #   - >= 1 issuer record
+    recordCounts=$(getRecordCounts "${dbPod}")
+    recordCounts=$(echo "${recordCounts}" | tail -n +4)
+    numCredentialTypes=$(echo "${recordCounts}" | grep credential_type | awk '{print $5}')
+    numSchemas=$(echo "${recordCounts}" | grep schema | awk '{print $5}')
+    numIssuers=$(echo "${recordCounts}" | grep issuer | awk '{print $5}')
+    if (( ${numCredentialTypes} >= 3 )) && (( ${numSchemas} >= 3 )) && (( ${numIssuers} >= 1 )); then
+      echo "ICIA registration verified; credential_type:${numCredentialTypes}, schema:${numSchemas}, and issuer:${numIssuers} records found."
+    else
+      echoError "ICIA registration verification failed;  credential_type:${numCredentialTypes}, schema:${numSchemas}, and issuer:${numIssuers} records found.  Please fix the issue and try again."
+      exit 1
+    fi
+    exitOnError
+
+    # - Test posting a few credentials using the pipelines
+    echo "Provided ICIA has successfully registered with ICOB you can now test things by issuing a few credentials."
+  )
+}
 
 resetSearchIndex() {
   _apiPodName=${1}
@@ -259,7 +345,7 @@ resetSearchIndex() {
   fi
 
   deleteSearchIndex "${_solrPodName}"
-  recyclePods "${_solrPodName}${resourceSuffix}"
+  recyclePods -w "${_solrPodName}${resourceSuffix}"
   printAndWait "Wait for the ${_solrPodName}${resourceSuffix} pod to completely start up before continuing."
   rebuildSearchIndex "${_apiPodName}"
 }
@@ -273,7 +359,7 @@ function resetSolrCore() {
   fi
 
   deleteSolrCore "${_solrPodName}"
-  recyclePods "${_solrPodName}${resourceSuffix}"
+  recyclePods -w "${_solrPodName}${resourceSuffix}"
   printAndWait "Wait for the ${_solrPodName}${resourceSuffix} pod to completely start up before continuing."
   rebuildSearchIndex "${_apiPodName}"
 }
@@ -381,12 +467,33 @@ case "${_cmd}" in
     dbPodName=${1}
     deleteDatabase "${dbPodName}"
     ;;
-  # hardreset)
-  #   apiPodName=${1:-api}
-  #   dbPodName=${2:-db}
-  #   walletDbPodName=${3:-wallet-db}
-  #   hardReset "${apiPodName}" "${dbPodName}" "${walletDbPodName}"
-  #   ;;
+
+  reset)
+    agentPod=${1:-agent}
+    apiPod=${2:-api} # aka controller
+    msgQueuePod=${3:-msg-queue}
+    msgQueueWorkerPod=${4:-msg-queue-worker}
+    walletDbPod=${5:-wallet}
+    backupPod=${6:-backup}
+    walletDbName=${7:-"agent_indy_cat_wallet"}
+    walletDbBackupSpec=${8:-"wallet-indy-cat:5432/${walletDbName}"}
+    walletDbBackupFileFilter=${9:-"/backups/initialized-wallet"}
+    walletDbAdminPasswordKey=${10:-"admin-password"}
+    dbPod=${11:-db}
+
+    reset "${agentPod}" \
+          "${apiPod}" \
+          "${msgQueuePod}" \
+          "${msgQueueWorkerPod}" \
+          "${walletDbPod}" \
+          "${backupPod}" \
+          "${walletDbName}" \
+          "${walletDbBackupSpec}" \
+          "${walletDbBackupFileFilter}" \
+          "${walletDbAdminPasswordKey}" \
+          "${dbPod}"
+    ;;
+
   resetsearchindex)
     apiPodName=${1:-api}
     solrPodName=${2:-search-engine}
@@ -432,13 +539,13 @@ case "${_cmd}" in
     ;;
 
   scaleup)
-    scaleUp ${@}
+    scaleUp -w ${@}
     ;;
   scaledown)
-    scaleDown ${@}
+    scaleDown -w ${@}
     ;;
   recycle)
-    recyclePods ${@}
+    recyclePods -w ${@}
     ;;
   *)
     echoWarning "Unrecognized command; ${_cmd}"

@@ -76,34 +76,6 @@
       }
     },
     {
-      "kind": "Route",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "${NAME}${SUFFIX}",
-        "labels": {
-          "name": "${NAME}${SUFFIX}",
-          "app": "${APP_NAME}${SUFFIX}",
-          "app-group": "${APP_GROUP}"
-        }
-      },
-      "spec": {
-        "host": "${APPLICATION_DOMAIN}",
-        "path": "${ROUTE_PATH}",
-        "port": {
-          "targetPort": "8080-tcp"
-        },
-        "tls": {
-          "insecureEdgeTerminationPolicy": "Redirect",
-          "termination": "edge"
-        },
-        "to": {
-          "kind": "Service",
-          "name": "${NAME}${SUFFIX}",
-          "weight": 100
-        }
-      }
-    },
-    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
@@ -433,19 +405,6 @@
       "required": true,
       "description": "The namespace of the OpenShift project containing the imagestream for the application.",
       "value": "devex-von-tools"
-    },
-    {
-      "name": "APPLICATION_DOMAIN",
-      "displayName": "Application Hostname",
-      "description": "The exposed hostname that will route to the Django service, if left blank a value will be defaulted.",
-      "value": "orgbook-api-dev.pathfinder.gov.bc.ca"
-    },
-    {
-      "name": "ROUTE_PATH",
-      "displayName": "Route Path",
-      "description": "The path with which to restrict access on the exposed route.",
-      "required": false,
-      "value": "/api/v2/indy"
     },
     {
       "name": "DATABASE_SERVICE_NAME",

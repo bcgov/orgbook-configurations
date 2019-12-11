@@ -8,6 +8,7 @@
 # APP_NAME=OrgBook
 # APP_GROUP=indy-catalyst
 APPLICATION_DOMAIN=orgbook-agent-dev.pathfinder.gov.bc.ca 
+# ROUTE_TIMEOUT=120s
 # IMAGE_NAMESPACE=devex-von-tools
 TAG_NAME=dev
 # AGENT_LABEL_NAME=icob-agent

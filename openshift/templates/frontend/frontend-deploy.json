@@ -321,7 +321,7 @@
       "displayName": "API URL",
       "name": "API_URL",
       "required": true,
-      "value": "http://api-indy-cat:8080/api/v2/"
+      "value": "http://api-indy-cat:8080/api"
     },
     {
       "description": "The name of the service endpoint for the API.  Used to wire up to an API endpoint within the same project; overriding the URL defined by API_URL.",
@@ -335,7 +335,7 @@
       "displayName": "API Path",
       "name": "API_PATH",
       "required": true,
-      "value": "/api/v2/"
+      "value": "/api"
     },
     {
       "description": "Additional known and trusted reverse proxy ips conforming to nginx set_real_ip_from directive syntax. Multiple directives are allowed, separated by semicolon.",

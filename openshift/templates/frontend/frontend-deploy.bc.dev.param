@@ -9,9 +9,9 @@
 # APP_GROUP=indy-catalyst
 # IMAGE_NAMESPACE=devex-von-tools
 # REAL_IP_FROM=172.51.0.0/16
-# API_URL=http://api-indy-cat:8080/api/v2/
+# API_URL=http://api-indy-cat:8080/api
 # API_SERVICE_NAME=api-indy-cat
-# API_PATH=/api/v2/
+# API_PATH=/api
 # AdditionalRealIpFromRules=
 # IpFilterRules=
 # BLACK_LIST_CONFIG_FILE_NAME=blacklist.conf

@@ -8,8 +8,6 @@
 # APP_NAME=OrgBook
 # APP_GROUP=indy-catalyst
 # IMAGE_NAMESPACE=devex-von-tools
-APPLICATION_DOMAIN=orgbook-api-test.pathfinder.gov.bc.ca
-# ROUTE_PATH=/api/v2/indy
 # DATABASE_SERVICE_NAME=db
 # DATABASE_ENGINE=postgresql
 # DATABASE_NAME=OrgBook
@@ -40,7 +38,7 @@ APPLICATION_URL=https://orgbook-test.pathfinder.gov.bc.ca
 # AGENT_SERVICE_NAME=agent
 # AGENT_ADMIN_PORT=8024
 # MIN_REPLICAS=2
-MAX_REPLICAS=16
+# MAX_REPLICAS=16
 # CPU_REQUEST=10m
 # CPU_LIMIT=300m
 # MEMORY_REQUEST=10Mi

@@ -229,12 +229,15 @@
       "apiVersion": "v1",
       "kind": "Route",
       "metadata": {
+        "name": "${NAME}${SUFFIX}",
         "labels": {
           "name": "${NAME}${SUFFIX}",
           "app": "${APP_NAME}${SUFFIX}",
           "app-group": "${APP_GROUP}"
         },
-        "name": "${NAME}${SUFFIX}"
+        "annotations": {
+          "haproxy.router.openshift.io/timeout": "${ROUTE_TIMEOUT}"
+        }
       },
       "spec": {
         "host": "${APPLICATION_DOMAIN}",
@@ -374,6 +377,13 @@
       "displayName": "Application Hostname",
       "name": "APPLICATION_DOMAIN",
       "value": "orgbook-dev.pathfinder.gov.bc.ca"
+    },
+    {
+      "name": "ROUTE_TIMEOUT",
+      "displayName": "Route Timeout",
+      "description": "The timeout for the application route.  When this timeout is exceeded the application's route will respond with a 504 Gateway Timeout error.",
+      "required": true,
+      "value": "120s"
     },
     {
       "description": "The TAG name for this environment, e.g., dev, test, prod",

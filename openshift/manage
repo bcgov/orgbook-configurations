@@ -537,6 +537,9 @@ case "${_cmd}" in
     dbPodName=${1}
     getConnections "${dbPodName}"
     ;;
+  listbuildrefs)
+    listBuildRefs
+    ;;
 
   scaleup)
     scaleUp -w ${@}

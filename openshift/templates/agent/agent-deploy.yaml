@@ -38,6 +38,8 @@ objects:
       name: ${NAME}${SUFFIX}
       app: ${APP_NAME}${SUFFIX}
       app-group: ${APP_GROUP}
+    annotations:
+        haproxy.router.openshift.io/timeout: ${ROUTE_TIMEOUT}
   spec:
     host: ${APPLICATION_DOMAIN}
     port:
@@ -283,6 +285,11 @@ parameters:
   description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
   required: false
   value: orgbook-agent-dev.pathfinder.gov.bc.ca
+- name: ROUTE_TIMEOUT
+  displayName: Route Timeout
+  description: The timeout for the application route.  When this timeout is exceeded the application's route will respond with a 504 Gateway Timeout error.
+  required: true
+  value: 120s
 - name: IMAGE_NAMESPACE
   displayName: Namespace containing application images.
   required: true

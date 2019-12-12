@@ -84,6 +84,9 @@ usage () {
           $0 -e dev getrecordcounts event-db
           - Get the record counts for the '${POSTGRESQL_DATABASE}' (the pod's default database) database off the 'event-db' pod.
 
+    listBuildRefs
+      - Lists build configurations and their git references in a convenient column format.
+
     scaleUp
       - Scale up one or more pods.
         For example;

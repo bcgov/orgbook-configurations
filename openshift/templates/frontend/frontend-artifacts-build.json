@@ -53,8 +53,8 @@
             },
             "env": [
               {
-                "name": "TOB_THEME",
-                "value": "${TOB_THEME}"
+                "name": "THEME",
+                "value": "${THEME}"
               }
             ]
           }
@@ -133,7 +133,7 @@
       "displayName": "Source Context Directory",
       "description": "The source context directory.",
       "required": false,
-      "value": "credential-registry/client/tob-web"
+      "value": "client"
     },
     {
       "name": "SOURCE_IMAGE_NAMESPACE",
@@ -157,7 +157,7 @@
       "value": "8"
     },
     {
-      "name": "TOB_THEME",
+      "name": "THEME",
       "displayName": "TheOrgBook Theme Name",
       "description": "The name of the theme to be used for the site.",
       "value": "default"

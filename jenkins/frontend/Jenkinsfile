@@ -50,7 +50,7 @@ node {
                 "${config.ARTIFACTS_NAME}",
                 config.WAIT_TIMEOUT,
                 "${config.SOURCE_REPO_WORKING_DIRECTORY}",
-                "TOB_THEME=${config.TOB_THEME_NAME}")
+                "THEME=${config.THEME_NAME}")
         }
       }
     }

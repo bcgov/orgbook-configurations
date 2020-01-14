@@ -375,7 +375,7 @@ function deleteSolrCore() {
   fi
 
   printAndAskToContinue "If you contiune the search-engine core on ${_solrPodName}${resourceSuffix} will be deleted."
-  deleteFromPod "${_solrPodName}${resourceSuffix}" "/opt/solr/server/solr/mycores/credential_registry"
+  deleteFromPod "${_solrPodName}${resourceSuffix}" "/opt/solr/server/solr/mycores/*"
   exitOnError
 }
 

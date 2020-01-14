@@ -119,7 +119,7 @@
       "displayName": "Source Context Directory",
       "description": "The source context directory.",
       "required": true,
-      "value": "starter-kits/credential-registry/server/tob-api"
+      "value": "server/vcr-server"
     },
     {
       "name": "SOURCE_IMAGE_KIND",

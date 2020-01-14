@@ -399,7 +399,7 @@ function rebuildSearchIndex() {
   fi
 
   echoWarning "\nRebuilding the search index ..."
-  runInContainer ${_apiPodName}${resourceSuffix} './rebuildSearchIndex.sh'
+  runInContainer ${_apiPodName}${resourceSuffix} './scripts/rebuildSearchIndex.sh'
   exitOnError
 }
 
@@ -424,7 +424,7 @@ function updateSearchIndex() {
 
     echoWarning "\nUpdating the search index ..."
     args="$(echo "${args}" | sed -e 's/^[[:space:]]*//')"
-    runInContainer ${_apiPodName}${resourceSuffix} "./updateSearchIndex.sh ${args}"
+    runInContainer ${_apiPodName}${resourceSuffix} "./scripts/updateSearchIndex.sh ${args}"
   )
 }
 

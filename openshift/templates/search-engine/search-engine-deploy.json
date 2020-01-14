@@ -249,7 +249,7 @@
       "displayName": "Core Name",
       "description": "The name of the Solr core configuration to load.",
       "required": true,
-      "value": "the_org_book"
+      "value": "credential_registry"
     },
     {
       "name": "PERSISTENT_VOLUME_CLASS",

@@ -474,7 +474,7 @@
       "displayName": "SOLR Core Name",
       "description": "The name of the core to use when connecting with SOLR.",
       "required": false,
-      "value": "the_org_book"
+      "value": "credential_registry"
     },
     {
       "name": "SKIP_INDEXING_ON_STARTUP",

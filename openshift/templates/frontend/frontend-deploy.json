@@ -121,8 +121,8 @@
                     }
                   },
                   {
-                    "name": "TOB_THEME",
-                    "value": "${TOB_THEME}"
+                    "name": "THEME",
+                    "value": "${THEME}"
                   }
                 ],
                 "resources": {
@@ -398,7 +398,7 @@
       "value": ""
     },
     {
-      "name": "TOB_THEME",
+      "name": "THEME",
       "displayName": "TheOrgBook Theme Name",
       "description": "The name of the theme to be used for the site.",
       "value": "bcgov"

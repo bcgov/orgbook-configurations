@@ -114,7 +114,7 @@
       "displayName": "Source Context Directory",
       "description": "The source context directory.",
       "required": false,
-      "value": "starter-kits/credential-registry/server/tob-solr/cores"
+      "value": "server/solr/cores"
     },
     {
       "name": "SOURCE_IMAGE_NAME",

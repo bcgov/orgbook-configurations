@@ -224,8 +224,8 @@
                     "value": "${SKIP_INDEXING_ON_STARTUP}"
                   },
                   {
-                    "name": "TOB_THEME",
-                    "value": "${TOB_THEME}"
+                    "name": "THEME",
+                    "value": "${THEME}"
                   },
                   {
                     "name": "ENABLE_REALTIME_INDEXING",
@@ -474,7 +474,7 @@
       "displayName": "SOLR Core Name",
       "description": "The name of the core to use when connecting with SOLR.",
       "required": false,
-      "value": "the_org_book"
+      "value": "credential_registry"
     },
     {
       "name": "SKIP_INDEXING_ON_STARTUP",
@@ -519,7 +519,7 @@
       "value": "msg-queue"
     },
     {
-      "name": "TOB_THEME",
+      "name": "THEME",
       "displayName": "TheOrgBook Theme",
       "description": "The theme to use for the tob-api.  This defines which customizations to load for the application.",
       "required": true,

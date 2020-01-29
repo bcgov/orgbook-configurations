@@ -369,7 +369,7 @@
       "displayName": "Application Script",
       "description": "The start-up script for the application.",
       "required": true,
-      "value": "start-celery-worker.sh"
+      "value": "scripts/start-celery-worker.sh"
     },
     {
       "name": "RABBITMQ_SVC_NAME",

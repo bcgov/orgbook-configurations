@@ -1,4 +1,4 @@
-def PIPELINE_NAME = "deployment/bc-test"
+def PIPELINE_NAME = "deployment/bc-prod"
 
 def LIB_NAME= "orgbook-lib"
 def LIB_REPO = "https://github.com/bcgov/orgbook-configurations.git"

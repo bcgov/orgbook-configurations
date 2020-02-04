@@ -52,6 +52,28 @@ objects:
       name: ${NAME}${SUFFIX}
       weight: 100
 
+- kind: Route
+  apiVersion: v1
+  metadata:
+    name: ${NAME}-admin${SUFFIX}
+    labels:
+      name: ${NAME}-admin${SUFFIX}
+      app: ${APP_NAME}${SUFFIX}
+      app-group: ${APP_GROUP}
+    annotations:
+        haproxy.router.openshift.io/timeout: ${ROUTE_TIMEOUT}
+  spec:
+    host: ${APPLICATION_ADMIN_DOMAIN}
+    port:
+      targetPort: ${NAME}-admin
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: ${NAME}${SUFFIX}
+      weight: 100
+
 - kind: Secret
   apiVersion: v1
   metadata:
@@ -285,6 +307,11 @@ parameters:
   description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
   required: false
   value: orgbook-agent-dev.pathfinder.gov.bc.ca
+- name: APPLICATION_ADMIN_DOMAIN
+  displayName: Application Admin Endpoint Hostname
+  description: The exposed admin hostname that will route to the service, if left blank a value will be defaulted.
+  required: false
+  value: orgbook-agent-admin-dev.pathfinder.gov.bc.ca
 - name: ROUTE_TIMEOUT
   displayName: Route Timeout
   description: The timeout for the application route.  When this timeout is exceeded the application's route will respond with a 504 Gateway Timeout error.

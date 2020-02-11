@@ -140,7 +140,7 @@
                   "failureThreshold": 5,
                   "periodSeconds": 30,
                   "initialDelaySeconds": 3,
-                  "timeoutSeconds": 20,
+                  "timeoutSeconds": 40,
                   "httpGet": {
                     "path": "/health",
                     "port": 8080
@@ -150,7 +150,7 @@
                   "failureThreshold": 5,
                   "periodSeconds": 60,
                   "initialDelaySeconds": 30,
-                  "timeoutSeconds": 20,
+                  "timeoutSeconds": 40,
                   "httpGet": {
                     "path": "/health",
                     "port": 8080

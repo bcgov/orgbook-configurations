@@ -70,7 +70,7 @@
       "spec": {
         "host": "${APPLICATION_DOMAIN}",
         "port": {
-          "targetPort":"${NAME}-admin"
+          "targetPort": "${NAME}-admin"
         },
         "tls": {
           "insecureEdgeTerminationPolicy": "Redirect",
@@ -121,14 +121,12 @@
       },
       "spec": {
         "strategy": {
-          "type": "Rolling",
-          "rollingParams": {
-            "updatePeriodSeconds": 1,
-            "intervalSeconds": 1,
-            "timeoutSeconds": 600,
-            "maxUnavailable": "25%",
-            "maxSurge": "25%"
-          }
+          "type": "Recreate",
+          "recreateParams": {
+            "timeoutSeconds": 600
+          },
+          "resources": {},
+          "activeDeadlineSeconds": 21600
         },
         "triggers": [
           {

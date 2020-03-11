@@ -6,7 +6,7 @@
 # NAME=schema-spy
 # SUFFIX=-indy-cat
 # APP_NAME=OrgBook
-# APP_GROUP=indy-catalyst
+# APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=devex-von-tools
 APPLICATION_DOMAIN=schema-spy-indy-cat-test.pathfinder.gov.bc.ca
 # DATABASE_SERVICE_NAME=db

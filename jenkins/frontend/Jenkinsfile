@@ -19,7 +19,7 @@ node {
       echo "Cleaning out working directory ..."
       deleteDir()
 
-      echo "Checking out the main indy-catalyst credential-registry client code ..."
+      echo "Checking out the main aries-vcr credential-registry client code ..."
       sparseCheckout("${config.SOURCE_REPO}", 
                      "${config.SOURCE_REPO_BRANCH}",
                      "${config.SOURCE_REPO_WORKING_DIRECTORY}", 

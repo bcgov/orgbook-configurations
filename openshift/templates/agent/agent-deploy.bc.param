@@ -6,7 +6,7 @@
 NAME=agent
 SUFFIX=-indy-cat
 APP_NAME=OrgBook
-APP_GROUP=indy-catalyst
+APP_GROUP=aries-vcr
 APPLICATION_DOMAIN=orgbook-agent-dev.pathfinder.gov.bc.ca 
 APPLICATION_ADMIN_DOMAIN=orgbook-agent-admin-dev.pathfinder.gov.bc.ca
 ROUTE_TIMEOUT=120s

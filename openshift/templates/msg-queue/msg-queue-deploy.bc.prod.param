@@ -6,7 +6,7 @@
 # NAME=msg-queue
 # SUFFIX=-indy-cat
 # APP_NAME=OrgBook
-# APP_GROUP=indy-catalyst
+# APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=devex-von-tools
 TAG_NAME=bc-prod
 APPLICATION_DOMAIN=orgbook-msg-queue-prod.pathfinder.gov.bc.ca

@@ -1,5 +1,5 @@
 export PROJECT_NAMESPACE="devex-von"
-export GIT_URI="https://github.com/bcgov/indy-catalyst.git"
+export GIT_URI="https://github.com/hyperledger/aries-vcr.git"
 export GIT_REF="master"
 
 # The templates that should not have their GIT referances(uri and ref) over-ridden

@@ -6,7 +6,7 @@
 # NAME=frontend
 # SUFFIX=-indy-cat
 # APP_NAME=OrgBook
-# APP_GROUP=indy-catalyst
+# APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=devex-von-tools
 # REAL_IP_FROM=172.51.0.0/16
 # API_URL=http://api-indy-cat:8080/api

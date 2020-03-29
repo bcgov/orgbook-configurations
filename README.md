@@ -2,7 +2,7 @@
 
 # The OrgBook Configurations
 
-This repository contains the [openshift-developer-tools](https://github.com/BCDevOps/openshift-developer-tools/tree/master/bin) compatible OpenShift configurations for the [indy-catalyst](https://github.com/bcgov/indy-catalyst) instance of the OrgBook.
+This repository contains the [openshift-developer-tools](https://github.com/BCDevOps/openshift-developer-tools/tree/master/bin) compatible OpenShift configurations for the [aries-vcr](https://github.com/hyperledger/aries-vcr) instance of the OrgBook.
 
 For information on how to use these configurations with the `openshift-developer-tools scripts` please refer to the documentation; [README.md](https://github.com/BCDevOps/openshift-developer-tools/blob/master/bin/README.md).
 

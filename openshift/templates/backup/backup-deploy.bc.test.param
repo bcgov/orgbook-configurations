@@ -6,7 +6,7 @@
 # NAME=backup
 # SUFFIX=-indy-cat
 # APP_NAME=Backup
-# APP_GROUP=indy-catalyst
+# APP_GROUP=aries-vcr
 # SOURCE_IMAGE_NAME=backup
 # IMAGE_NAMESPACE=devex-von-tools
 TAG_NAME=bc-test

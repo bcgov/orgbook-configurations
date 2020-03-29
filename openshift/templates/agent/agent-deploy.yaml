@@ -304,7 +304,7 @@ parameters:
   displayName: App Group
   description: Used to group components together.
   required: true
-  value: indy-catalyst
+  value: aries-vcr
 - name: APPLICATION_DOMAIN
   displayName: Application Hostname
   description: The exposed hostname that will route to the service, if left blank a value will be defaulted.

@@ -105,7 +105,7 @@
       "displayName": "App Group",
       "description": "The name assigned to all of the deployments in this project.",
       "required": true,
-      "value": "indy-catalyst"
+      "value": "aries-vcr"
     },
     {
       "name": "OUTPUT_IMAGE_TAG",
@@ -119,7 +119,7 @@
       "displayName": "GIT Source Repo URL",
       "description": "A GIT URL to your source code.",
       "required": true,
-      "value": "https://github.com/bcgov/indy-catalyst.git"
+      "value": "https://github.com/hyperledger/aries-vcr.git"
     },
     {
       "name": "GIT_REF",

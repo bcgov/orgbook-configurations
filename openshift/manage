@@ -55,7 +55,7 @@ usage () {
     updateSearchIndex
       - Update the search index for a given environment.
       - Supports passing arguments to updateSearchIndex.sh.  For example:
-          $0 -p bc -e dev updateSearchIndex -b 500 -s 2019-07-04T00:00:00
+          $0 -p bc -e dev updateSearchIndex -b 500 -d 2019-07-04T00:00:00
 
     indexSynced
       - Check to see if the search-engine indexes are syned with the database credentials.
@@ -408,10 +408,10 @@ function updateSearchIndex() {
     local OPTIND
     local OPTARG
     unset local args
-    while getopts s:b: FLAG; do
+    while getopts d:b: FLAG; do
       case $FLAG in
-        * ) args="${args} -${FLAG} ${OPTARG}"
-          ;;
+        d ) args="${args} -s ${OPTARG}" ;;
+        * ) args="${args} -${FLAG} ${OPTARG}" ;;
       esac
     done
     shift $((OPTIND-1))

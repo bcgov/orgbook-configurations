@@ -14,6 +14,7 @@ API_SERVICE_NAME=api-indy-cat
 API_PATH=/api
 AdditionalRealIpFromRules=
 IpFilterRules=
+API_RATE_LIMIT=limit_req zone=bra25 burst=100;
 BLACK_LIST_CONFIG_FILE_NAME=blacklist.conf
 BLACK_LIST_CONFIG_MAP_NAME=blacklist-conf
 BLACK_LIST_CONFIG_MOUNT_PATH=/etc/nginx/

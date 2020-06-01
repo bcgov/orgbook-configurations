@@ -212,6 +212,10 @@
                     "value": "${DJANGO_DEBUG}"
                   },
                   {
+                    "name": "DJANGO_LOG_LEVEL",
+                    "value": "${DJANGO_LOG_LEVEL}"
+                  },
+                  {
                     "name": "SOLR_SERVICE_NAME",
                     "value": "${SOLR_SERVICE_NAME}${SUFFIX}"
                   },
@@ -461,6 +465,13 @@
       "description": "If Django is in debug mode",
       "required": true,
       "value": "False"
+    },
+    {
+      "name": "DJANGO_LOG_LEVEL",
+      "displayName": "Django Logging Level",
+      "description": "Django logging level.",
+      "required": true,
+      "value": "WARN"
     },
     {
       "name": "SOLR_SERVICE_NAME",

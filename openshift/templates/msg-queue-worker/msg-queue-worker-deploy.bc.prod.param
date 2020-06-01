@@ -25,6 +25,8 @@
 TAG_NAME=bc-prod
 # DATABASE_DEPLOYMENT_NAME=db
 # THEME=bcgov
+# TRACE_EVENTS=false
+# RECORD_TIMINGS=false
 # APP_SCRIPT=scripts/start-celery-worker.sh
 # RABBITMQ_SVC_NAME=msg-queue
 # AGENT_SERVICE_NAME=agent

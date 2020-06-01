@@ -184,6 +184,14 @@
                   {
                     "name": "THEME",
                     "value": "${THEME}"
+                  },
+                  {
+                    "name": "TRACE_EVENTS",
+                    "value": "${TRACE_EVENTS}"
+                  },
+                  {
+                    "name": "RECORD_TIMINGS",
+                    "value": "${RECORD_TIMINGS}"
                   }
                 ],
                 "resources": {
@@ -374,6 +382,20 @@
       "description": "The theme to use for the tob-api.  This defines which customizations to load for the application.",
       "required": true,
       "value": "bcgov"
+    },
+    {
+      "name": "TRACE_EVENTS",
+      "displayName": "Trace Events",
+      "description": "Trace events.  Enable/Disable tracing.",
+      "required": false,
+      "value": "false"
+    },
+    {
+      "name": "RECORD_TIMINGS",
+      "displayName": "Record Timings",
+      "description": "Record Timings.  Enable/Disable method timings.",
+      "required": false,
+      "value": "false"
     },
     {
       "name": "APP_SCRIPT",

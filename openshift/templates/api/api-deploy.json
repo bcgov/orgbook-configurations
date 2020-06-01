@@ -335,6 +335,14 @@
                         "key": "smtp-host"
                       }
                     }
+                  },
+                  {
+                    "name": "TRACE_EVENTS",
+                    "value": "${TRACE_EVENTS}"
+                  },
+                  {
+                    "name": "RECORD_TIMINGS",
+                    "value": "${RECORD_TIMINGS}"
                   }
                 ],
                 "resources": {
@@ -602,6 +610,20 @@
       "description": "The SMTP server address used for sending email.",
       "required": false,
       "value": ""
+    },
+    {
+      "name": "TRACE_EVENTS",
+      "displayName": "Trace Events",
+      "description": "Trace events.  Enable/Disable tracing.",
+      "required": false,
+      "value": "false"
+    },
+    {
+      "name": "RECORD_TIMINGS",
+      "displayName": "Record Timings",
+      "description": "Record Timings.  Enable/Disable method timings.",
+      "required": false,
+      "value": "false"
     },
     {
       "name": "DEMO_SITE",

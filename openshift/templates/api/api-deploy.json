@@ -228,16 +228,32 @@
                     "value": "${SKIP_INDEXING_ON_STARTUP}"
                   },
                   {
-                    "name": "THEME",
-                    "value": "${THEME}"
-                  },
-                  {
                     "name": "ENABLE_REALTIME_INDEXING",
                     "value": "${ENABLE_REALTIME_INDEXING}"
                   },
                   {
                     "name": "ENABLE_SUGGESTER_REBUILD",
                     "value": "${ENABLE_SUGGESTER_REBUILD}"
+                  },
+                  {
+                    "name": "RTI_WAIT_TIME",
+                    "value": "${RTI_WAIT_TIME}"
+                  },
+                  {
+                    "name": "RTI_MAX_SOLR_BATCH",
+                    "value": "${RTI_MAX_SOLR_BATCH}"
+                  },
+                  {
+                    "name": "RTI_RAISE_ERRORS",
+                    "value": "${RTI_RAISE_ERRORS}"
+                  },
+                  {
+                    "name": "RTI_ABORT_ON_ERRORS",
+                    "value": "${RTI_ABORT_ON_ERRORS}"
+                  },
+                  {
+                    "name": "THEME",
+                    "value": "${THEME}"
                   },
                   {
                     "name": "APPLICATION_URL",
@@ -515,6 +531,34 @@
       "description": "Flag to enable/disable search suggester rebuilding.  Set to 1 to enable, leave it blank to disable.  Having this enabled can cause issues with very large data-sets.",
       "required": false,
       "value": ""
+    },
+    {
+      "name": "RTI_WAIT_TIME",
+      "displayName": "Realtime Indexing - Wait Time",
+      "description": "The number of seconds to wait before draining the solr queue.  Flag to enable/disable raising errors during realtime indexing.  The indexing thread will be killed, and the API instance will continue to run without indexing.  Set to 'true' to enable.  Defaults to 5 sceonds.",
+      "required": false,
+      "value": "5"
+    },
+    {
+      "name": "RTI_MAX_SOLR_BATCH",
+      "displayName": "Realtime Indexing - Batch Size",
+      "description": "The maximum number of items to grouped items to collect before triggering the indexing process.  Defaults to 25.",
+      "required": false,
+      "value": "25"
+    },
+    {
+      "name": "RTI_RAISE_ERRORS",
+      "displayName": "Realtime Indexing - Raise Errors",
+      "description": "Flag to enable/disable raising errors during realtime indexing.  The indexing thread will be killed, and the API instance will continue to run without indexing.  Set to 'true' to enable.  Defaults to false.",
+      "required": false,
+      "value": "false"
+    },
+    {
+      "name": "RTI_ABORT_ON_ERRORS",
+      "displayName": "Realtime Indexing - Abort On Errors",
+      "description": "Overrides RTI_RAISE_ERRORS.  Flag to enable/disable aborting (killing) the API instance when realtime indexing errors are encountered.  Set to 'true' to enable.  Defaults to false.",
+      "required": false,
+      "value": "true"
     },
     {
       "name": "TAG_NAME",

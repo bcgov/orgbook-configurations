@@ -15,6 +15,7 @@
 # APP_CONFIG=
 # #DJANGO_SECRET_KEY=[\w]{50}
 # DJANGO_DEBUG=False
+# DJANGO_LOG_LEVEL=WARN
 # SOLR_SERVICE_NAME=search-engine
 # SOLR_CORE_NAME=credential_registry
 # SKIP_INDEXING_ON_STARTUP=all
@@ -24,6 +25,8 @@
 TAG_NAME=bc-prod
 # DATABASE_DEPLOYMENT_NAME=db
 # THEME=bcgov
+# TRACE_EVENTS=false
+# RECORD_TIMINGS=false
 # APP_SCRIPT=scripts/start-celery-worker.sh
 # RABBITMQ_SVC_NAME=msg-queue
 # AGENT_SERVICE_NAME=agent

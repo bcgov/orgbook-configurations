@@ -160,6 +160,10 @@
                   {
                     "name": "CORE_NAME",
                     "value": "${CORE_NAME}"
+                  },
+                  {
+                    "name": "SOLR_LOG_LEVEL",
+                    "value": "${SOLR_LOG_LEVEL}"
                   }
                 ],
                 "terminationMessagePath": "/dev/termination-log",
@@ -250,6 +254,13 @@
       "description": "The name of the Solr core configuration to load.",
       "required": true,
       "value": "credential_registry"
+    },
+    {
+      "name": "SOLR_LOG_LEVEL",
+      "displayName": "Solr Log Level",
+      "description": "Defines the loggin level for Solr.",
+      "required": true,
+      "value": "WARN"
     },
     {
       "name": "PERSISTENT_VOLUME_CLASS",

@@ -16,6 +16,7 @@
 # APP_MODULE=api_indy.tob_anchor.boot:init_app
 # #DJANGO_SECRET_KEY=[\w]{50}
 # DJANGO_DEBUG=False
+# DJANGO_LOG_LEVEL=WARN
 # SOLR_SERVICE_NAME=search-engine
 # SOLR_CORE_NAME=credential_registry
 # SKIP_INDEXING_ON_STARTUP=all
@@ -38,6 +39,8 @@ APPLICATION_URL=https://orgbook-test.pathfinder.gov.bc.ca
 # EMAIL_SETTINGS_STORE_NAME=email-settings
 # FEEDBACK_TARGET_EMAIL=
 # SMTP_SERVER_ADDRESS=
+# TRACE_EVENTS=false
+# RECORD_TIMINGS=false
 # DEMO_SITE=True
 # AGENT_SERVICE_NAME=agent
 # AGENT_ADMIN_PORT=8024

@@ -153,9 +153,13 @@ objects:
             $([ ! -z "${AGENT_ADMIN_API_KEY}" ] && echo "--admin-api-key ${AGENT_ADMIN_API_KEY}" || echo "--admin-insecure-mode")
             --label "${AGENT_NAME}"
             --log-level ${AGENT_LOG_LEVEL}
-            $([ ! -z "${TIMING}" ] && echo "--timing" || echo "")
-            $([ ! -z "${READ_ONLY_LEDGER}" ] && echo "--read-only-ledger" || echo "")
-            --plugin indy_catalyst_issuer_registration);
+            ${TIMING:+--timing}
+            ${READ_ONLY_LEDGER:+--read-only-ledger}
+            --plugin indy_catalyst_issuer_registration
+            ${TRACING:+--trace}
+            ${TRACE_TARGET:+--trace-target ${TRACE_TARGET}}
+            ${TRACE_TAG:+--trace-tag ${TRACE_TAG}}
+            ${TRACE_LABEL:+--trace-label ${TRACE_LABEL}});
           env:
           - name: GENESIS_URL
             value: ${GENESIS_FILE_URL}
@@ -224,6 +228,14 @@ objects:
             value: ${AGENT_TIMING}
           - name: READ_ONLY_LEDGER
             value: ${AGENT_READ_ONLY_LEDGER}
+          - name: TRACING
+            value: ${AGENT_TRACING}
+          - name: TRACE_TARGET
+            value: ${AGENT_TRACE_TARGET}
+          - name: TRACE_TAG
+            value: ${AGENT_TRACE_TAG}
+          - name: TRACE_LABEL
+            value: ${AGENT_TRACE_LABEL}
           image:
           ports:
           - containerPort: ${{AGENT_ADMIN_PORT}}
@@ -385,6 +397,32 @@ parameters:
   description: Enable/Disable the read only ledger flag.  Controls the inclusion/exclusion of the agent '--read-only-ledger' startup parameter.  Defaults to disabled.
   required: false
   value: ''
+
+# ===============================================================================
+# Tracing Configuration
+#--------------------------------------------------------------------------------
+- name: AGENT_TRACING
+  displayName: Enable agent tracing
+  description: Enable/Disable tracing.
+  required: false
+  value: ''
+- name: AGENT_TRACE_TARGET
+  displayName: Set the agent's trace target.
+  description: Set the tracing target.  Target for trace events ("log", "message", or http endpoint).
+  required: false
+  value: ''
+- name: AGENT_TRACE_TAG
+  displayName: Tag to be included when logging events.
+  description: Tag to be included when logging events.
+  required: false
+  value: ''
+- name: AGENT_TRACE_LABEL
+  displayName: Label (agent name) used logging events.
+  description: Label (agent name) used logging events.
+  required: false
+  value: ''
+# ===============================================================================
+
 # ===============================================================================
 # Wallet Configuration
 #--------------------------------------------------------------------------------

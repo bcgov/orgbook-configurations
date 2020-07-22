@@ -159,7 +159,7 @@ objects:
             ${TRACING:+--trace}
             ${TRACE_TARGET:+--trace-target ${TRACE_TARGET}}
             ${TRACE_TAG:+--trace-tag ${TRACE_TAG}}
-            ${TRACE_LABEL:+--trace-label ${TRACE_LABEL}});
+            ${TRACE_LABEL:+--trace-label $(eval echo \"${TRACE_LABEL}\")});
           env:
           - name: GENESIS_URL
             value: ${GENESIS_FILE_URL}
@@ -418,9 +418,9 @@ parameters:
   value: ''
 - name: AGENT_TRACE_LABEL
   displayName: Label (agent name) used logging events.
-  description: Label (agent name) used logging events.
+  description: Label (agent name) used logging events.  Supports environment variables, '${HOSTNAME}' for example.
   required: false
-  value: ''
+  value: "'${HOSTNAME}'"
 # ===============================================================================
 
 # ===============================================================================

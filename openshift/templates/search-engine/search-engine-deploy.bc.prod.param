@@ -8,8 +8,8 @@
 # APP_NAME=OrgBook
 # APP_GROUP=indy-catalyst
 # IMAGE_NAMESPACE=devex-von-tools
-TAG_NAME=bc-test
-# PERSISTENT_VOLUME_SIZE=5Gi
+TAG_NAME=bc-prod
+PERSISTENT_VOLUME_SIZE=8Gi
 # MOUNT_PATH=/opt/solr/server/solr/mycores
 # CORE_NAME=credential_registry
 # SOLR_LOG_LEVEL=WARN

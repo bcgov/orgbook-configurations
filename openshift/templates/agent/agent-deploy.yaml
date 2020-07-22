@@ -52,6 +52,28 @@ objects:
       name: ${NAME}${SUFFIX}
       weight: 100
 
+- kind: Route
+  apiVersion: v1
+  metadata:
+    name: ${NAME}-admin${SUFFIX}
+    labels:
+      name: ${NAME}-admin${SUFFIX}
+      app: ${APP_NAME}${SUFFIX}
+      app-group: ${APP_GROUP}
+    annotations:
+        haproxy.router.openshift.io/timeout: ${ROUTE_TIMEOUT}
+  spec:
+    host: ${APPLICATION_ADMIN_DOMAIN}
+    port:
+      targetPort: ${NAME}-admin
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: ${NAME}${SUFFIX}
+      weight: 100
+
 - kind: Secret
   apiVersion: v1
   metadata:
@@ -131,8 +153,13 @@ objects:
             $([ ! -z "${AGENT_ADMIN_API_KEY}" ] && echo "--admin-api-key ${AGENT_ADMIN_API_KEY}" || echo "--admin-insecure-mode")
             --label "${AGENT_NAME}"
             --log-level ${AGENT_LOG_LEVEL}
-            $([ ! -z "${TIMING}" ] && echo "--timing" || echo "")
-            --plugin indy_catalyst_issuer_registration);
+            ${TIMING:+--timing}
+            ${READ_ONLY_LEDGER:+--read-only-ledger}
+            --plugin indy_catalyst_issuer_registration
+            ${TRACING:+--trace}
+            ${TRACE_TARGET:+--trace-target ${TRACE_TARGET}}
+            ${TRACE_TAG:+--trace-tag ${TRACE_TAG}}
+            ${TRACE_LABEL:+--trace-label ${TRACE_LABEL}});
           env:
           - name: GENESIS_URL
             value: ${GENESIS_FILE_URL}
@@ -199,6 +226,16 @@ objects:
             value: ${LOG_LEVEL}
           - name: TIMING
             value: ${AGENT_TIMING}
+          - name: READ_ONLY_LEDGER
+            value: ${AGENT_READ_ONLY_LEDGER}
+          - name: TRACING
+            value: ${AGENT_TRACING}
+          - name: TRACE_TARGET
+            value: ${AGENT_TRACE_TARGET}
+          - name: TRACE_TAG
+            value: ${AGENT_TRACE_TAG}
+          - name: TRACE_LABEL
+            value: ${AGENT_TRACE_LABEL}
           image:
           ports:
           - containerPort: ${{AGENT_ADMIN_PORT}}
@@ -285,6 +322,11 @@ parameters:
   description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
   required: false
   value: orgbook-agent-dev.pathfinder.gov.bc.ca
+- name: APPLICATION_ADMIN_DOMAIN
+  displayName: Application Admin Endpoint Hostname
+  description: The exposed admin hostname that will route to the service, if left blank a value will be defaulted.
+  required: false
+  value: orgbook-agent-admin-dev.pathfinder.gov.bc.ca
 - name: ROUTE_TIMEOUT
   displayName: Route Timeout
   description: The timeout for the application route.  When this timeout is exceeded the application's route will respond with a 504 Gateway Timeout error.
@@ -350,6 +392,37 @@ parameters:
   description: Enable/Disable collection of agent timing information.  Controls the inclusion/exclusion of the agent '--timing' startup parameter.  Defaults to disabled.
   required: false
   value: ''
+- name: AGENT_READ_ONLY_LEDGER
+  displayName: Set read only ledger flag.
+  description: Enable/Disable the read only ledger flag.  Controls the inclusion/exclusion of the agent '--read-only-ledger' startup parameter.  Defaults to disabled.
+  required: false
+  value: ''
+
+# ===============================================================================
+# Tracing Configuration
+#--------------------------------------------------------------------------------
+- name: AGENT_TRACING
+  displayName: Enable agent tracing
+  description: Enable/Disable tracing.
+  required: false
+  value: ''
+- name: AGENT_TRACE_TARGET
+  displayName: Set the agent's trace target.
+  description: Set the tracing target.  Target for trace events ("log", "message", or http endpoint).
+  required: false
+  value: ''
+- name: AGENT_TRACE_TAG
+  displayName: Tag to be included when logging events.
+  description: Tag to be included when logging events.
+  required: false
+  value: ''
+- name: AGENT_TRACE_LABEL
+  displayName: Label (agent name) used logging events.
+  description: Label (agent name) used logging events.
+  required: false
+  value: ''
+# ===============================================================================
+
 # ===============================================================================
 # Wallet Configuration
 #--------------------------------------------------------------------------------

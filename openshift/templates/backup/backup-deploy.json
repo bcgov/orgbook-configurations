@@ -466,7 +466,7 @@
       "displayName": "Backup Volume Class",
       "description": "The class of the persistent volume used for restoring and verifying backups; should be one of gluster-block, gluster-file-db, netapp-file-standard, or netapp-block-standard; gluster-block or netapp-block-standard are recommended for LARGE databases (as they have far better performance).",
       "required": true,
-      "value": "gluster-file-db"
+      "value": "netapp-file-standard"
     },
     {
       "name": "VERIFICATION_VOLUME_MOUNT_PATH",

@@ -178,8 +178,20 @@
                     "value": "${DJANGO_DEBUG}"
                   },
                   {
+                    "name": "DJANGO_LOG_LEVEL",
+                    "value": "${DJANGO_LOG_LEVEL}"
+                  },
+                  {
                     "name": "THEME",
                     "value": "${THEME}"
+                  },
+                  {
+                    "name": "TRACE_EVENTS",
+                    "value": "${TRACE_EVENTS}"
+                  },
+                  {
+                    "name": "RECORD_TIMINGS",
+                    "value": "${RECORD_TIMINGS}"
                   }
                 ],
                 "resources": {
@@ -302,6 +314,13 @@
       "value": "False"
     },
     {
+      "name": "DJANGO_LOG_LEVEL",
+      "displayName": "Django Logging Level",
+      "description": "Django logging level.",
+      "required": true,
+      "value": "WARN"
+    },
+    {
       "name": "SOLR_SERVICE_NAME",
       "displayName": "SOLR Service Name",
       "description": "The name of the service associated with the SOLR search engine.",
@@ -365,11 +384,25 @@
       "value": "bcgov"
     },
     {
+      "name": "TRACE_EVENTS",
+      "displayName": "Trace Events",
+      "description": "Trace events.  Enable/Disable tracing.",
+      "required": false,
+      "value": "false"
+    },
+    {
+      "name": "RECORD_TIMINGS",
+      "displayName": "Record Timings",
+      "description": "Record Timings.  Enable/Disable method timings.",
+      "required": false,
+      "value": "false"
+    },
+    {
       "name": "APP_SCRIPT",
       "displayName": "Application Script",
       "description": "The start-up script for the application.",
       "required": true,
-      "value": "start-celery-worker.sh"
+      "value": "scripts/start-celery-worker.sh"
     },
     {
       "name": "RABBITMQ_SVC_NAME",

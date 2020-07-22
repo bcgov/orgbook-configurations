@@ -2,14 +2,14 @@
 // Import this file into the pipeline using 'load'.
 class config extends bc.baseConfig {
   // Source repository configuration
-  public static final String SOURCE_REPO = "https://github.com/bcgov/indy-catalyst.git"
+  public static final String SOURCE_REPO = "https://github.com/bcgov/aries-vcr.git"
   public static final String  SOURCE_REPO_BRANCH = "master"
   public static final String  SOURCE_REPO_CONTEXT_DIRECTORY = "client/"
   public static final String  SOURCE_REPO_WORKING_DIRECTORY = "indy-catalyst"
-  public static final String  SOURCE_REPO_THEME_DIRECTORY = "client/src/themes/"
+  public static final String  SOURCE_REPO_THEME_DIRECTORY = "client/themes/"
 
   // Theme repository configuration
-  public static final String  THEME_REPO = "https://github.com/bcgov/indy-catalyst.git"
+  public static final String  THEME_REPO = "https://github.com/bcgov/aries-vcr.git"
   public static final String  THEME_REPO_BRANCH = "master"
   public static final String  THEME_REPO_CONTEXT_DIRECTORY = "client/themes/"
   public static final String  THEME_REPO_WORKING_DIRECTORY = "themes"

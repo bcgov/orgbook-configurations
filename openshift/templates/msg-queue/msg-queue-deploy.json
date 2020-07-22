@@ -70,7 +70,7 @@
       "spec": {
         "host": "${APPLICATION_DOMAIN}",
         "port": {
-          "targetPort":"${NAME}-admin"
+          "targetPort": "${NAME}-admin"
         },
         "tls": {
           "insecureEdgeTerminationPolicy": "Redirect",
@@ -121,14 +121,12 @@
       },
       "spec": {
         "strategy": {
-          "type": "Rolling",
-          "rollingParams": {
-            "updatePeriodSeconds": 1,
-            "intervalSeconds": 1,
-            "timeoutSeconds": 600,
-            "maxUnavailable": "25%",
-            "maxSurge": "25%"
-          }
+          "type": "Recreate",
+          "recreateParams": {
+            "timeoutSeconds": 600
+          },
+          "resources": {},
+          "activeDeadlineSeconds": 21600
         },
         "triggers": [
           {
@@ -213,7 +211,29 @@
                     "mountPath": "${CONFIG_MAP_MOUNT_PATH}${CONFIG_MAP_FILE_NAME}",
                     "subPath": "${CONFIG_MAP_FILE_NAME}"
                   }
-                ]
+                ],
+                "livenessProbe": {
+                  "exec": {
+                    "command": [
+                      "rabbitmq-diagnostics",
+                      "status"
+                    ]
+                  },
+                  "initialDelaySeconds": 60,
+                  "timeoutSeconds": 15,
+                  "periodSeconds": 60
+                },
+                "readinessProbe": {
+                  "exec": {
+                    "command": [
+                      "rabbitmq-diagnostics",
+                      "check_port_connectivity"
+                    ]
+                  },
+                  "initialDelaySeconds": 20,
+                  "timeoutSeconds": 10,
+                  "periodSeconds": 60
+                }
               }
             ],
             "volumes": [
@@ -332,7 +352,7 @@
       "displayName": "Mount Path",
       "description": "The path to mount the persistent volume.",
       "required": true,
-      "value": "/var/lib/rabbitmq"
+      "value": "/var/lib/rabbitmq/mnesia"
     },
     {
       "name": "PERSISTENT_VOLUME_SIZE",

@@ -94,6 +94,12 @@ usage () {
     listBuildRefs
       - Lists build configurations and their git references in a convenient column format.
 
+    getAgentConnections
+      - List all agent connections.
+
+    removeAgentConnections
+      - Remove all agent connections.
+
     scaleUp
       - Scale up one or more pods.
         For example;
@@ -473,6 +479,45 @@ deleteTopic() {
   runInContainer ${_apiPodName}${resourceSuffix} "./scripts/deleteTopic.sh ${_topic_id}"
   exitOnError
 }
+
+function getAgentConnections(){
+  (
+    _podName=${1}
+    if [ -z "${_podName}" ]; then
+      echoError "\ngetAgentConnections; You MUST specify a pod name.\n"
+      exit 1
+    fi
+
+    resonse=$(runInContainer \
+      ${_podName}${resourceSuffix} \
+      'curl -s -X GET -H "x-api-key:${AGENT_ADMIN_API_KEY}" http://localhost:8024/connections')
+    echo "$(echo ${resonse} | jq '.')"
+  )
+}
+
+function removeAgentConnections(){
+  (
+    _podName=${1}
+    if [ -z "${_podName}" ]; then
+      echoError "\nremoveAgentConnections; You MUST specify a pod name.\n"
+      exit 1
+    fi
+
+    resonse=$(getAgentConnections ${_podName})
+    connectionIds=$(echo ${resonse} | jq -r '.results[].connection_id')
+    echo
+
+    for connectionId in ${connectionIds}; do
+      # Trim whitespace
+      connectionId="$(echo -e "${connectionId}" | sed -e 's~^[[:space:]]*~~')"
+      echoWarning "Removing connection: '${connectionId}'"
+      runInContainer \
+        ${_podName}${resourceSuffix} \
+        "curl -s -o /dev/null -w \" - %{http_code}\n\" -X POST -H \"x-api-key:\${AGENT_ADMIN_API_KEY}\" http://localhost:8024/connections/${connectionId}/remove"
+    done
+    echo
+  )
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -568,6 +613,14 @@ case "${_cmd}" in
     ;;
   listbuildrefs)
     listBuildRefs
+    ;;
+  getagentconnections)
+    agentPodName=${1:-agent}
+    getAgentConnections "${agentPodName}"
+    ;;
+  removeagentconnections)
+    agentPodName=${1:-agent}
+    removeAgentConnections "${agentPodName}"
     ;;
 
   scaleup)

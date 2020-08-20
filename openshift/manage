@@ -449,11 +449,9 @@ function indexSynced() {
     exit 1
   fi
 
-  indexInfo=$(runInContainer "${_apiPodName}${resourceSuffix}" \
-    "curl -s http://search-engine${resourceSuffix}:8983/solr/credential_registry/admin/luke?wt=json&show=index&numTerms=0")
-  indexCount=$(echo ${indexInfo} | sed 's~\(.*"numDocs":\)\([[:digit:]]\+\).*~\2~')
-  actualCount=$(runInContainer ${_dbPodName}${resourceSuffix} \
-    'psql -d ${POSTGRESQL_DATABASE} -t -c "select count(*) from credential;"')
+  indexInfo=$(curl -s https://orgbook-prod.pathfinder.gov.bc.ca/api/quickload)
+  actualCount=$(echo ${indexInfo} | jq -r '.counts.actual_item_count')
+  indexCount=$(echo ${indexInfo} | jq -r '.credential_counts.total_indexed_items')
   indexDiff=$(( ${actualCount} - ${indexCount} ))
 
   if (( ${indexCount} == ${actualCount} )); then

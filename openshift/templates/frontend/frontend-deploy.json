@@ -386,7 +386,7 @@
       "description": "The exposed hostname that will route to the service, e.g., myappname.pathfinder.gov.bc.ca, if left blank a value will be defaulted.",
       "displayName": "Application Hostname",
       "name": "APPLICATION_DOMAIN",
-      "value": "orgbook-dev.pathfinder.gov.bc.ca"
+      "value": "dev.orgbook.gov.bc.ca"
     },
     {
       "name": "ROUTE_TIMEOUT",

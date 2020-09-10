@@ -449,7 +449,7 @@ function indexSynced() {
     exit 1
   fi
 
-  indexInfo=$(curl -s https://orgbook-prod.pathfinder.gov.bc.ca/api/quickload)
+  indexInfo=$(curl -s https://orgbook.gov.bc.ca/api/quickload)
   actualCount=$(echo ${indexInfo} | jq -r '.counts.actual_item_count')
   indexCount=$(echo ${indexInfo} | jq -r '.credential_counts.total_indexed_items')
   indexDiff=$(( ${actualCount} - ${indexCount} ))

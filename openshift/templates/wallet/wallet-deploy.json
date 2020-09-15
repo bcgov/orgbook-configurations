@@ -70,6 +70,18 @@
                 "persistentVolumeClaim": {
                   "claimName": "${NAME}${SUFFIX}"
                 }
+              },
+              {
+                "name": "${NAME}${SUFFIX}-logging-config-volume",
+                "configMap": {
+                  "name": "${LOGGING_CONFIG_MAP_NAME}",
+                  "items": [
+                    {
+                      "key": "${LOGGING_CONFIG_FILE_NAME}",
+                      "path": "${LOGGING_CONFIG_FILE_NAME}"
+                    }
+                  ]
+                }
               }
             ],
             "containers": [
@@ -129,6 +141,11 @@
                   {
                     "name": "${NAME}${SUFFIX}-data",
                     "mountPath": "${MOUNT_PATH}"
+                  },
+                  {
+                    "name": "${NAME}${SUFFIX}-logging-config-volume",
+                    "mountPath": "${LOGGING_CONFIG_MOUNT_PATH}${LOGGING_CONFIG_FILE_NAME}",
+                    "subPath": "${LOGGING_CONFIG_FILE_NAME}"
                   }
                 ],
                 "livenessProbe": {
@@ -349,6 +366,27 @@
       "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db, netapp-file-standard, netapp-block-standard",
       "required": false,
       "value": "gluster-file-db"
+    },
+    {
+      "name": "LOGGING_CONFIG_FILE_NAME",
+      "displayName": "Config File Name",
+      "description": "The name of the configuration file.",
+      "required": true,
+      "value": "logging.conf"
+    },
+    {
+      "name": "LOGGING_CONFIG_MAP_NAME",
+      "displayName": "Config Map Name",
+      "description": "The name of the configuration map.",
+      "required": true,
+      "value": "wallet-logging-conf-indy-cat"
+    },
+    {
+      "name": "LOGGING_CONFIG_MOUNT_PATH",
+      "displayName": "Config Mount Path",
+      "description": "The path to use to mount the config file.",
+      "required": true,
+      "value": "/opt/app-root/src/postgresql-cfg/"
     },
     {
       "name": "CPU_REQUEST",

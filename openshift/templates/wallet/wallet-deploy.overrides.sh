@@ -8,16 +8,21 @@ fi
 # =====================================================================
 # Special Deployment Parameters needed for DB Deployment
 # ---------------------------------------------------------------------
-# The generated config map is used to support logging configuration
-# =====================================================================
-LOGGING_CONFIG_MAP_NAME=${LOGGING_CONFIG_MAP_NAME:-wallet-logging-conf-indy-cat}
+# The generated config maps are used to support logging and autovacuum configuration
+# ==================================================================================
+CONFIG_MAP_NAME=${LOGGING_CONFIG_MAP_NAME:-db-logging-conf-indy-cat}
 SOURCE_FILE=$( dirname "$0" )/../db/config/postgresql-cfg/logging.conf
-
 OUTPUT_FORMAT=json
-OUTPUT_FILE=${LOGGING_CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
+OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
+printStatusMsg "Generating ConfigMap; ${CONFIG_MAP_NAME} ..."
+generateConfigMap "${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
 
-printStatusMsg "Generating ConfigMap; ${LOGGING_CONFIG_MAP_NAME} ..."
-generateConfigMap "${LOGGING_CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
+CONFIG_MAP_NAME=${AUTOVACUMM_CONFIG_MAP_NAME:-db-autovacuum-conf-indy-cat}
+SOURCE_FILE=$( dirname "$0" )/../db/config/postgresql-cfg/autovacuum.conf
+OUTPUT_FORMAT=json
+OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
+printStatusMsg "Generating ConfigMap; ${CONFIG_MAP_NAME} ..."
+generateConfigMap "${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
 
 if createOperation; then
   # Randomly generate a set of credentials without asking ...

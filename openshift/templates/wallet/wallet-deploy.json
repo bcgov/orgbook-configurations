@@ -82,6 +82,18 @@
                     }
                   ]
                 }
+              },
+              {
+                "name": "${NAME}${SUFFIX}-autovacuum-config-volume",
+                "configMap": {
+                  "name": "${AUTOVACUMM_CONFIG_MAP_NAME}",
+                  "items": [
+                    {
+                      "key": "${AUTOVACUMM_CONFIG_FILE_NAME}",
+                      "path": "${AUTOVACUMM_CONFIG_FILE_NAME}"
+                    }
+                  ]
+                }
               }
             ],
             "containers": [
@@ -146,6 +158,11 @@
                     "name": "${NAME}${SUFFIX}-logging-config-volume",
                     "mountPath": "${LOGGING_CONFIG_MOUNT_PATH}${LOGGING_CONFIG_FILE_NAME}",
                     "subPath": "${LOGGING_CONFIG_FILE_NAME}"
+                  },
+                  {
+                    "name": "${NAME}${SUFFIX}-autovacuum-config-volume",
+                    "mountPath": "${AUTOVACUMM_CONFIG_MOUNT_PATH}${AUTOVACUMM_CONFIG_FILE_NAME}",
+                    "subPath": "${AUTOVACUMM_CONFIG_FILE_NAME}"
                   }
                 ],
                 "livenessProbe": {
@@ -383,6 +400,27 @@
     },
     {
       "name": "LOGGING_CONFIG_MOUNT_PATH",
+      "displayName": "Config Mount Path",
+      "description": "The path to use to mount the config file.",
+      "required": true,
+      "value": "/opt/app-root/src/postgresql-cfg/"
+    },
+    {
+      "name": "AUTOVACUMM_CONFIG_FILE_NAME",
+      "displayName": "Config File Name",
+      "description": "The name of the configuration file.",
+      "required": true,
+      "value": "autovacuum.conf"
+    },
+    {
+      "name": "AUTOVACUMM_CONFIG_MAP_NAME",
+      "displayName": "Config Map Name",
+      "description": "The name of the configuration map.",
+      "required": true,
+      "value": "wallet-autovacuum-conf-indy-cat"
+    },
+    {
+      "name": "AUTOVACUMM_CONFIG_MOUNT_PATH",
       "displayName": "Config Mount Path",
       "description": "The path to use to mount the config file.",
       "required": true,

@@ -100,6 +100,36 @@ usage () {
     removeAgentConnections
       - Remove all agent connections.
 
+    locateBadRecord [<podName/>] [<databaseName/>] [<tableName/>] [<limit/>] [<startAtRecord/>] [<stopAtRecord/>]
+       - Scan a given database table for corrupt records.
+       - By default records are scanned 5000 at a time to roughly locate the affected records.
+       - Additional parameters can then be used to narrow down on and identify the affected records.
+
+        Parameters:
+          <podName/>
+            - The name of the pod hosting the database.  Defaults to 'wallet'.
+          <databaseName/>
+            - The name of the database to scan.  Defaults to 'agent_indy_cat_wallet'.
+          <tableName/>
+            - The name of the table to scan.  Defaults to 'items'.
+          <limit/>
+            - The number of records to scan at a time.  Defaults to 5000.
+          <startAtRecord/>
+            - The record to start with (the starting offset into the table).  Defaults to '0'.
+          <stopAtRecord/>
+            - The record to stop at (roughly).  Default to the number of records in the table being scanned.
+
+        Examples;
+          $0 -p bc -e prod locateBadRecord
+            - Scan using the default settings.
+
+          $0 -p bc -e prod locateBadRecord wallet agent_indy_cat_wallet items 1 10 20
+            - Scan records 10 through 20.
+
+          $0 -p bc -e prod locateBadRecord wallet agent_indy_cat_wallet items 5000 1185000
+            - Scan 5000 records at a time starting with record number 1185000
+
+
     scaleUp
       - Scale up one or more pods.
         For example;

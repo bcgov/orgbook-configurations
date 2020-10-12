@@ -516,6 +516,60 @@ function removeAgentConnections(){
     echo
   )
 }
+
+function locateBadRecord() {
+  (
+    _podName=${1}
+    _databaseName=${2}
+    _tableName=${3}
+    _limit=${4}
+    _startAtRecord=${5:-0}
+    _stopAtRecord=${6}
+
+    if [ -z "${_podName}" ] || [ -z "${_databaseName}" ] || [ -z "${_tableName}" ] || [ -z "${_limit}" ]; then
+      echoError "\nlocateBadRecord; You MUST specify a pod name, database name, table name, and limit.\n"
+      exit 1
+    fi
+
+
+    itemCount=$(runInContainer "${_podName}${resourceSuffix}" \
+      "psql -d ${_databaseName} -t -c \"select count(*) from ${_tableName};\"")
+    itemCount="$(echo -e "${itemCount}" | sed -e 's~^[[:space:]]*~~')"
+
+    offset=${_startAtRecord}
+    end=${_stopAtRecord:-${itemCount}}
+    recordCount=$((${end} - ${offset}))
+
+    echo
+    echo "Checking table for bad records:"
+    echo "  - Table: ${_tableName}"
+    echo "  - Database: ${_databaseName}"
+    echo "  - Pod: ${_podName}${resourceSuffix}"
+    echo "  - Begin: ${offset}"
+    echo "  - End: ${end}"
+    echo "  - Step: ${_limit}"
+    echo
+
+    while (("${offset}" <= "${end}")); do
+
+      toRecord=$((${offset} + ${_limit} - 1))
+      if (( ${offset} == ${toRecord} )); then
+        printf "\rChecking record ${offset} ..."
+      else
+        printf "\rChecking records ${offset} to ${toRecord} of ${itemCount} ..."
+      fi
+
+      runInContainer \
+        ${_podName}${resourceSuffix} \
+        "psql -d ${_databaseName}  -c \"select * from ${_tableName} order by id limit ${_limit} offset ${offset}\" > /dev/null || echo -e \"\nCorrupted chunk read at offset ${offset}\n.\""
+
+      offset=$((offset + ${_limit}))
+    done
+
+    echo -e "\nFinished checking records."
+  )
+}
+
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -619,6 +673,15 @@ case "${_cmd}" in
   removeagentconnections)
     agentPodName=${1:-agent}
     removeAgentConnections "${agentPodName}"
+    ;;
+  locatebadrecord)
+    dbPodName=${1:-wallet}
+    databaseName=${2:-agent_indy_cat_wallet}
+    tableName=${3:-items}
+    limit=${4:-5000}
+    startAtRecord=${5}
+    stopAtRecord=${6}
+    locateBadRecord "${dbPodName}" "${databaseName}" "${tableName}" "${limit}" "${startAtRecord}" "${stopAtRecord}"
     ;;
 
   scaleup)

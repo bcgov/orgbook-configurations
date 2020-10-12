@@ -104,6 +104,9 @@ usage () {
        - Scan a given database table for corrupt records.
        - By default records are scanned 5000 at a time to roughly locate the affected records.
        - Additional parameters can then be used to narrow down on and identify the affected records.
+       
+       - To get the actual 'id' of a given record once you've identified it's offset, set <limit/> to 1, and
+         <startAtRecord/> and <stopAtRecord/> to the offset of the affected record.
 
         Parameters:
           <podName/>
@@ -129,6 +132,8 @@ usage () {
           $0 -p bc -e prod locateBadRecord wallet agent_indy_cat_wallet items 5000 1185000
             - Scan 5000 records at a time starting with record number 1185000
 
+          $0 -p bc -e prod locateBadRecord wallet agent_indy_cat_wallet items 1 5907729 5907729
+            - Get the 'id' of the record at offset 5907729.
 
     scaleUp
       - Scale up one or more pods.
@@ -580,23 +585,29 @@ function locateBadRecord() {
     echo "  - Step: ${_limit}"
     echo
 
-    while (("${offset}" <= "${end}")); do
-
-      toRecord=$((${offset} + ${_limit} - 1))
-      if (( ${offset} == ${toRecord} )); then
-        printf "\rChecking record ${offset} ..."
-      else
-        printf "\rChecking records ${offset} to ${toRecord} of ${itemCount} ..."
-      fi
-
+    if (( "${offset}" == "${end}" )); then 
       runInContainer \
         ${_podName}${resourceSuffix} \
-        "psql -d ${_databaseName}  -c \"select * from ${_tableName} order by id limit ${_limit} offset ${offset}\" > /dev/null || echo -e \"\nCorrupted chunk read at offset ${offset}\n.\""
+        "psql -d ${_databaseName}  -ac \"select id from ${_tableName} order by id limit ${_limit} offset ${offset};\""
+    else
+      while (("${offset}" <= "${end}")); do
 
-      offset=$((offset + ${_limit}))
-    done
+        toRecord=$((${offset} + ${_limit} - 1))
+        if (( ${offset} == ${toRecord} )); then
+          printf "\rChecking record ${offset} ..."
+        else
+          printf "\rChecking records ${offset} to ${toRecord} of ${itemCount} ..."
+        fi
 
-    echo -e "\nFinished checking records."
+        runInContainer \
+          ${_podName}${resourceSuffix} \
+          "psql -d ${_databaseName}  -c \"select * from ${_tableName} order by id limit ${_limit} offset ${offset}\" > /dev/null || echo -e \"\nCorrupted chunk read at offset ${offset}\n.\""
+
+        offset=$((offset + ${_limit}))
+      done
+
+      echo -e "\nFinished checking records."
+    fi
   )
 }
 

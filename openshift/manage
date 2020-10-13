@@ -100,6 +100,41 @@ usage () {
     removeAgentConnections
       - Remove all agent connections.
 
+    locateBadRecord [<podName/>] [<databaseName/>] [<tableName/>] [<limit/>] [<startAtRecord/>] [<stopAtRecord/>]
+       - Scan a given database table for corrupt records.
+       - By default records are scanned 5000 at a time to roughly locate the affected records.
+       - Additional parameters can then be used to narrow down on and identify the affected records.
+       
+       - To get the actual 'id' of a given record once you've identified it's offset, set <limit/> to 1, and
+         <startAtRecord/> and <stopAtRecord/> to the offset of the affected record.
+
+        Parameters:
+          <podName/>
+            - The name of the pod hosting the database.  Defaults to 'wallet'.
+          <databaseName/>
+            - The name of the database to scan.  Defaults to 'agent_indy_cat_wallet'.
+          <tableName/>
+            - The name of the table to scan.  Defaults to 'items'.
+          <limit/>
+            - The number of records to scan at a time.  Defaults to 5000.
+          <startAtRecord/>
+            - The record to start with (the starting offset into the table).  Defaults to '0'.
+          <stopAtRecord/>
+            - The record to stop at (roughly).  Default to the number of records in the table being scanned.
+
+        Examples;
+          $0 -p bc -e prod locateBadRecord
+            - Scan using the default settings.
+
+          $0 -p bc -e prod locateBadRecord wallet agent_indy_cat_wallet items 1 10 20
+            - Scan records 10 through 20.
+
+          $0 -p bc -e prod locateBadRecord wallet agent_indy_cat_wallet items 5000 1185000
+            - Scan 5000 records at a time starting with record number 1185000
+
+          $0 -p bc -e prod locateBadRecord wallet agent_indy_cat_wallet items 1 5907729 5907729
+            - Get the 'id' of the record at offset 5907729.
+
     scaleUp
       - Scale up one or more pods.
         For example;
@@ -516,6 +551,66 @@ function removeAgentConnections(){
     echo
   )
 }
+
+function locateBadRecord() {
+  (
+    _podName=${1}
+    _databaseName=${2}
+    _tableName=${3}
+    _limit=${4}
+    _startAtRecord=${5:-0}
+    _stopAtRecord=${6}
+
+    if [ -z "${_podName}" ] || [ -z "${_databaseName}" ] || [ -z "${_tableName}" ] || [ -z "${_limit}" ]; then
+      echoError "\nlocateBadRecord; You MUST specify a pod name, database name, table name, and limit.\n"
+      exit 1
+    fi
+
+
+    itemCount=$(runInContainer "${_podName}${resourceSuffix}" \
+      "psql -d ${_databaseName} -t -c \"select count(*) from ${_tableName};\"")
+    itemCount="$(echo -e "${itemCount}" | sed -e 's~^[[:space:]]*~~')"
+
+    offset=${_startAtRecord}
+    end=${_stopAtRecord:-${itemCount}}
+    recordCount=$((${end} - ${offset}))
+
+    echo
+    echo "Checking table for bad records:"
+    echo "  - Table: ${_tableName}"
+    echo "  - Database: ${_databaseName}"
+    echo "  - Pod: ${_podName}${resourceSuffix}"
+    echo "  - Begin: ${offset}"
+    echo "  - End: ${end}"
+    echo "  - Step: ${_limit}"
+    echo
+
+    if (( "${offset}" == "${end}" )); then 
+      runInContainer \
+        ${_podName}${resourceSuffix} \
+        "psql -d ${_databaseName}  -ac \"select id from ${_tableName} order by id limit ${_limit} offset ${offset};\""
+    else
+      while (("${offset}" <= "${end}")); do
+
+        toRecord=$((${offset} + ${_limit} - 1))
+        if (( ${offset} == ${toRecord} )); then
+          printf "\rChecking record ${offset} ..."
+        else
+          printf "\rChecking records ${offset} to ${toRecord} of ${itemCount} ..."
+        fi
+
+        runInContainer \
+          ${_podName}${resourceSuffix} \
+          "psql -d ${_databaseName}  -c \"select * from ${_tableName} order by id limit ${_limit} offset ${offset}\" > /dev/null || echo -e \"\nCorrupted chunk read at offset ${offset}\n.\""
+
+        offset=$((offset + ${_limit}))
+      done
+
+      echo -e "\nFinished checking records."
+    fi
+  )
+}
+
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -619,6 +714,15 @@ case "${_cmd}" in
   removeagentconnections)
     agentPodName=${1:-agent}
     removeAgentConnections "${agentPodName}"
+    ;;
+  locatebadrecord)
+    dbPodName=${1:-wallet}
+    databaseName=${2:-agent_indy_cat_wallet}
+    tableName=${3:-items}
+    limit=${4:-5000}
+    startAtRecord=${5}
+    stopAtRecord=${6}
+    locateBadRecord "${dbPodName}" "${databaseName}" "${tableName}" "${limit}" "${startAtRecord}" "${stopAtRecord}"
     ;;
 
   scaleup)

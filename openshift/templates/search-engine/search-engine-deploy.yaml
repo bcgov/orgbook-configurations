@@ -3,6 +3,29 @@ apiVersion: v1
 metadata:
   name: ${NAME}${SUFFIX}-deployment-template
 objects:
+  - kind: NetworkSecurityPolicy
+    apiVersion: security.devops.gov.bc.ca/v1alpha1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow search-engine pods to communicate with the database.
+      source:
+        - - role=${ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+      destination:
+        - - role=${DATABASE_ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+
   - kind: Service
     apiVersion: v1
     metadata:
@@ -11,6 +34,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       ports:
         - name: 8983-tcp
@@ -22,6 +47,7 @@ objects:
         deploymentconfig: ${NAME}${SUFFIX}
       type: ClusterIP
       sessionAffinity: None
+
   - kind: PersistentVolumeClaim
     apiVersion: v1
     metadata:
@@ -30,7 +56,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        template: ${NAME}${SUFFIX}-deployment-template
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       storageClassName: ${PERSISTENT_VOLUME_CLASS}
       accessModes:
@@ -38,6 +65,7 @@ objects:
       resources:
         requests:
           storage: ${PERSISTENT_VOLUME_SIZE}
+
   - kind: DeploymentConfig
     apiVersion: v1
     metadata:
@@ -46,6 +74,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       strategy:
         type: Recreate
@@ -68,14 +98,14 @@ objects:
       test: false
       selector:
         name: ${NAME}${SUFFIX}
-        deploymentconfig: ${NAME}${SUFFIX}
       template:
         metadata:
           labels:
             name: ${NAME}${SUFFIX}
             app: ${APP_NAME}${SUFFIX}
             app-group: ${APP_GROUP}
-            deploymentconfig: ${NAME}${SUFFIX}
+            role: ${ROLE}
+            env: ${TAG_NAME}
         spec:
           volumes:
             - name: ${NAME}${SUFFIX}-data
@@ -126,32 +156,47 @@ objects:
           dnsPolicy: ClusterFirst
           securityContext: {}
           schedulerName: default-scheduler
+
 parameters:
   - name: NAME
     displayName: Name
     description: The name assigned to all of the resources defined in this template.
     required: true
     value: search-engine
+  - name: ROLE
+    displayName: Role
+    description: Service Role
+    required: true
+    value: search-engine
+  - name: DATABASE_ROLE
+    displayName: Database Role
+    description: Database Role
+    required: true
+    value: db
+  - name: NAMESPACE
+    displayName: The target namespace for the resources.
+    required: true
+    value: 8ad0ea
   - name: SUFFIX
     displayName: Suffix
     description: A name suffix used for all objects
     required: false
-    value: -indy-cat
+    value: -bc
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together in the OpenShift console.
     required: true
-    value: OrgBook
+    value: orgbook
   - name: APP_GROUP
     displayName: App Group
     description: The name assigned to all of the deployments in this project.
     required: true
-    value: indy-catalyst
+    value: aries-vcr
   - name: IMAGE_NAMESPACE
     displayName: Image Namespace
     required: true
     description: The namespace of the OpenShift project containing the imagestream for the application.
-    value: devex-von-tools
+    value: 8ad0ea-tools
   - name: TAG_NAME
     displayName: Environment TAG name
     description: The TAG name for this environment, e.g., dev, test, prod
@@ -179,7 +224,7 @@ parameters:
     value: WARN
   - name: PERSISTENT_VOLUME_CLASS
     displayName: Persistent Volume Class name
-    description: The class of the volume; gluster-file, gluster-block, gluster-file-db, netapp-file-standard, netapp-block-standard. gluster-block performs the best for Solr.
+    description: The class of the volume; netapp-file-standard, netapp-block-standard, netapp-file-extended, netapp-block-extended, netapp-file-backup. gluster-block performs the best for Solr.
     required: false
     value: gluster-block
   - name: CPU_REQUEST

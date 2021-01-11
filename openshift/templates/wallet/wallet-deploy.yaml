@@ -15,7 +15,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        template: ${NAME}${SUFFIX}-persistent-template
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       strategy:
         type: Recreate
@@ -44,6 +45,8 @@ objects:
             name: ${NAME}${SUFFIX}
             app: ${APP_NAME}${SUFFIX}
             app-group: ${APP_GROUP}
+            role: ${ROLE}
+            env: ${TAG_NAME}
         spec:
           volumes:
             - name: ${NAME}${SUFFIX}-data
@@ -63,7 +66,7 @@ objects:
                     path: ${AUTOVACUMM_CONFIG_FILE_NAME}
           containers:
             - name: ${NAME}${SUFFIX}
-              image: ' '
+              image: " "
               ports:
                 - containerPort: 5432
                   protocol: TCP
@@ -140,11 +143,12 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        template: ${NAME}${SUFFIX}-persistent-template
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       storageClassName: ${PERSISTENT_VOLUME_CLASS}
       accessModes:
-        - ReadWriteOnce
+        - ReadWriteMany
       resources:
         requests:
           storage: ${PERSISTENT_VOLUME_SIZE}
@@ -156,6 +160,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     stringData:
       admin-password: ${POSTGRESQL_ADMIN_PASSWORD}
       database-password: ${POSTGRESQL_PASSWORD}
@@ -169,7 +175,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        template: ${NAME}${SUFFIX}-persistent-template
+        role: ${ROLE}
+        env: ${TAG_NAME}
       annotations:
         template.openshift.io/expose-uri: postgres://{.spec.clusterIP}:{.spec.ports[?(.name=="postgresql")].port}
     spec:
@@ -188,26 +195,31 @@ parameters:
     description: The name assigned to all of the OpenShift resources associated to the server instance.
     required: true
     value: wallet
+  - name: ROLE
+    displayName: Role
+    description: Role
+    required: true
+    value: wallet
   - name: SUFFIX
     displayName: Suffix
     description: A name suffix used for all objects
     required: false
-    value: -indy-cat
+    value: -bc
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together in the OpenShift console.
     required: true
-    value: OrgBook
+    value: orgbook
   - name: APP_GROUP
     displayName: App Group
     description: The name assigned to all of the deployments in this project.
     required: true
-    value: indy-catalyst
+    value: aries-vcr
   - name: IMAGE_NAMESPACE
     displayName: Image Namespace
     required: true
     description: The namespace of the OpenShift project containing the imagestream for the application.
-    value: devex-von-tools
+    value: 8ad0ea-tools
   - name: SOURCE_IMAGE_NAME
     displayName: Source Image Name
     description: The name of the image to use for this resource.
@@ -228,19 +240,19 @@ parameters:
     description: Username for PostgreSQL user that will be used for accessing the database.  Needs to be basee64 encoded/
     required: true
     generate: expression
-    from: '[a-zA-Z_][a-zA-Z0-9_]{10}'
+    from: "[a-zA-Z_][a-zA-Z0-9_]{10}"
   - name: POSTGRESQL_PASSWORD
     displayName: PostgreSQL Connection Password
     description: Password for the PostgreSQL connection user.  Needs to be basee64 encoded/
     required: true
     generate: expression
-    from: '[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}'
+    from: "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
   - name: POSTGRESQL_ADMIN_PASSWORD
     displayName: PostgreSQL Admin Password
     description: Password for the 'postgres' PostgreSQL administrative account.  Needs to be basee64 encoded.
     required: true
     generate: expression
-    from: '[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}'
+    from: "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
   - name: MOUNT_PATH
     displayName: Mount Path
     description: The path to mount the persistent volume.
@@ -253,9 +265,9 @@ parameters:
     value: 240Gi
   - name: PERSISTENT_VOLUME_CLASS
     displayName: Persistent Volume Class name
-    description: The class of the volume; gluster-file, gluster-block, gluster-file-db, netapp-file-standard, netapp-block-standard
+    description: The class of the volume; netapp-file-standard, netapp-block-standard, netapp-file-extended, netapp-block-extended, netapp-file-backup
     required: false
-    value: gluster-file-db
+    value: netapp-file-standard
   - name: LOGGING_CONFIG_FILE_NAME
     displayName: Config File Name
     description: The name of the configuration file.
@@ -265,7 +277,7 @@ parameters:
     displayName: Config Map Name
     description: The name of the configuration map.
     required: true
-    value: wallet-logging-conf-indy-cat
+    value: wallet-logging-conf-bc
   - name: LOGGING_CONFIG_MOUNT_PATH
     displayName: Config Mount Path
     description: The path to use to mount the config file.
@@ -280,7 +292,7 @@ parameters:
     displayName: Config Map Name
     description: The name of the configuration map.
     required: true
-    value: wallet-autovacuum-conf-indy-cat
+    value: wallet-autovacuum-conf-bc
   - name: AUTOVACUMM_CONFIG_MOUNT_PATH
     displayName: Config Mount Path
     description: The path to use to mount the config file.

@@ -1,24 +1,29 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/schema-spy/schema-spy-deploy.json
+# Template File: ../openshift/templates/schema-spy/schema-spy-deploy.yaml
 #=========================================================
 # NAME=schema-spy
-# SUFFIX=-indy-cat
-# APP_NAME=OrgBook
-# APP_GROUP=indy-catalyst
-# IMAGE_NAMESPACE=devex-von-tools
-APPLICATION_DOMAIN=schema-spy-indy-cat-test.pathfinder.gov.bc.ca
+# ROLE=schema-spy
+# DATABASE_ROLE=db
+# NAMESPACE=8ad0ea
+# SUFFIX=-bc
+# APP_NAME=orgbook
+# APP_GROUP=aries-vcr
+# IMAGE_NAMESPACE=8ad0ea-tools
+APPLICATION_DOMAIN=schema-spy-orgbook-bc-test.apps.silver.devops.gov.bc.ca
 # DATABASE_SERVICE_NAME=db
-# DATABASE_NAME=OrgBook
+# DATABASE_NAME=aries-vcr
 # OUTPUT_PATH=/var/www/html/doc
 # SCHEMASPY_USER=[a-zA-Z_][a-zA-Z0-9_]{10}
 # SCHEMASPY_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 TAG_NAME=bc-test
 # DATABASE_DEPLOYMENT_NAME=db
 # CONFIG_FILE_NAME=Caddyfile
-# CONFIG_MAP_NAME=schema-spy-caddy-conf
+# CONFIG_MAP_NAME=schema-spy-caddy-conf-bc
 # CONFIG_MOUNT_PATH=/etc/
+# SERVER_HOST=0.0.0.0
+# SERVER_PORT=8080
 # CPU_REQUEST=0m
 # CPU_LIMIT=0m
 # MEMORY_REQUEST=0Mi

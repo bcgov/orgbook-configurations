@@ -1,0 +1,257 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: ${NAME}${SUFFIX}-deployment-template
+  annotations:
+    description: Deployment template for a Schema Spy instance.
+    tags: schema-spy
+objects:
+  - kind: Secret
+    apiVersion: v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+    stringData:
+      password: ${SCHEMASPY_PASSWORD}
+      user: ${SCHEMASPY_USER}
+    type: Opaque
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+      annotations:
+        description: Exposes and load balances the application pods
+    spec:
+      ports:
+        - name: 8080-tcp
+          protocol: TCP
+          port: 8080
+          targetPort: 8080
+      selector:
+        name: ${NAME}${SUFFIX}
+  - kind: Route
+    apiVersion: v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+    spec:
+      host: ${APPLICATION_DOMAIN}
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: edge
+      to:
+        kind: Service
+        name: ${NAME}${SUFFIX}
+  - kind: DeploymentConfig
+    apiVersion: v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      annotations:
+        description: Defines how to deploy the container.
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+    spec:
+      strategy:
+        type: Recreate
+        recreateParams:
+          timeoutSeconds: 600
+        resources: {}
+        activeDeadlineSeconds: 21600
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - ${NAME}${SUFFIX}
+            from:
+              kind: ImageStreamTag
+              namespace: ${IMAGE_NAMESPACE}
+              name: ${NAME}:${TAG_NAME}
+      replicas: 1
+      selector:
+        name: ${NAME}${SUFFIX}
+      template:
+        metadata:
+          name: ${NAME}${SUFFIX}
+          labels:
+            name: ${NAME}${SUFFIX}
+            app: ${APP_NAME}${SUFFIX}
+            app-group: ${APP_GROUP}
+        spec:
+          containers:
+            - name: ${NAME}${SUFFIX}
+              image: ' '
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              env:
+                - name: DATABASE_SERVICE_NAME
+                  value: ${DATABASE_SERVICE_NAME}${SUFFIX}
+                - name: POSTGRESQL_DATABASE
+                  value: ${DATABASE_NAME}
+                - name: POSTGRESQL_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      key: database-user
+                - name: POSTGRESQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      key: database-password
+                - name: SCHEMASPY_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}${SUFFIX}
+                      key: user
+                - name: SCHEMASPY_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}${SUFFIX}
+                      key: password
+                - name: OUTPUT_PATH
+                  value: ${OUTPUT_PATH}
+              readinessProbe:
+                timeoutSeconds: 30
+                initialDelaySeconds: 3
+                httpGet:
+                  path: /health
+                  port: 8080
+              livenessProbe:
+                timeoutSeconds: 30
+                initialDelaySeconds: 300
+                httpGet:
+                  path: /health
+                  port: 8080
+              resources:
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+              volumeMounts:
+                - name: ${NAME}${SUFFIX}-config-volume
+                  mountPath: ${CONFIG_MOUNT_PATH}${CONFIG_FILE_NAME}
+                  subPath: ${CONFIG_FILE_NAME}
+          volumes:
+            - name: ${NAME}${SUFFIX}-config-volume
+              configMap:
+                name: ${CONFIG_MAP_NAME}${SUFFIX}
+                items:
+                  - key: ${CONFIG_FILE_NAME}
+                    path: ${CONFIG_FILE_NAME}
+parameters:
+  - name: NAME
+    displayName: Schema Spy Name
+    description: The name assigned to all of the schema spy objects defined in this template.
+    required: true
+    value: schema-spy
+  - name: SUFFIX
+    displayName: Suffix
+    description: A name suffix used for all objects
+    required: false
+    value: -indy-cat
+  - name: APP_NAME
+    displayName: App Name
+    description: Used to group components together in the OpenShift console.
+    required: true
+    value: OrgBook
+  - name: APP_GROUP
+    displayName: App Group
+    description: The name assigned to all of the deployments in this project.
+    required: true
+    value: indy-catalyst
+  - name: IMAGE_NAMESPACE
+    displayName: Image Namespace
+    required: true
+    description: The namespace of the OpenShift project containing the imagestream for the application.
+    value: devex-von-tools
+  - name: APPLICATION_DOMAIN
+    displayName: Application Hostname
+    description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
+    value: schema-spy-indy-cat-dev.pathfinder.gov.bc.ca
+  - name: DATABASE_SERVICE_NAME
+    displayName: Database Service Name
+    required: true
+    value: db
+  - name: DATABASE_NAME
+    displayName: Database Name
+    required: true
+    description: Name of the deployed database (see environment variables in deployed database).
+    value: OrgBook
+  - name: OUTPUT_PATH
+    displayName: Output Path
+    required: true
+    description: The SchemSpy output path.
+    value: /var/www/html/doc
+  - name: SCHEMASPY_USER
+    displayName: Username for the SchemaSpy Instance
+    description: Username for the SchemaSpy Instance.  Needs to be basee64 encoded.
+    required: true
+    generate: expression
+    from: '[a-zA-Z_][a-zA-Z0-9_]{10}'
+  - name: SCHEMASPY_PASSWORD
+    displayName: Password for the SchemaSpy Instance
+    description: Password for the SchemaSpy Instance.  Needs to be basee64 encoded.
+    required: true
+    generate: expression
+    from: '[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}'
+  - name: TAG_NAME
+    displayName: Environment TAG name
+    description: The TAG name for this environment, e.g., dev, test, prod
+    value: dev
+    required: true
+  - name: DATABASE_DEPLOYMENT_NAME
+    displayName: Database Deployment Name
+    description: The name associated to the database deployment resources.  In particular, this is used to wrie up the credentials associated to the database.
+    required: true
+    value: db
+  - name: CONFIG_FILE_NAME
+    displayName: Config File Name
+    description: The name of the configuration file.
+    required: true
+    value: Caddyfile
+  - name: CONFIG_MAP_NAME
+    displayName: Config Map Name
+    description: The name of the configuration map.
+    required: true
+    value: schema-spy-caddy-conf
+  - name: CONFIG_MOUNT_PATH
+    displayName: Config Mount Path
+    description: The path to use to mount the config file.
+    required: true
+    value: /etc/
+  - name: CPU_REQUEST
+    displayName: Resources CPU Request
+    description: The resources CPU request (in cores) for this build.
+    required: true
+    value: 0m
+  - name: CPU_LIMIT
+    displayName: Resources CPU Limit
+    description: The resources CPU limit (in cores) for this build.
+    required: true
+    value: 0m
+  - name: MEMORY_REQUEST
+    displayName: Resources Memory Request
+    description: The resources Memory request (in Mi, Gi, etc) for this build.
+    required: true
+    value: 0Mi
+  - name: MEMORY_LIMIT
+    displayName: Resources Memory Limit
+    description: The resources Memory limit (in Mi, Gi, etc) for this build.
+    required: true
+    value: 0Mi

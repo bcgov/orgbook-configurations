@@ -4,13 +4,19 @@
 # Template File: ../openshift/templates/msg-queue-worker/msg-queue-worker-deploy.json
 #=========================================================
 # NAME=msg-queue-worker
-# SUFFIX=-indy-cat
-# APP_NAME=OrgBook
-# APP_GROUP=indy-catalyst
-# IMAGE_NAMESPACE=devex-von-tools
+# ROLE=msg-queue-worker
+# AGENT_ROLE=agent
+# DATABASE_ROLE=db
+# SEARCH_ENGINE_ROLE=search-engine
+# MSG_QUEUE_ROLE=msg-queue
+# NAMESPACE=8ad0ea
+# SUFFIX=-bc
+# APP_NAME=orgbook
+# APP_GROUP=aries-vcr
+# IMAGE_NAMESPACE=8ad0ea-tools
 # DATABASE_SERVICE_NAME=db
 # DATABASE_ENGINE=postgresql
-# DATABASE_NAME=OrgBook
+# DATABASE_NAME=aries-vcr
 # APP_FILE=
 # APP_CONFIG=
 # #DJANGO_SECRET_KEY=[\w]{50}

@@ -7,6 +7,41 @@ metadata:
     tags: django
     iconClass: icon-python
 objects:
+  - kind: NetworkSecurityPolicy
+    apiVersion: security.devops.gov.bc.ca/v1alpha1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow the msg-queue-worker pods to communicate with the agent, the database, the message queue, and the search-engine.
+      source:
+        - - role=${ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+      destination:
+        - - role=${DATABASE_ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+        - - role=${SEARCH_ENGINE_ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+        - - role=${AGENT_ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+        - - role=${MSG_QUEUE_ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+
   - kind: DeploymentConfig
     apiVersion: v1
     metadata:
@@ -17,6 +52,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       strategy:
         type: Rolling
@@ -41,10 +78,12 @@ objects:
             name: ${NAME}${SUFFIX}
             app: ${APP_NAME}${SUFFIX}
             app-group: ${APP_GROUP}
+            role: ${ROLE}
+            env: ${TAG_NAME}
         spec:
           containers:
             - name: ${NAME}${SUFFIX}
-              image: ' '
+              image: " "
               ports:
                 - containerPort: 8080
                   protocol: TCP
@@ -119,6 +158,7 @@ objects:
                 limits:
                   cpu: ${CPU_LIMIT}
                   memory: ${MEMORY_LIMIT}
+
   - kind: HorizontalPodAutoscaler
     apiVersion: autoscaling/v1
     metadata:
@@ -127,38 +167,70 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       scaleTargetRef:
         kind: DeploymentConfig
         name: ${NAME}${SUFFIX}
       minReplicas: ${{MIN_REPLICAS}}
       maxReplicas: ${{MAX_REPLICAS}}
+
 parameters:
   - name: NAME
     displayName: Name
     description: The name assigned to all of the OpenShift resources associated to the server instance.
     required: true
     value: msg-queue-worker
+  - name: ROLE
+    displayName: Role
+    description: Service Role
+    required: true
+    value: msg-queue-worker
+  - name: AGENT_ROLE
+    displayName: Agent Role
+    description: Agent Role
+    required: true
+    value: agent
+  - name: DATABASE_ROLE
+    displayName: Database Role
+    description: Database Role
+    required: true
+    value: db
+  - name: SEARCH_ENGINE_ROLE
+    displayName: Search Engine Role
+    description: Search Engine Role
+    required: true
+    value: search-engine
+  - name: MSG_QUEUE_ROLE
+    displayName: Message Queue Role
+    description: Message Queue Role
+    required: true
+    value: msg-queue
+  - name: NAMESPACE
+    displayName: The target namespace for the resources.
+    required: true
+    value: 8ad0ea
   - name: SUFFIX
     displayName: Suffix
     description: A name suffix used for all objects
     required: false
-    value: -indy-cat
+    value: -bc
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together in the OpenShift console.
     required: true
-    value: OrgBook
+    value: orgbook
   - name: APP_GROUP
     displayName: App Group
     description: The name assigned to all of the deployments in this project.
     required: true
-    value: indy-catalyst
+    value: aries-vcr
   - name: IMAGE_NAMESPACE
     displayName: Image Namespace
     required: true
     description: The namespace of the OpenShift project containing the imagestream for the application.
-    value: devex-von-tools
+    value: 8ad0ea-tools
   - name: DATABASE_SERVICE_NAME
     displayName: Database Service Name
     description: The name of the database server/service.
@@ -167,13 +239,13 @@ parameters:
   - name: DATABASE_ENGINE
     displayName: Database Engine
     required: true
-    description: 'Database engine: postgresql, mysql, or sqlite (default).'
+    description: "Database engine: postgresql, mysql, or sqlite (default)."
     value: postgresql
   - name: DATABASE_NAME
     displayName: Database Name
     required: true
     description: Name of the deployed database (see environment variables in deployed database).
-    value: OrgBook
+    value: aries-vcr
   - name: APP_FILE
     displayName: Application File
     description: Used to run the application from a Python script. This should be a path to a Python file (defaults to app.py unless set to null) that will be passed to the Python interpreter to start the application (optional).
@@ -237,7 +309,7 @@ parameters:
     required: true
     value: db
   - name: THEME
-    displayName: TheOrgBook Theme
+    displayName: Thearies-vcr Theme
     description: The theme to use for the tob-api.  This defines which customizations to load for the application.
     required: true
     value: bcgov

@@ -31,6 +31,11 @@ objects:
         type: Docker
         dockerStrategy:
           dockerfilePath: ${DOCKER_FILE_PATH}
+          from:
+            kind: DockerImage
+            name: "${DOCKER_IMAGE_REGISTRY}${SOURCE_IMAGE_NAME}"
+          pullSecret:
+            name: ${DOCKER_PULL_CREDENTIALS}
       output:
         to:
           kind: ImageStreamTag
@@ -54,17 +59,17 @@ parameters:
     displayName: Suffix
     description: A name suffix used for all objects
     required: false
-    value: -indy-cat
+    value: -bc
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together in the OpenShift console.
     required: true
-    value: OrgBook
+    value: orgbook
   - name: APP_GROUP
     displayName: App Group
     description: The name assigned to all of the deployments in this project.
     required: true
-    value: indy-catalyst
+    value: aries-vcr
   - name: GIT_REPO_URL
     displayName: Git Repo URL
     description: The URL to your GIT repo.
@@ -90,6 +95,26 @@ parameters:
     description: The path to the docker file.
     required: true
     value: Dockerfile
+  - name: DOCKER_IMAGE_REGISTRY
+    displayName: Docker Image Registry
+    description: The name of the Docker image registry.
+    required: false
+    value: docker-remote.artifacts.developer.gov.bc.ca/
+  - name: SOURCE_IMAGE_NAME
+    displayName: Source Image Name
+    description: The name of the Docker image to be used for the build. Overrides the FROM instruction in the Dockerfile.
+    required: false
+    value: bcgovimages/aries-cloudagent:py36-1.15-0_0.5.6
+  - name: DOCKER_PULL_CREDENTIALS
+    displayName: Docker Pull Credentials
+    description: The name of the secret that will be used to authenticate with the Docker image registry.
+    required: false
+    value: docker-pull-secret
+  - name: OUTPUT_IMAGE_TAG
+    displayName: Output Image Tag
+    description: The tag given to the built image.
+    required: true
+    value: latest
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.

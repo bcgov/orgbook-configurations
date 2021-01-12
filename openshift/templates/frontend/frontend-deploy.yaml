@@ -6,6 +6,29 @@ metadata:
     tags: angular,nginx
   name: ${NAME}
 objects:
+  - kind: NetworkSecurityPolicy
+    apiVersion: security.devops.gov.bc.ca/v1alpha1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow the frontend pods to communicate with the api.
+      source:
+        - - role=${ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+      destination:
+        - - role=${API_ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+
   - apiVersion: v1
     kind: DeploymentConfig
     metadata:
@@ -14,6 +37,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
       name: ${NAME}${SUFFIX}
     spec:
       replicas: 2
@@ -35,12 +60,14 @@ objects:
             name: ${NAME}${SUFFIX}
             app: ${APP_NAME}${SUFFIX}
             app-group: ${APP_GROUP}
+            role: ${ROLE}
+            env: ${TAG_NAME}
             deploymentconfig: ${NAME}${SUFFIX}
         spec:
           volumes:
             - name: ${NAME}${SUFFIX}-blacklist-config-volume
               configMap:
-                name: ${BLACK_LIST_CONFIG_MAP_NAME}
+                name: ${BLACK_LIST_CONFIG_MAP_NAME}${SUFFIX}
                 items:
                   - key: ${BLACK_LIST_CONFIG_FILE_NAME}
                     path: ${BLACK_LIST_CONFIG_FILE_NAME}
@@ -127,6 +154,7 @@ objects:
               kind: ImageStreamTag
               namespace: ${IMAGE_NAMESPACE}
               name: ${NAME}:${TAG_NAME}
+
   - apiVersion: v1
     kind: Service
     metadata:
@@ -135,6 +163,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
       name: ${NAME}${SUFFIX}
     spec:
       ports:
@@ -147,6 +177,7 @@ objects:
         deploymentconfig: ${NAME}${SUFFIX}
       sessionAffinity: None
       type: ClusterIP
+
   - apiVersion: v1
     kind: Route
     metadata:
@@ -155,6 +186,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
       annotations:
         haproxy.router.openshift.io/timeout: ${ROUTE_TIMEOUT}
     spec:
@@ -168,6 +201,7 @@ objects:
         kind: Service
         name: ${NAME}${SUFFIX}
         weight: 100
+
   - kind: HorizontalPodAutoscaler
     apiVersion: autoscaling/v1
     metadata:
@@ -176,38 +210,55 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       scaleTargetRef:
         kind: DeploymentConfig
         name: ${NAME}${SUFFIX}
       minReplicas: ${{MIN_REPLICAS}}
       maxReplicas: ${{MAX_REPLICAS}}
+
 parameters:
   - description: The name assigned to all of the openshift objects defined in this template. It is also the name of runtime image you want.
     displayName: Name
     name: NAME
     required: true
     value: frontend
+  - name: ROLE
+    displayName: Role
+    description: Service Role
+    required: true
+    value: frontend
+  - name: API_ROLE
+    displayName: Api Role
+    description: Api Role
+    required: true
+    value: api
+  - name: NAMESPACE
+    displayName: The target namespace for the resources.
+    required: true
+    value: 8ad0ea
   - name: SUFFIX
     displayName: Suffix
     description: A name suffix used for all objects
     required: false
-    value: -indy-cat
+    value: -bc
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together in the OpenShift console.
     required: true
-    value: OrgBook
+    value: orgbook
   - name: APP_GROUP
     displayName: App Group
     description: The name assigned to all of the deployments in this project.
     required: true
-    value: indy-catalyst
+    value: aries-vcr
   - description: The namespace where to get the above image name
     displayName: Image Namespace
     name: IMAGE_NAMESPACE
     required: true
-    value: devex-von-tools
+    value: 8ad0ea-tools
   - description: OpenShift cluster private IP range in CIDR notation, used by Nginx ngx_http_realip_module.
     displayName: OpenShift Cluster IP Range
     name: REAL_IP_FROM
@@ -217,12 +268,12 @@ parameters:
     displayName: API URL
     name: API_URL
     required: true
-    value: http://api-indy-cat:8080/api
+    value: http://api-bc:8080/api
   - description: The name of the service endpoint for the API.  Used to wire up to an API endpoint within the same project; overriding the URL defined by API_URL.
     displayName: API Service Name
     name: API_SERVICE_NAME
     required: false
-    value: api-indy-cat
+    value: api-bc
   - description: The root path for the API.  Used in conjunction with API_SERVICE_NAME.
     displayName: API Path
     name: API_PATH
@@ -254,7 +305,7 @@ parameters:
     description: The path to use to mount the config file.
     required: true
     value: /etc/nginx/
-  - description: The exposed hostname that will route to the service, e.g., myappname.pathfinder.gov.bc.ca, if left blank a value will be defaulted.
+  - description: The exposed hostname that will route to the service, e.g., myappname.apps.silver.devops.gov.bc.ca, if left blank a value will be defaulted.
     displayName: Application Hostname
     name: APPLICATION_DOMAIN
     value: dev.orgbook.gov.bc.ca
@@ -272,7 +323,7 @@ parameters:
     name: HTTP_BASIC
     value: ""
   - name: THEME
-    displayName: TheOrgBook Theme Name
+    displayName: Thearies-vcr Theme Name
     description: The name of the theme to be used for the site.
     value: bcgov
   - name: MIN_REPLICAS

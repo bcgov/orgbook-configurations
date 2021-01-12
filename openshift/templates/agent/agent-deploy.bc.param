@@ -6,7 +6,7 @@
 NAME=agent
 ROLE=agent
 WALLET_ROLE=wallet
-CONTROLLER_ROLE=controller
+CONTROLLER_ROLE=api
 NAMESPACE=8ad0ea
 SUFFIX=-bc
 APP_NAME=orgbook

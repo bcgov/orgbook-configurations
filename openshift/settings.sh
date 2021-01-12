@@ -1,4 +1,4 @@
-export PROJECT_NAMESPACE="devex-von"
+export PROJECT_NAMESPACE="8ad0ea"
 export GIT_URI="https://github.com/bcgov/aries-vcr.git"
 export GIT_REF="master"
 

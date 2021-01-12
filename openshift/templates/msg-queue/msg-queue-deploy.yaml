@@ -13,10 +13,13 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     stringData:
       default-user: ${DEFAULT_USER_NAME}
       default-password: ${DEFAULT_PASSWORD}
     type: Opaque
+
   - kind: Service
     apiVersion: v1
     metadata:
@@ -25,6 +28,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       ports:
         - name: ${NAME}
@@ -37,6 +42,7 @@ objects:
           targetPort: 15672
       selector:
         name: ${NAME}${SUFFIX}
+
   - kind: Route
     apiVersion: v1
     metadata:
@@ -45,6 +51,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       host: ${APPLICATION_DOMAIN}
       port:
@@ -55,6 +63,7 @@ objects:
       to:
         kind: Service
         name: ${NAME}${SUFFIX}
+
   - kind: PersistentVolumeClaim
     apiVersion: v1
     metadata:
@@ -63,6 +72,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       storageClassName: ${PERSISTENT_VOLUME_CLASS}
       accessModes:
@@ -70,6 +81,7 @@ objects:
       resources:
         requests:
           storage: ${PERSISTENT_VOLUME_SIZE}
+
   - kind: DeploymentConfig
     apiVersion: v1
     metadata:
@@ -78,6 +90,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
       annotations:
         description: Defines how to deploy the container.
     spec:
@@ -108,20 +122,22 @@ objects:
             name: ${NAME}${SUFFIX}
             app: ${APP_NAME}${SUFFIX}
             app-group: ${APP_GROUP}
+            role: ${ROLE}
+            env: ${TAG_NAME}
         spec:
           containers:
             - name: ${NAME}${SUFFIX}
-              image: ' '
+              image: " "
               ports:
                 - containerPort: 5672
                   protocol: TCP
               env:
-                - name: RABBITMQ_DEFAULT_USER
+                - name: RABBIT_DEFAULT_USER
                   valueFrom:
                     secretKeyRef:
                       name: ${NAME}${SUFFIX}
                       key: default-user
-                - name: RABBITMQ_DEFAULT_PASS
+                - name: RABBIT_DEFAULT_PASS
                   valueFrom:
                     secretKeyRef:
                       name: ${NAME}${SUFFIX}
@@ -155,6 +171,8 @@ objects:
                 initialDelaySeconds: 20
                 timeoutSeconds: 10
                 periodSeconds: 60
+          imagePullSecrets:
+            - name: ${DOCKER_PULL_CREDENTIALS}
           volumes:
             - name: ${NAME}${SUFFIX}-data
               persistentVolumeClaim:
@@ -165,53 +183,68 @@ objects:
                 items:
                   - key: ${CONFIG_MAP_FILE_NAME}
                     path: ${CONFIG_MAP_FILE_NAME}
+
 parameters:
   - name: NAME
     displayName: Name
     description: The name assigned to all of the objects defined in this template.
     required: true
     value: msg-queue
+  - name: ROLE
+    displayName: Role
+    description: Service Role
+    required: true
+    value: msg-queue
+  - name: NAMESPACE
+    displayName: The target namespace for the resources.
+    required: true
+    value: 8ad0ea
   - name: SUFFIX
     displayName: Suffix
     description: A name suffix used for all objects
     required: false
-    value: -indy-cat
+    value: -bc
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together in the OpenShift console.
     required: true
-    value: OrgBook
+    value: orgbook
   - name: APP_GROUP
     displayName: App Group
     description: The name assigned to all of the deployments in this project.
     required: true
-    value: indy-catalyst
+    value: aries-vcr
   - name: IMAGE_NAMESPACE
     displayName: Image Namespace
     required: true
     description: The namespace of the OpenShift project containing the imagestream for the application.
-    value: devex-von-tools
+    value: 8ad0ea-tools
   - name: TAG_NAME
     displayName: Environment TAG name
     description: The TAG name for this environment, e.g., dev, test, prod
     required: true
     value: dev
+  - name: DOCKER_PULL_CREDENTIALS
+    displayName: Docker Pull Credentials
+    description: The name of the secret that will be used to authenticate with the Docker image registry.
+    required: false
+    value: docker-pull-secret
   - name: APPLICATION_DOMAIN
     displayName: Application Hostname
     description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
     value: ""
   - name: DEFAULT_USER_NAME
     displayName: Default Username
-    description: Username for the account that will be used for accessing the RabbitMQ managment interface.  Needs to be basee64 encoded.
+    description: Username for the account that will be used for accessing the RabbitMQ management interface.  Needs to be base64 encoded.
     required: true
     generate: expression
-    from: '[a-zA-Z_][a-zA-Z0-9_]{10}'
+    from: "[a-zA-Z_][a-zA-Z0-9_]{10}"
   - name: DEFAULT_PASSWORD
     displayName: Default Password
-    description: Password for the account that will be used for accessing the RabbitMQ managment interface.  Needs to be basee64 encoded.
+    description: Password for the account that will be used for accessing the RabbitMQ management interface.  Needs to be base64 encoded.
     required: true
     generate: expression
-    from: '[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}'
+    from: "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
   - name: CONFIG_MAP_NAME
     displayName: Config Map Name
     description: The name of the configmap.
@@ -239,7 +272,7 @@ parameters:
     value: 5Gi
   - name: PERSISTENT_VOLUME_CLASS
     displayName: Persistent Volume Class name
-    description: The class of the volume; gluster-file, gluster-block, gluster-file-db, netapp-file-standard, netapp-block-standard
+    description: The class of the volume; netapp-file-standard, netapp-block-standard, netapp-file-extended, netapp-block-extended, netapp-file-backup
     required: false
     value: gluster-block
   - name: CPU_REQUEST

@@ -10,14 +10,14 @@ fi
 # ----------------------------------------------------------------------------------------------------------------
 # The results need to be encoded as OpenShift template parameters for use with oc process.
 # ================================================================================================================
-CONFIG_MAP_NAME=msg-queue-indy-cat-enabled-plugins
+CONFIG_MAP_NAME=${CONFIG_MAP_NAME:-enabled-plugins}
 SOURCE_FILE=$( dirname "$0" )/enabled_plugins
 
 OUTPUT_FORMAT=json
 OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
 
 printStatusMsg "Generating ConfigMap; ${CONFIG_MAP_NAME} ..."
-generateConfigMap "${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
+generateConfigMap "${NAME}${SUFFIX}-${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
 
 if createOperation; then
   # Randomly generate a set of credentials without asking ...

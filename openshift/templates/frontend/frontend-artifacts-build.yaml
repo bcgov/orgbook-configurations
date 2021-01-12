@@ -33,8 +33,7 @@ objects:
         type: Source
         sourceStrategy:
           from:
-            kind: ImageStreamTag
-            namespace: ${SOURCE_IMAGE_NAMESPACE}
+            kind: ${SOURCE_IMAGE_KIND}
             name: ${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}
           env:
             - name: THEME
@@ -60,17 +59,17 @@ parameters:
     displayName: Suffix
     description: A name suffix used for all objects
     required: false
-    value: -indy-cat
+    value: -bc
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together in the OpenShift console.
     required: true
-    value: OrgBook
+    value: orgbook
   - name: APP_GROUP
     displayName: App Group
     description: The name assigned to all of the deployments in this project.
     required: true
-    value: indy-catalyst
+    value: aries-vcr
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag
     description: The tag given to the built image.
@@ -91,23 +90,23 @@ parameters:
     description: The source context directory.
     required: false
     value: client
-  - name: SOURCE_IMAGE_NAMESPACE
-    displayName: Source Image Namespace
-    description: The namespace containing the source image.
+  - name: SOURCE_IMAGE_KIND
+    displayName: Source Image Kind
     required: true
-    value: openshift
+    description: The 'kind' (type) of the  source image; typically ImageStreamTag, or DockerImage.
+    value: DockerImage
   - name: SOURCE_IMAGE_NAME
     displayName: Source Image Name
     description: The name of the source image.
     required: true
-    value: nodejs
+    value: registry.redhat.io/ubi8/nodejs-12
   - name: SOURCE_IMAGE_TAG
     displayName: Source Image Tag
     description: The tag of the source image.
     required: true
-    value: "10"
+    value: latest
   - name: THEME
-    displayName: TheOrgBook Theme Name
+    displayName: The aries-vcr Theme Name
     description: The name of the theme to be used for the site.
     value: default
   - name: CPU_LIMIT

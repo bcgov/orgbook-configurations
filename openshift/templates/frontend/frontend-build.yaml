@@ -28,24 +28,20 @@ objects:
       source:
         type: Dockerfile
         dockerfile: |-
-          FROM ${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}
-          COPY * /tmp/app/dist/
+          FROM ${ARTIFACTS_IMAGE_REPOSITORY}${ARTIFACTS_IMAGE_NAME}:${ARTIFACTS_IMAGE_TAG} as artifacts
+          FROM ${RUNTIME_IMAGE_REPOSITORY}${RUNTIME_IMAGE_NAME}:${RUNTIME_IMAGE_TAG} as runtime
+          
+          # Copy artifacts into the runtime image
+          COPY --from=artifacts /opt/app-root/src/dist/ /tmp/app/dist/
+
+          # Since the runtime image is itself an s2i image we need to
+          # short circuit the s2i lifecycle.
+          # The runtime image "loses" its s2i runtime voodoo when it
+          # is used in a dockerSrategy, which is why the explicit `CMD` is necessary
           CMD  /usr/libexec/s2i/run
-        images:
-          - from:
-              kind: ImageStreamTag
-              namespace: ${SOURCE_IMAGE_NAMESPACE}
-              name: ${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}
-            paths:
-              - sourcePath: /opt/app-root/src/dist/.
-                destinationDir: tmp
       strategy:
         type: Docker
         dockerStrategy:
-          from:
-            kind: ImageStreamTag
-            namespace: ${RUNTIME_IMAGE_NAMESPACE}
-            name: ${RUNTIME_IMAGE_NAME}:${RUNTIME_IMAGE_TAG}
       output:
         to:
           kind: ImageStreamTag
@@ -64,37 +60,37 @@ parameters:
     displayName: Suffix
     description: A name suffix used for all objects
     required: false
-    value: -indy-cat
+    value: -bc
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together in the OpenShift console.
     required: true
-    value: OrgBook
+    value: orgbook
   - name: APP_GROUP
     displayName: App Group
     description: The name assigned to all of the deployments in this project.
     required: true
-    value: indy-catalyst
-  - name: SOURCE_IMAGE_NAMESPACE
-    displayName: Source Image Namespace
-    description: The namespace containing the source image.
-    required: false
-    value: ""
-  - name: SOURCE_IMAGE_NAME
+    value: aries-vcr
+  - name: ARTIFACTS_IMAGE_REPOSITORY
+    displayName: Source Image Repository
+    description: The Image Repository containing the images used for the build.
+    required: true
+    value: "image-registry.openshift-image-registry.svc:5000/8ad0ea-tools/"
+  - name: ARTIFACTS_IMAGE_NAME
     displayName: Source Image Name
     description: The name of the source image.
     required: true
     value: frontend-artifacts
-  - name: SOURCE_IMAGE_TAG
+  - name: ARTIFACTS_IMAGE_TAG
     displayName: Source Image Tag
     description: The tag of the source image.
     required: true
     value: latest
-  - name: RUNTIME_IMAGE_NAMESPACE
-    displayName: Runtime Image Namespace
-    description: The namespace containing the runtime image.
-    required: false
-    value: devex-von-tools
+  - name: RUNTIME_IMAGE_REPOSITORY
+    displayName: Runtime Image Repository
+    description: The Image Repository containing the runtime image used for the build.
+    required: true
+    value: "image-registry.openshift-image-registry.svc:5000/8ad0ea-tools/"
   - name: RUNTIME_IMAGE_NAME
     displayName: Runtime Image Name
     description: The name of the runtime image.

@@ -18,7 +18,7 @@
     }
 
     #  Set server root
-    root * {$OUTPUT_PATH}
+    root * /var/www/html
 
     # Enable serving static files
     file_server
@@ -30,8 +30,13 @@
     respond /health 200
 
     # Wrap the SchemaSpy content in basic authentication
-    basicauth /doc {$SCHEMASPY_USER} {$SCHEMASPY_PASSWORD}
+    basicauth /doc/* {
+        {$SCHEMASPY_USER} {$SCHEMASPY_PASSWORD}
+    }
 
     # Rewrite requests to the correct location.
-    rewrite / /doc
+    @protected {
+        not path /health
+    }
+    rewrite @protected /doc{uri}
 }

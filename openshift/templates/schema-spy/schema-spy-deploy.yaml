@@ -40,6 +40,7 @@ objects:
         role: ${ROLE}
         env: ${TAG_NAME}
     stringData:
+      plain-password: ${SCHEMASPY_PLAIN_PASSWORD}
       password: ${SCHEMASPY_PASSWORD}
       user: ${SCHEMASPY_USER}
     type: Opaque
@@ -250,16 +251,20 @@ parameters:
     value: /var/www/html/doc
   - name: SCHEMASPY_USER
     displayName: Username for the SchemaSpy Instance
-    description: Username for the SchemaSpy Instance.  Needs to be basee64 encoded.
+    description: Username for the SchemaSpy Instance.  Needs to be base64 encoded.
     required: true
     generate: expression
     from: "[a-zA-Z_][a-zA-Z0-9_]{10}"
-  - name: SCHEMASPY_PASSWORD
+  - name: SCHEMASPY_PLAIN_PASSWORD
     displayName: Password for the SchemaSpy Instance
-    description: Password for the SchemaSpy Instance.  Needs to be basee64 encoded.
+    description: Plain Text Password for the SchemaSpy Instance.
     required: true
     generate: expression
     from: "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+  - name: SCHEMASPY_PASSWORD
+    displayName: Password for the SchemaSpy Instance
+    description: Password for the SchemaSpy Instance. It is teh bse64 encoded representation of SCHEMASPY_PLAIN_PASSWORD.
+    required: true
   - name: TAG_NAME
     displayName: Environment TAG name
     description: The TAG name for this environment, e.g., dev, test, prod

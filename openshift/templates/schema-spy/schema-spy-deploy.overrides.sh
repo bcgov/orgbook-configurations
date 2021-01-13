@@ -25,11 +25,13 @@ if createOperation; then
   # Randomly generate a set of credentials without asking ...
   printStatusMsg "Creating a set of random user credentials ..."
   writeParameter "SCHEMASPY_USER" $(generateUsername) "false"
-  writeParameter "SCHEMASPY_PASSWORD" $(generateKey 20) "false"
+  writeParameter "SCHEMASPY_PLAIN_PASSWORD" $(generatePassword) "false"
+  writeParameter "SCHEMASPY_PASSWORD" "needs-to-be-hashed-and-base64-encoded" "false"
 else
   # Secrets are removed from the configurations during update operations ...
   printStatusMsg "Update operation detected ...\nSkipping the generation of random user credentials ...\n"
   writeParameter "SCHEMASPY_USER" "generation_skipped" "false"
+  writeParameter "SCHEMASPY_PLAIN_PASSWORD" "generation_skipped" "false"
   writeParameter "SCHEMASPY_PASSWORD" "generation_skipped" "false"
 fi
 

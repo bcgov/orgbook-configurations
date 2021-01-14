@@ -16,7 +16,7 @@ POSTGRESQL_DATABASE_NAME=default_wallet
 # POSTGRESQL_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # POSTGRESQL_ADMIN_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 MOUNT_PATH=/var/lib/pgsql/data
-PERSISTENT_VOLUME_SIZE=30Gi
+PERSISTENT_VOLUME_SIZE=240Gi
 PERSISTENT_VOLUME_CLASS=netapp-block-standard
 LOGGING_CONFIG_FILE_NAME=logging.conf
 LOGGING_CONFIG_MAP_NAME=wallet-logging-conf-bc

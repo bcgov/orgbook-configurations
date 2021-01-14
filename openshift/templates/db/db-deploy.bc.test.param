@@ -17,7 +17,7 @@ TAG_NAME=bc-test
 # POSTGRESQL_ADMIN_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # MOUNT_PATH=/var/lib/pgsql/data
 # PERSISTENT_VOLUME_SIZE=30Gi
-PERSISTENT_VOLUME_CLASS=netapp-file-standard
+PERSISTENT_VOLUME_CLASS=netapp-block-standard
 # LOGGING_CONFIG_FILE_NAME=logging.conf
 # LOGGING_CONFIG_MAP_NAME=db-logging-conf-bc
 # LOGGING_CONFIG_MOUNT_PATH=/opt/app-root/src/postgresql-cfg/

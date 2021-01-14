@@ -87,7 +87,10 @@ objects:
                       name: ${NAME}${SUFFIX}
                       key: admin-password
                 - name: POSTGRESQL_DATABASE
-                  value: ${POSTGRESQL_DATABASE_NAME}
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}${SUFFIX}
+                      key: database-name
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -135,6 +138,7 @@ objects:
           dnsPolicy: ClusterFirst
           securityContext: {}
           schedulerName: default-scheduler
+
   - kind: PersistentVolumeClaim
     apiVersion: v1
     metadata:
@@ -148,10 +152,11 @@ objects:
     spec:
       storageClassName: ${PERSISTENT_VOLUME_CLASS}
       accessModes:
-        - ReadWriteMany
+        - ReadWriteOnce
       resources:
         requests:
           storage: ${PERSISTENT_VOLUME_SIZE}
+
   - kind: Secret
     apiVersion: v1
     metadata:
@@ -166,7 +171,9 @@ objects:
       admin-password: ${POSTGRESQL_ADMIN_PASSWORD}
       database-password: ${POSTGRESQL_PASSWORD}
       database-user: ${POSTGRESQL_USER}
+      database-name: ${POSTGRESQL_DATABASE_NAME}
     type: Opaque
+
   - kind: Service
     apiVersion: v1
     metadata:
@@ -189,6 +196,7 @@ objects:
         name: ${NAME}${SUFFIX}
       type: ClusterIP
       sessionAffinity: None
+
 parameters:
   - name: NAME
     displayName: Name
@@ -265,9 +273,9 @@ parameters:
     value: 30Gi
   - name: PERSISTENT_VOLUME_CLASS
     displayName: Persistent Volume Class name
-    description: The class of the volume; netapp-file-standard, netapp-block-standard, netapp-file-extended, netapp-block-extended, netapp-file-backup
+    description: The class of the volume; netapp-block-standard, netapp-block-standard, netapp-file-extended, netapp-block-extended, netapp-file-backup
     required: false
-    value: netapp-file-standard
+    value: netapp-block-standard
   - name: LOGGING_CONFIG_FILE_NAME
     displayName: Config File Name
     description: The name of the configuration file.

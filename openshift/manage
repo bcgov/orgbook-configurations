@@ -104,7 +104,7 @@ usage () {
        - Scan a given database table for corrupt records.
        - By default records are scanned 5000 at a time to roughly locate the affected records.
        - Additional parameters can then be used to narrow down on and identify the affected records.
-       
+
        - To get the actual 'id' of a given record once you've identified it's offset, set <limit/> to 1, and
          <startAtRecord/> and <stopAtRecord/> to the offset of the affected record.
 
@@ -134,6 +134,26 @@ usage () {
 
           $0 -p bc -e prod locateBadRecord wallet agent_indy_cat_wallet items 1 5907729 5907729
             - Get the 'id' of the record at offset 5907729.
+
+    removeOfflineIndexingEnvironment [<appGroup/>]
+      - Remove an Offline Indexing Environment
+        Parameters:
+          <appGroup/>
+            - Optional - The name of the Offline Indexing Environment to remove.  Removes the default 'offline-indexing' resources by default.
+        Example;
+          $0 -p bc-offline-indexing -e test removeOfflineIndexingEnvironment
+
+    offlineindexsyned [<indexerPodName/>] [<dbPodName/>]
+      - Get the status of an offline index sync process.
+        Parameters:
+          <indexerPodName/>
+            - Optional - The name of the Offline Indexing pod.  Defaults to 'offline-indexer'.
+          <dbPodName/>
+            - Optional - The name of the pod hosting the database being indexed.  Defaults to 'db'.
+          <offlineIndexerResourceSuffix/>
+            - Optional environment variable - The suffix of the offline indexing resources.  Defaults to '-oli'.
+        Example;
+          $0 -p bc-offline-indexing -e test offlineIndexSyned
 
     scaleUp
       - Scale up one or more pods.
@@ -501,6 +521,43 @@ function indexSynced() {
   echo "Actual Credentials: ${actualCount}"
 }
 
+offlineIndexSyned() {
+
+  _indexerPodName=${1}
+  _dbPodName=${2}
+  if [ -z "${_indexerPodName}" ] || [ -z "${_dbPodName}" ]; then
+    echoError \\n"rebuildSearchIndex; Missing parameter!"\\n
+    exit 1
+  fi
+
+  recordCounts=$(getRecordCounts "${_dbPodName}")
+  names=$(echo "${recordCounts}" | grep -w name | awk '{print $5}')
+  addresses=$(echo "${recordCounts}" | grep -w  address | awk '{print $5}')
+  credentials=$(echo "${recordCounts}" | grep -w  credential | awk '{print $5}')
+  topics=$(echo "${recordCounts}" | grep -w  topic | awk '{print $5}')
+  actualCount=$(( ${names} + ${addresses} + ${credentials} + ${topics} ))
+
+  indexInfo=$(runInContainer "${_indexerPodName}${offlineIndexerResourceSuffix}" \
+    "curl -s http://search-engine${offlineIndexerResourceSuffix}:8983/solr/credential_registry/admin/luke?wt=json&show=index&numTerms=0")
+  indexCount=$(echo ${indexInfo} | sed 's~\(.*"numDocs":\)\([[:digit:]]\+\).*~\2~')
+  indexDiff=$(( ${actualCount} - ${indexCount} ))
+
+  if (( ${indexCount} == ${actualCount} )); then
+    synced="true"
+  else
+    synced="false - Difference: ${indexDiff}"
+  fi
+
+  echo
+  echo "Indexes Synced: ${synced}"
+  echo "Indexed Credentials: ${indexCount}"
+  echo "Actual Credentials: ${actualCount}"
+  echo "  - Names: ${names}"
+  echo "  - Addresses: ${addresses}"
+  echo "  - Credentials: ${credentials}"
+  echo "  - Topics: ${topics}"
+}
+
 deleteTopic() {
   _topic_id=${1}
   _apiPodName=${2:-api}
@@ -585,7 +642,7 @@ function locateBadRecord() {
     echo "  - Step: ${_limit}"
     echo
 
-    if (( "${offset}" == "${end}" )); then 
+    if (( "${offset}" == "${end}" )); then
       runInContainer \
         ${_podName}${resourceSuffix} \
         "psql -d ${_databaseName}  -ac \"select id from ${_tableName} order by id limit ${_limit} offset ${offset};\""
@@ -611,6 +668,16 @@ function locateBadRecord() {
   )
 }
 
+deleteAppGroup() {
+  (
+    _appGroup=${1}
+    _projectName=$(getProjectName)
+
+    # offline-indexing
+    printAndAskToContinue "If you contiune all of the [${_appGroup}] application resources will be perminently deleted from [${_projectName}]."
+    oc -n ${_projectName} delete all,pvc,secret,configmap,nsp -l app-group=${_appGroup}
+  )
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -676,6 +743,12 @@ case "${_cmd}" in
     dbPodName=${2:-db}
     indexSynced "${apiPodName}" "${dbPodName}"
     ;;
+  offlineindexsyned)
+    offlineIndexerResourceSuffix=${offlineIndexerResourceSuffix:--oli}
+    indexerPodName=${1:-offline-indexer}
+    dbPodName=${2:-db}
+    offlineIndexSyned "${indexerPodName}" "${dbPodName}"
+    ;;
   deletetopic)
     topic_id=${1}
     apiPodName=${2:-api}
@@ -723,6 +796,10 @@ case "${_cmd}" in
     startAtRecord=${5}
     stopAtRecord=${6}
     locateBadRecord "${dbPodName}" "${databaseName}" "${tableName}" "${limit}" "${startAtRecord}" "${stopAtRecord}"
+    ;;
+  removeofflineindexingenvironment)
+    appGroup=${1:-offline-indexing}
+    deleteAppGroup "${appGroup}"
     ;;
 
   scaleup)

@@ -4,10 +4,11 @@
 # Template File: ../openshift/templates/wallet/wallet-deploy.json
 #=========================================================
 NAME=wallet
-SUFFIX=-indy-cat
-APP_NAME=OrgBook
-APP_GROUP=indy-catalyst
-IMAGE_NAMESPACE=devex-von-tools
+ROLE=wallet
+SUFFIX=-bc
+APP_NAME=orgbook
+APP_GROUP=aries-vcr
+IMAGE_NAMESPACE=8ad0ea-tools
 SOURCE_IMAGE_NAME=db
 TAG_NAME=dev
 POSTGRESQL_DATABASE_NAME=default_wallet
@@ -16,12 +17,12 @@ POSTGRESQL_DATABASE_NAME=default_wallet
 # POSTGRESQL_ADMIN_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 MOUNT_PATH=/var/lib/pgsql/data
 PERSISTENT_VOLUME_SIZE=240Gi
-PERSISTENT_VOLUME_CLASS=gluster-file-db
+PERSISTENT_VOLUME_CLASS=netapp-block-standard
 LOGGING_CONFIG_FILE_NAME=logging.conf
-LOGGING_CONFIG_MAP_NAME=wallet-logging-conf-indy-cat
+LOGGING_CONFIG_MAP_NAME=wallet-logging-conf-bc
 LOGGING_CONFIG_MOUNT_PATH=/opt/app-root/src/postgresql-cfg/
 AUTOVACUMM_CONFIG_FILE_NAME=autovacuum.conf
-AUTOVACUMM_CONFIG_MAP_NAME=wallet-autovacuum-conf-indy-cat
+AUTOVACUMM_CONFIG_MAP_NAME=wallet-autovacuum-conf-bc
 AUTOVACUMM_CONFIG_MOUNT_PATH=/opt/app-root/src/postgresql-cfg/
 CPU_REQUEST=10m
 CPU_LIMIT=4000m

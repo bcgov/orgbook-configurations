@@ -1,0 +1,375 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: ${NAME}${SUFFIX}-deployment-template
+  annotations:
+    description: Deployment template for a django server connected to a PostGreSQL database.
+    tags: django
+    iconClass: icon-python
+objects:
+  - kind: NetworkSecurityPolicy
+    apiVersion: security.devops.gov.bc.ca/v1alpha1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow the msg-queue-worker pods to communicate with the agent, the database, the message queue, and the search-engine.
+      source:
+        - - role=${ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+      destination:
+        - - role=${DATABASE_ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+        - - role=${SEARCH_ENGINE_ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+        - - role=${AGENT_ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+        - - role=${MSG_QUEUE_ROLE}
+          - app=${APP_NAME}${SUFFIX}
+          - env=${TAG_NAME}
+          - $namespace=${NAMESPACE}-${TAG_NAME}
+
+  - kind: DeploymentConfig
+    apiVersion: v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      annotations:
+        description: Defines how to deploy the application server
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      strategy:
+        type: Rolling
+      triggers:
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - ${NAME}${SUFFIX}
+            from:
+              kind: ImageStreamTag
+              namespace: ${IMAGE_NAMESPACE}
+              name: ${SOURCE_IMAGE_NAME}:${TAG_NAME}
+        - type: ConfigChange
+      replicas: 1
+      selector:
+        name: ${NAME}${SUFFIX}
+      template:
+        metadata:
+          name: ${NAME}${SUFFIX}
+          labels:
+            name: ${NAME}${SUFFIX}
+            app: ${APP_NAME}${SUFFIX}
+            app-group: ${APP_GROUP}
+            role: ${ROLE}
+            env: ${TAG_NAME}
+        spec:
+          containers:
+            - name: ${NAME}${SUFFIX}
+              image: " "
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              env:
+                - name: APP_SCRIPT
+                  value: ${APP_SCRIPT}
+                - name: APP_FILE
+                  value: ${APP_FILE}
+                - name: APP_CONFIG
+                  value: ${APP_CONFIG}
+                - name: DATABASE_SERVICE_NAME
+                  value: ${DATABASE_SERVICE_NAME}${SUFFIX}
+                - name: DATABASE_ENGINE
+                  value: ${DATABASE_ENGINE}
+                - name: DATABASE_NAME
+                  value: ${DATABASE_NAME}
+                - name: DATABASE_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      key: database-user
+                - name: DATABASE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      key: database-password
+                - name: RABBITMQ_SVC_NAME
+                  value: ${RABBITMQ_SVC_NAME}${SUFFIX}
+                - name: RABBITMQ_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${RABBITMQ_SVC_NAME}${SUFFIX}
+                      key: default-user
+                - name: RABBITMQ_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${RABBITMQ_SVC_NAME}${SUFFIX}
+                      key: default-password
+                - name: AGENT_ADMIN_URL
+                  value: http://${AGENT_SERVICE_NAME}${SUFFIX}:${AGENT_ADMIN_PORT}
+                - name: AGENT_ADMIN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${AGENT_SERVICE_NAME}${SUFFIX}
+                      key: admin-api-key
+                - name: SOLR_SERVICE_NAME
+                  value: ${SOLR_SERVICE_NAME}${SUFFIX}
+                - name: SOLR_CORE_NAME
+                  value: ${SOLR_CORE_NAME}
+                - name: SKIP_INDEXING_ON_STARTUP
+                  value: ${SKIP_INDEXING_ON_STARTUP}
+                - name: ENABLE_REALTIME_INDEXING
+                  value: ${ENABLE_REALTIME_INDEXING}
+                - name: ENABLE_SUGGESTER_REBUILD
+                  value: ${ENABLE_SUGGESTER_REBUILD}
+                - name: DJANGO_SECRET_KEY
+                  value: ${DJANGO_SECRET_KEY}
+                - name: DJANGO_DEBUG
+                  value: ${DJANGO_DEBUG}
+                - name: DJANGO_LOG_LEVEL
+                  value: ${DJANGO_LOG_LEVEL}
+                - name: THEME
+                  value: ${THEME}
+                - name: TRACE_EVENTS
+                  value: ${TRACE_EVENTS}
+                - name: RECORD_TIMINGS
+                  value: ${RECORD_TIMINGS}
+              resources:
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+
+  - kind: HorizontalPodAutoscaler
+    apiVersion: autoscaling/v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      scaleTargetRef:
+        kind: DeploymentConfig
+        name: ${NAME}${SUFFIX}
+      minReplicas: ${{MIN_REPLICAS}}
+      maxReplicas: ${{MAX_REPLICAS}}
+
+parameters:
+  - name: NAME
+    displayName: Name
+    description: The name assigned to all of the OpenShift resources associated to the server instance.
+    required: true
+    value: msg-queue-worker
+  - name: ROLE
+    displayName: Role
+    description: Service Role
+    required: true
+    value: msg-queue-worker
+  - name: AGENT_ROLE
+    displayName: Agent Role
+    description: Agent Role
+    required: true
+    value: agent
+  - name: DATABASE_ROLE
+    displayName: Database Role
+    description: Database Role
+    required: true
+    value: db
+  - name: SEARCH_ENGINE_ROLE
+    displayName: Search Engine Role
+    description: Search Engine Role
+    required: true
+    value: search-engine
+  - name: MSG_QUEUE_ROLE
+    displayName: Message Queue Role
+    description: Message Queue Role
+    required: true
+    value: msg-queue
+  - name: NAMESPACE
+    displayName: The target namespace for the resources.
+    required: true
+    value: 8ad0ea
+  - name: SUFFIX
+    displayName: Suffix
+    description: A name suffix used for all objects
+    required: false
+    value: -bc
+  - name: APP_NAME
+    displayName: App Name
+    description: Used to group components together in the OpenShift console.
+    required: true
+    value: orgbook
+  - name: APP_GROUP
+    displayName: App Group
+    description: The name assigned to all of the deployments in this project.
+    required: true
+    value: aries-vcr
+  - name: IMAGE_NAMESPACE
+    displayName: Image Namespace
+    required: true
+    description: The namespace of the OpenShift project containing the imagestream for the application.
+    value: 8ad0ea-tools
+  - name: DATABASE_SERVICE_NAME
+    displayName: Database Service Name
+    description: The name of the database server/service.
+    required: true
+    value: db
+  - name: DATABASE_ENGINE
+    displayName: Database Engine
+    required: true
+    description: "Database engine: postgresql, mysql, or sqlite (default)."
+    value: postgresql
+  - name: DATABASE_NAME
+    displayName: Database Name
+    required: true
+    description: Name of the deployed database (see environment variables in deployed database).
+    value: aries-vcr
+  - name: APP_FILE
+    displayName: Application File
+    description: Used to run the application from a Python script. This should be a path to a Python file (defaults to app.py unless set to null) that will be passed to the Python interpreter to start the application (optional).
+    value: ""
+  - name: APP_CONFIG
+    displayName: Application Configuration File Path
+    description: Relative path to Gunicorn configuration file (optional).
+  - name: DJANGO_SECRET_KEY
+    displayName: Django Secret Key
+    description: Set this to a long random string.
+    generate: expression
+    from: '[\w]{50}'
+  - name: DJANGO_DEBUG
+    displayName: Django Debug
+    description: If Django is in debug mode
+    required: true
+    value: "False"
+  - name: DJANGO_LOG_LEVEL
+    displayName: Django Logging Level
+    description: Django logging level.
+    required: true
+    value: WARN
+  - name: SOLR_SERVICE_NAME
+    displayName: SOLR Service Name
+    description: The name of the service associated with the SOLR search engine.
+    required: false
+    value: search-engine
+  - name: SOLR_CORE_NAME
+    displayName: SOLR Core Name
+    description: The name of the core to use when connecting with SOLR.
+    required: false
+    value: credential_registry
+  - name: SKIP_INDEXING_ON_STARTUP
+    displayName: Skip Indexing On Startup
+    description: Set this flag to `true` to skip indexing on startup as part of the database migration; set to `all` to skip indexing and suggester build, set to `false` otherwise.  When there are a large number of records to index, indexing at startup can cause startup delays and issues.
+    required: true
+    value: all
+  - name: ENABLE_REALTIME_INDEXING
+    displayName: Enable Realtime Indexing
+    description: Flag to enable/disable realtime search indexing.  Set to 1 to enable, leave it blank to disable.  Having realtime indexing enabled during onboarding can cause performance issues.
+    required: false
+    value: "1"
+  - name: ENABLE_SUGGESTER_REBUILD
+    displayName: Enable Suggester Rebuild
+    description: Flag to enable/disable search suggester rebuilding.  Set to 1 to enable, leave it blank to disable.  Having this enabled can cause issues with very large data-sets.
+    required: false
+    value: ""
+  - name: SOURCE_IMAGE_NAME
+    displayName: Source Image Name
+    description: The name of the image to use for this resource.
+    required: true
+    value: api
+  - name: TAG_NAME
+    displayName: Environment TAG name
+    description: The TAG name for this environment, e.g., dev, test, prod
+    value: dev
+    required: true
+  - name: DATABASE_DEPLOYMENT_NAME
+    displayName: Database Deployment Name
+    description: The name associated to the database deployment resources.  In particular, this is used to wire up the credentials associated to the database.
+    required: true
+    value: db
+  - name: THEME
+    displayName: Thearies-vcr Theme
+    description: The theme to use for the tob-api.  This defines which customizations to load for the application.
+    required: true
+    value: bcgov
+  - name: TRACE_EVENTS
+    displayName: Trace Events
+    description: Trace events.  Enable/Disable tracing.
+    required: false
+    value: "false"
+  - name: RECORD_TIMINGS
+    displayName: Record Timings
+    description: Record Timings.  Enable/Disable method timings.
+    required: false
+    value: "false"
+  - name: APP_SCRIPT
+    displayName: Application Script
+    description: The start-up script for the application.
+    required: true
+    value: scripts/start-celery-worker.sh
+  - name: RABBITMQ_SVC_NAME
+    displayName: RabbitMQ Service Name
+    description: The name of the RabbitMQ service.
+    required: true
+    value: msg-queue
+  - name: AGENT_SERVICE_NAME
+    displayName: Agent Service name
+    description: Agent service name
+    required: true
+    value: agent
+  - name: AGENT_ADMIN_PORT
+    displayName: Agent Admin Port
+    description: Agent admin port
+    required: true
+    value: "8024"
+  - name: MIN_REPLICAS
+    displayName: Minimum Replicas
+    description: The minimum number of pods to have running.
+    required: true
+    value: "2"
+  - name: MAX_REPLICAS
+    displayName: Maximum Replicas
+    description: The maximum number of pods to have running.
+    required: true
+    value: "6"
+  - name: CPU_REQUEST
+    displayName: Resources CPU Request
+    description: The resources CPU request (in cores) for this build.
+    required: true
+    value: 10m
+  - name: CPU_LIMIT
+    displayName: Resources CPU Limit
+    description: The resources CPU limit (in cores) for this build.
+    required: true
+    value: 500m
+  - name: MEMORY_REQUEST
+    displayName: Resources Memory Request
+    description: The resources Memory request (in Mi, Gi, etc) for this build.
+    required: true
+    value: 10Mi
+  - name: MEMORY_LIMIT
+    displayName: Resources Memory Limit
+    description: The resources Memory limit (in Mi, Gi, etc) for this build.
+    required: true
+    value: 2000Mi

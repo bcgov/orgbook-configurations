@@ -1,15 +1,18 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/search-engine/search-engine-deploy.json
+# Template File: ../openshift/templates/search-engine/search-engine-deploy.yaml
 #=========================================================
 # NAME=search-engine
-# SUFFIX=-indy-cat
-# APP_NAME=OrgBook
-# APP_GROUP=indy-catalyst
-# IMAGE_NAMESPACE=devex-von-tools
+# ROLE=search-engine
+# DATABASE_ROLE=db
+# NAMESPACE=8ad0ea
+# SUFFIX=-bc
+# APP_NAME=orgbook
+# APP_GROUP=aries-vcr
+# IMAGE_NAMESPACE=8ad0ea-tools
 TAG_NAME=bc-test
-# PERSISTENT_VOLUME_SIZE=10Gi
+# PERSISTENT_VOLUME_SIZE=5Gi
 # MOUNT_PATH=/opt/solr/server/solr/mycores
 # CORE_NAME=credential_registry
 # SOLR_LOG_LEVEL=WARN

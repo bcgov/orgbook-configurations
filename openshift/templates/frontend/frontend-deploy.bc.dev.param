@@ -4,13 +4,13 @@
 # Template File: ../openshift/templates/frontend/frontend-deploy.json
 #=========================================================
 # NAME=frontend
-# SUFFIX=-indy-cat
-# APP_NAME=OrgBook
-# APP_GROUP=indy-catalyst
-# IMAGE_NAMESPACE=devex-von-tools
+# SUFFIX=-bc
+# APP_NAME=orgbook
+# APP_GROUP=aries-vcr
+# IMAGE_NAMESPACE=8ad0ea-tools
 # REAL_IP_FROM=172.51.0.0/16
-# API_URL=http://api-indy-cat:8080/api
-# API_SERVICE_NAME=api-indy-cat
+# API_URL=http://api-bc:8080/api
+# API_SERVICE_NAME=api-bc
 # API_PATH=/api
 # AdditionalRealIpFromRules=
 # IpFilterRules=
@@ -18,7 +18,7 @@
 # BLACK_LIST_CONFIG_FILE_NAME=blacklist.conf
 # BLACK_LIST_CONFIG_MAP_NAME=blacklist-conf
 # BLACK_LIST_CONFIG_MOUNT_PATH=/etc/nginx/
-APPLICATION_DOMAIN=dev.orgbook.gov.bc.ca 
+APPLICATION_DOMAIN=orgbook-dev.apps.silver.devops.gov.bc.ca
 # ROUTE_TIMEOUT=120s
 TAG_NAME=dev
 # HTTP_BASIC=

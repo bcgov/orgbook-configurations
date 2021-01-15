@@ -11,17 +11,32 @@
 # this allows the use of a generic Caddyfile for all environments while using
 # randomly generated usernames and passwords for each environment.
 
-0.0.0.0:8080 {
-  root /var/www/html
-  
-  # Openly exposed health check endpoint for OpenShift
-  status 200 /health
-  
-  # Wrap the SchemaSpy content in basic authentication
-  basicauth /doc {$SCHEMASPY_USER} {$SCHEMASPY_PASSWORD}
-  
-  # Rewrite requests to the correct location.
-  rewrite / /doc  
-  log stdout
-  errors stdouta
+{$SERVER_HOST}:{$SERVER_PORT} {
+    # Log everything to stdout
+    log {
+        output stdout
+    }
+
+    #  Set server root
+    root * /var/www/html
+
+    # Enable serving static files
+    file_server
+
+    # Enable gzip, zstd compression
+    encode zstd gzip
+
+    # Openly exposed health check endpoint for OpenShift
+    respond /health 200
+
+    # Wrap the SchemaSpy content in basic authentication
+    basicauth /doc/* {
+        {$SCHEMASPY_USER} {$SCHEMASPY_PASSWORD}
+    }
+
+    # Rewrite requests to the correct location.
+    @protected {
+        not path /health
+    }
+    rewrite @protected /doc{uri}
 }

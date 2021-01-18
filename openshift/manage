@@ -150,7 +150,7 @@ usage () {
         Example;
           $0 -p bc-offline-indexing -e test removeOfflineIndexingEnvironment
 
-    offlineindexsyned [<indexerPodName/>] [<dbPodName/>]
+    offlineIndexSynced [<indexerPodName/>] [<dbPodName/>]
       - Get the status of an offline index sync process.
         Parameters:
           <indexerPodName/>
@@ -160,7 +160,7 @@ usage () {
           <offlineIndexerResourceSuffix/>
             - Optional environment variable - The suffix of the offline indexing resources.  Defaults to '-oli'.
         Example;
-          $0 -p bc-offline-indexing -e test offlineIndexSyned
+          $0 -p bc-offline-indexing -e test offlineIndexSynced
 
     scaleOfflineIndexEnv <direction/> [<indexerPodName/>] [<searchEnginePodName/>]
       - Scale the offline indexing environment up or down.
@@ -593,7 +593,7 @@ function indexSynced() {
   echo "Actual Credentials: ${actualCount}"
 }
 
-function offlineIndexSyned() {
+function offlineIndexSynced() {
   _indexerPodName=${1}
   _dbPodName=${2}
   if [ -z "${_indexerPodName}" ] || [ -z "${_dbPodName}" ]; then
@@ -993,10 +993,10 @@ case "${_cmd}" in
     dbPodName=${2:-db}
     indexSynced "${apiPodName}" "${dbPodName}"
     ;;
-  offlineindexsyned)
+  offlineindexsynced)
     indexerPodName=${1:-offline-indexer}
     dbPodName=${2:-db}
-    offlineIndexSyned "${indexerPodName}" "${dbPodName}"
+    offlineIndexSynced "${indexerPodName}" "${dbPodName}"
     ;;
   deletetopic)
     topic_id=${1}

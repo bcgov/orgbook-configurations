@@ -135,6 +135,10 @@ usage () {
           $0 -p bc -e prod locateBadRecord wallet agent_indy_cat_wallet items 1 5907729 5907729
             - Get the 'id' of the record at offset 5907729.
 
+    getRunningProcesses
+      - Get a list of running processes running on a pod.
+        Runs 'ps -aux' on the pod.
+
     removeOfflineIndexingEnvironment [<appGroup/>]
       - Remove an Offline Indexing Environment
         Parameters:
@@ -154,6 +158,29 @@ usage () {
             - Optional environment variable - The suffix of the offline indexing resources.  Defaults to '-oli'.
         Example;
           $0 -p bc-offline-indexing -e test offlineIndexSyned
+
+    scaleOfflineIndexEnv <direction/> [<indexerPodName/>] [<searchEnginePodName/>]
+      - Scale the offline indexing environment up or down.
+        Parameters:
+          <direction/>
+            - up or down.
+          <indexerPodName/>
+            - Optional - The name of the pod hosting the offline indexing service.
+          <searchEnginePodName/>
+            - Optional - The name of the pod hosting the offline search engine service.
+        Examples;
+          $0 -p bc-offline-indexing -e test scaleOfflineIndexEnv up
+          $0 -p bc-offline-indexing -e test scaleOfflineIndexEnv down
+
+    swapIndexStorage [<onlineSearchEngine/>] [<offlineSearchEngine/>]
+      - Swap the index storage between the online nad offline search engines.
+        Parameters:
+          <onlineSearchEngine/>
+            - Optional - The name of the pod hosting the online search engine service.
+          <offlineSearchEngine/>
+            - Optional - The name of the pod hosting the offline search engine service.
+        Examples;
+          $0 -p bc-offline-indexing -e test swapIndexStorage
 
     scaleUp
       - Scale up one or more pods.
@@ -177,6 +204,7 @@ EOF
 # Defaults:
 # -----------------------------------------------------------------------------------------------------------------
 resourceSuffix="${resourceSuffix:--indy-cat}"
+offlineIndexerResourceSuffix=${offlineIndexerResourceSuffix:--oli}
 # -----------------------------------------------------------------------------------------------------------------
 
 # =================================================================================================================
@@ -407,7 +435,7 @@ EOF
   )
 }
 
-resetSearchIndex() {
+function resetSearchIndex() {
   _apiPodName=${1}
   _solrPodName=${2}
   if [ -z "${_apiPodName}" ] || [ -z "${_solrPodName}" ]; then
@@ -530,8 +558,7 @@ function indexSynced() {
   echo "Actual Credentials: ${actualCount}"
 }
 
-offlineIndexSyned() {
-
+function offlineIndexSyned() {
   _indexerPodName=${1}
   _dbPodName=${2}
   if [ -z "${_indexerPodName}" ] || [ -z "${_dbPodName}" ]; then
@@ -567,7 +594,7 @@ offlineIndexSyned() {
   echo "  - Topics: ${topics}"
 }
 
-deleteTopic() {
+function deleteTopic() {
   _topic_id=${1}
   _apiPodName=${2:-api}
   if [ -z "${_topic_id}" ] || [ -z "${_apiPodName}" ]; then
@@ -677,7 +704,7 @@ function locateBadRecord() {
   )
 }
 
-deleteAppGroup() {
+function deleteAppGroup() {
   (
     _appGroup=${1}
     _projectName=$(getProjectName)
@@ -685,6 +712,157 @@ deleteAppGroup() {
     # offline-indexing
     printAndAskToContinue "If you contiune all of the [${_appGroup}] application resources will be perminently deleted from [${_projectName}]."
     oc -n ${_projectName} delete all,pvc,secret,configmap,nsp -l app-group=${_appGroup}
+  )
+}
+
+function scaleOfflineIndexEnv() {
+  (
+    _direction=$(toLower ${1})
+    _indexerPodName=${2}
+    _searchEnginePodName=${3}
+
+    if [ -z "${_direction}" ] || [ -z "${_indexerPodName}" ] || [ -z "${_searchEnginePodName}" ]; then
+      echoError "\nscaleOfflineIndexEnv; You MUST specify the scaling direction, and the names of the indexer and search engine pods.\n"
+      exit 1
+    fi
+
+    if [ "${_direction}" == "down" ]; then
+      echoWarning "\nScaling the offline indexing environment ${_direction} ..."
+      scaleDown -w "${_indexerPodName}${offlineIndexerResourceSuffix}" "${_searchEnginePodName}${offlineIndexerResourceSuffix}"
+    elif [ "${_direction}" == "up" ]; then
+      echoWarning "\nScaling the offline indexing environment ${_direction} ..."
+      scaleUp -w "${_searchEnginePodName}${offlineIndexerResourceSuffix}" "${_indexerPodName}${offlineIndexerResourceSuffix}"
+    else
+      echoError "Invalid scaling direction; ${_direction}"
+    fi
+  )
+}
+
+function getRunningProcesses() {
+  _podName=${1}
+  if [ -z "${_podName}" ]; then
+    echoError "\ngetRunningProcesses; You MUST specify a pod name.\n"
+    exit 1
+  fi
+
+  echo
+  runInContainer \
+    ${_podName}${resourceSuffix} \
+    'ps -aux'
+}
+
+function swapIndexStorage() {
+  (
+    echo
+    # Trying update index script batching at 1000.
+
+    # ToDo:
+    # - Swap the index storage (PVCs) between the online and offline search-engines.
+    # - Offline indexing should be done as a rebuild indexes, since that will have a more difinitive indication of when it's finished.
+    #   - Otherwise there is no clear indication of progress until it's complete.
+
+    # Get the names of the currently mounted volume claims.
+    # Make sure they are different.
+    # Scale down the offline search-engine.
+    # Patch (swap the PVC) the online search-engine's configuraion.
+    # Wait for it to deploy/scale.
+    # Patch (swap the PVC) the offline search-engine's configuraion.
+    # Scale the offline indexing environment.
+    # Perform and offline update of the indexes.
+    # Swap the index storage back.
+    # End with the "correct" (original) PVCs mounted to their original pods.
+
+    _onlineSearchEngine=${1}${resourceSuffix}
+    _offlineSearchEngine=${2}${offlineIndexerResourceSuffix}
+    _projectName=$(getProjectName)
+
+    if [ -z "${_onlineSearchEngine}" ] || [ -z "${_offlineSearchEngine}" ]; then
+      echoError "\nswapIndexStorage; You MUST specify the names of the online and offline search engine pods.\n"
+      exit 1
+    fi
+
+    # Fetch the volume info
+    onlineSearchEngineVolume=$(getVolume "${_onlineSearchEngine}" "${_projectName}")
+    onlineSearchEnginePvc=$(getClaimName "${onlineSearchEngineVolume}")
+    offlineSearchEngineVolume=$(getVolume "${_offlineSearchEngine}" "${_projectName}")
+    offlineSearchEnginePvc=$(getClaimName "${offlineSearchEngineVolume}")
+
+    # echoWarning "\nonlineSearchEngineVolume:\n${onlineSearchEngineVolume}\n"
+    # echoWarning "\nonlineSearchEnginePvc:\n${onlineSearchEnginePvc}\n"
+    # echoWarning "\nofflineSearchEngineVolume:\n${offlineSearchEngineVolume}\n"
+    # echoWarning "\nofflineSearchEnginePvc:\n${offlineSearchEnginePvc}\n"
+
+    printAndAskToContinue "If you contiune the following PVC swap will be performed:\n  - PVC[${onlineSearchEnginePvc}] from DC[${_onlineSearchEngine}] to DC[${_offlineSearchEngine}]\n  - PVC[${offlineSearchEnginePvc}] from DC[${_offlineSearchEngine}] to DC[${_onlineSearchEngine}]"
+
+    # Prep patches needed to swap the PVCs
+    onlineVolumePatch=$(getVolumePatch "${onlineSearchEngineVolume}" "${offlineSearchEnginePvc}")
+    offlineVolumePatch=$(getVolumePatch "${offlineSearchEngineVolume}" "${onlineSearchEnginePvc}")
+
+    # echoWarning "\nonlineVolumePatch:\n${onlineVolumePatch}\n"
+    # echoWarning "\nofflineVolumePatch:\n${offlineVolumePatch}\n"
+
+    # Swap the PVCs
+    patchDeploymentConfig "${_onlineSearchEngine}" "${onlineVolumePatch}" "${_projectName}"
+    patchDeploymentConfig "${_offlineSearchEngine}" "${offlineVolumePatch}" "${_projectName}"
+  )
+}
+
+function getVolume() {
+  (
+    _resourceName=${1}
+    _projectName=${2:-$(getProjectName)}
+    if [ -z "${_resourceName}" ]; then
+      echoError "\ngetVolume; You MUST specify the fully qualified name of the resource.\n"
+      exit 1
+    fi
+
+    volumeDef=$(oc -n ${_projectName} get dc ${_resourceName} -o json | jq ".spec.template.spec.volumes[] | select(.name | startswith(\"${_resourceName}\"))")
+    echo "${volumeDef}"
+  )
+}
+
+function getVolumePatch()
+{
+  (
+    _volumeDef=${1}
+    _newClaimName=${2}
+    if [ -z "${_volumeDef}" ] || [ -z "${_newClaimName}" ]; then
+      echoError "\ngetVolumePatch; You MUST supply the json definition for the volume, and the name of the new PVC to mount.\n"
+      exit 1
+    fi
+
+    newVolumeDef=$(echo "${_volumeDef}" | jq ".persistentVolumeClaim.claimName = \"${_newClaimName}\"")
+    patch=$(echo "{\"spec\":{\"template\":{\"spec\":{\"volumes\":[${newVolumeDef}]}}}}" | jq .)
+    echo "${patch}"
+  )
+}
+
+function getClaimName() {
+  (
+    _volumeDef=${1}
+    if [ -z "${_volumeDef}" ]; then
+      echoError "\ngetClaimName; You MUST supply the json definition for the volume.\n"
+      exit 1
+    fi
+
+    claimName=$(echo "${_volumeDef}" | jq -r '.persistentVolumeClaim.claimName')
+    echo "${claimName}"
+  )
+}
+
+function patchDeploymentConfig()
+{
+  (
+    _resourceName=${1}
+    _patch=${2}
+    _projectName=${3:-$(getProjectName)}
+    if [ -z "${_resourceName}" ] || [ -z "${_patch}" ]; then
+      echoError "\npatchDeploymentConfig; You MUST specify the fully qualified name of the deployment configuration, and the patch to apply.\n"
+      exit 1
+    fi
+
+    oc -n ${_projectName} patch dc ${_resourceName} -p "${_patch}"
+    # oc -n ${_projectName} patch dc ${_resourceName} --dry-run -o json -p "${_patch}"
   )
 }
 # =================================================================================================================
@@ -753,7 +931,6 @@ case "${_cmd}" in
     indexSynced "${apiPodName}" "${dbPodName}"
     ;;
   offlineindexsyned)
-    offlineIndexerResourceSuffix=${offlineIndexerResourceSuffix:--oli}
     indexerPodName=${1:-offline-indexer}
     dbPodName=${2:-db}
     offlineIndexSyned "${indexerPodName}" "${dbPodName}"
@@ -809,6 +986,20 @@ case "${_cmd}" in
   removeofflineindexingenvironment)
     appGroup=${1:-offline-indexing}
     deleteAppGroup "${appGroup}"
+    ;;
+  getrunningprocesses)
+    getRunningProcesses ${@}
+    ;;    
+  scaleofflineindexenv)
+    direction=${1:-up}
+    indexerPodName=${2:-offline-indexer}
+    searchEnginePodName=${3:-search-engine}
+    scaleOfflineIndexEnv "${direction}" "${indexerPodName}" "${searchEnginePodName}"
+    ;;
+  swapindexstorage)
+    onlineSearchEngine=${1:-search-engine}
+    offlineSearchEngine=${2:-search-engine}
+    swapIndexStorage "${onlineSearchEngine}" "${offlineSearchEngine}"
     ;;
 
   scaleup)

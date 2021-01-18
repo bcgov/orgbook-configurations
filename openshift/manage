@@ -52,6 +52,9 @@ usage () {
     rebuildSearchIndex
       - Rebuild the search index for a given environment.
 
+    rebuildofflinesearchindex
+      - Rebuild the search index in the offline environment.
+
     updateSearchIndex
       - Update the search index for a given environment.
       - Supports passing arguments to updateSearchIndex.sh.  For example:
@@ -181,6 +184,16 @@ usage () {
             - Optional - The name of the pod hosting the offline search engine service.
         Examples;
           $0 -p bc-offline-indexing -e test swapIndexStorage
+
+    indexStorageStatus [<onlineSearchEngine/>] [<offlineSearchEngine/>]
+      - Determine which PVC is mounted to which container.
+        Parameters:
+          <onlineSearchEngine/>
+            - Optional - The name of the pod hosting the online search engine service.
+          <offlineSearchEngine/>
+            - Optional - The name of the pod hosting the offline search engine service.
+        Examples;
+          $0 -p bc-offline-indexing -e test indexStorageStatus
 
     scaleUp
       - Scale up one or more pods.
@@ -488,15 +501,37 @@ function deleteSearchIndex() {
 }
 
 function rebuildSearchIndex() {
-  _apiPodName=${1}
-  if [ -z "${_apiPodName}" ]; then
-    echoError \\n"rebuildSearchIndex; Missing parameter!"\\n
-    exit 1
-  fi
+  (
+    local OPTIND
+    local OPTARG
+    unset local offline
+    while getopts o FLAG; do
+      case $FLAG in
+        o ) runOffline=1 ;;
+      esac
+    done
+    shift $((OPTIND-1))
 
-  echoWarning "\nRebuilding the search index ..."
-  runInContainer ${_apiPodName}${resourceSuffix} './scripts/rebuildSearchIndex.sh'
-  exitOnError
+    _indexerPodName=${1}
+    if [ -z "${_indexerPodName}" ]; then
+      echoError \\n"rebuildSearchIndex; Missing parameter!"\\n
+      exit 1
+    fi
+
+    if [ -z "${runOffline}" ]; then
+      _indexerPodName=${_indexerPodName}${resourceSuffix}
+      _msg="\nRebuilding the search index ..."
+      _cmd='./scripts/rebuildSearchIndex.sh'
+    else
+      _indexerPodName=${_indexerPodName}${offlineIndexerResourceSuffix}
+      _msg="\nRebuilding the offline search index ..."
+      _cmd='./scripts/rebuildSearchIndex.sh &'
+    fi
+
+    echoWarning "${_msg}"
+    runInContainer "${_indexerPodName}" "${_cmd}"
+    exitOnError
+  )
 }
 
 function updateSearchIndex() {
@@ -751,9 +786,33 @@ function getRunningProcesses() {
     'ps -aux'
 }
 
+
+function indexStorageStatus() {
+  (
+    _onlineSearchEngine=${1}${resourceSuffix}
+    _offlineSearchEngine=${2}${offlineIndexerResourceSuffix}
+    _projectName=$(getProjectName)
+
+    if [ -z "${_onlineSearchEngine}" ] || [ -z "${_offlineSearchEngine}" ]; then
+      echoError "\nswapIndexStorage; You MUST specify the names of the online and offline search engine pods.\n"
+      exit 1
+    fi
+
+    # Fetch the volume info
+    onlineSearchEngineVolume=$(getVolume "${_onlineSearchEngine}" "${_projectName}")
+    onlineSearchEnginePvc=$(getClaimName "${onlineSearchEngineVolume}")
+    offlineSearchEngineVolume=$(getVolume "${_offlineSearchEngine}" "${_projectName}")
+    offlineSearchEnginePvc=$(getClaimName "${offlineSearchEngineVolume}")
+
+    echoWarning \\n"Container - ${_onlineSearchEngine}:"
+    echoWarning "  - PCV: ${onlineSearchEnginePvc}"
+    echoWarning \\n"Container - ${_offlineSearchEngine}:"
+    echoWarning "  - PCV: ${offlineSearchEnginePvc}"
+  )
+}
+
 function swapIndexStorage() {
   (
-    echo
     # Trying update index script batching at 1000.
 
     # ToDo:
@@ -920,7 +979,11 @@ case "${_cmd}" in
     ;;
   rebuildsearchindex)
     apiPodName=${1:-api}
-    rebuildSearchIndex "${apiPodName}"
+    rebuildSearchIndex "${apiPodName}"   
+    ;;
+  rebuildofflinesearchindex)
+    indexerPodName=${1:-offline-indexer}
+    rebuildSearchIndex -o "${indexerPodName}"   
     ;;
   updatesearchindex)
     updateSearchIndex ${@}
@@ -1000,6 +1063,11 @@ case "${_cmd}" in
     onlineSearchEngine=${1:-search-engine}
     offlineSearchEngine=${2:-search-engine}
     swapIndexStorage "${onlineSearchEngine}" "${offlineSearchEngine}"
+    ;;
+  indexstoragestatus)
+    onlineSearchEngine=${1:-search-engine}
+    offlineSearchEngine=${2:-search-engine}
+    indexStorageStatus "${onlineSearchEngine}" "${offlineSearchEngine}"
     ;;
 
   scaleup)

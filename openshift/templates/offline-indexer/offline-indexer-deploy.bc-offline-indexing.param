@@ -5,7 +5,7 @@
 #=========================================================
 NAME=offline-indexer
 SUFFIX=-oli
-INDEXING_SUFFIX=-indy-cat
+INDEXING_SUFFIX=-oli
 APP_NAME=Offline-Indexing
 APP_GROUP=offline-indexing
 IMAGE_NAMESPACE=devex-von-tools
@@ -28,7 +28,7 @@ RTI_MAX_SOLR_BATCH=25
 RTI_RAISE_ERRORS=false
 RTI_ABORT_ON_ERRORS=false
 SOURCE_IMAGE_NAME=api
-TAG_NAME=dev
+TAG_NAME=oli-dev
 MSG_QUEUE_DEPLOYMENT_NAME=msg-queue
 THEME=bcgov
 TRACE_EVENTS=false

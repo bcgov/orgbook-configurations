@@ -8,7 +8,7 @@
 # APP_NAME=Offline-Indexing
 # APP_GROUP=offline-indexing
 # IMAGE_NAMESPACE=devex-von-tools
-TAG_NAME=bc-test
+TAG_NAME=oli-test
 # PERSISTENT_VOLUME_SIZE=10Gi
 # MOUNT_PATH=/opt/solr/server/solr/mycores
 # CORE_NAME=credential_registry

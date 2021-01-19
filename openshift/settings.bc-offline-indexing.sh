@@ -6,4 +6,4 @@ export PROJECT_NAMESPACE="devex-von-bc-tob"
 export SKIP_PIPELINE_PROCESSING=1
 
 export ignore_templates=""
-export include_templates="offline-indexer-deploy search-engine-deploy"
+export include_templates="offline-indexer-deploy search-engine-deploy db-deploy"

@@ -163,67 +163,8 @@
                     "value": "${SKIP_INDEXING_ON_STARTUP}"
                   },
                   {
-                    "name": "ENABLE_REALTIME_INDEXING",
-                    "value": "${ENABLE_REALTIME_INDEXING}"
-                  },
-                  {
-                    "name": "ENABLE_SUGGESTER_REBUILD",
-                    "value": "${ENABLE_SUGGESTER_REBUILD}"
-                  },
-                  {
-                    "name": "RTI_WAIT_TIME",
-                    "value": "${RTI_WAIT_TIME}"
-                  },
-                  {
-                    "name": "RTI_MAX_SOLR_BATCH",
-                    "value": "${RTI_MAX_SOLR_BATCH}"
-                  },
-                  {
-                    "name": "RTI_RAISE_ERRORS",
-                    "value": "${RTI_RAISE_ERRORS}"
-                  },
-                  {
-                    "name": "RTI_ABORT_ON_ERRORS",
-                    "value": "${RTI_ABORT_ON_ERRORS}"
-                  },
-                  {
                     "name": "THEME",
                     "value": "${THEME}"
-                  },
-                  {
-                    "name": "RABBITMQ_SVC_NAME",
-                    "value": "${MSG_QUEUE_DEPLOYMENT_NAME}${INDEXING_SUFFIX}"
-                  },
-                  {
-                    "name": "RABBITMQ_USER",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${MSG_QUEUE_DEPLOYMENT_NAME}${INDEXING_SUFFIX}",
-                        "key": "default-user"
-                      }
-                    }
-                  },
-                  {
-                    "name": "RABBITMQ_PASSWORD",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${MSG_QUEUE_DEPLOYMENT_NAME}${INDEXING_SUFFIX}",
-                        "key": "default-password"
-                      }
-                    }
-                  },
-                  {
-                    "name": "AGENT_ADMIN_URL",
-                    "value": "http://${AGENT_SERVICE_NAME}${INDEXING_SUFFIX}:${AGENT_ADMIN_PORT}"
-                  },
-                  {
-                    "name": "AGENT_ADMIN_API_KEY",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${AGENT_SERVICE_NAME}${INDEXING_SUFFIX}",
-                        "key": "admin-api-key"
-                      }
-                    }
                   },
                   {
                     "name": "TRACE_EVENTS",
@@ -266,22 +207,13 @@
       "required": false,
       "value": "-oli"
     },
-
-
     {
       "name": "INDEXING_SUFFIX",
       "displayName": "Indexing Suffix",
       "description": "A suffix of the services to which the indexer will connect.",
       "required": false,
-      "value": "-indy-cat"
+      "value": "-oli"
     },
-
-
-
-
-
-
-
     {
       "name": "APP_NAME",
       "displayName": "App Name",
@@ -388,68 +320,18 @@
       "value": "all"
     },
     {
-      "name": "ENABLE_REALTIME_INDEXING",
-      "displayName": "Enable Realtime Indexing",
-      "description": "Flag to enable/disable realtime search indexing.  Set to 1 to enable, leave it blank to disable.  Having realtime indexing enabled during onboarding can cause performance issues.",
-      "required": false,
-      "value": ""
-    },
-    {
-      "name": "ENABLE_SUGGESTER_REBUILD",
-      "displayName": "Enable Suggester Rebuild",
-      "description": "Flag to enable/disable search suggester rebuilding.  Set to 1 to enable, leave it blank to disable.  Having this enabled can cause issues with very large data-sets.",
-      "required": false,
-      "value": ""
-    },
-    {
-      "name": "RTI_WAIT_TIME",
-      "displayName": "Realtime Indexing - Wait Time",
-      "description": "The number of seconds to wait before draining the solr queue.  Flag to enable/disable raising errors during realtime indexing.  The indexing thread will be killed, and the API instance will continue to run without indexing.  Set to 'true' to enable.  Defaults to 5 sceonds.",
-      "required": false,
-      "value": "5"
-    },
-    {
-      "name": "RTI_MAX_SOLR_BATCH",
-      "displayName": "Realtime Indexing - Batch Size",
-      "description": "The maximum number of items to grouped items to collect before triggering the indexing process.  Defaults to 25.",
-      "required": false,
-      "value": "25"
-    },
-    {
-      "name": "RTI_RAISE_ERRORS",
-      "displayName": "Realtime Indexing - Raise Errors",
-      "description": "Flag to enable/disable raising errors during realtime indexing.  The indexing thread will be killed, and the API instance will continue to run without indexing.  Set to 'true' to enable.  Defaults to false.",
-      "required": false,
-      "value": "false"
-    },
-    {
-      "name": "RTI_ABORT_ON_ERRORS",
-      "displayName": "Realtime Indexing - Abort On Errors",
-      "description": "Overrides RTI_RAISE_ERRORS.  Flag to enable/disable aborting (killing) the API instance when realtime indexing errors are encountered.  Set to 'true' to enable.  Defaults to false.",
-      "required": false,
-      "value": "false"
-    },
-    {
       "name": "SOURCE_IMAGE_NAME",
       "displayName": "Source Image Name",
       "description": "The name of the image to use for this resource.",
       "required": true,
       "value": "api"
     },
-
     {
       "name": "TAG_NAME",
       "displayName": "Environment TAG name",
       "description": "The TAG name for this environment, e.g., dev, test, prod",
       "value": "dev",
       "required": true
-    },
-    {
-      "name": "MSG_QUEUE_DEPLOYMENT_NAME",
-      "displayName": "Msg Queue Deployment Name",
-      "description": "The name associated to the msg queue deployment resources.  In particular, this is used to wire up the credentials associated to the database.",
-      "required": true,
-      "value": "msg-queue"
     },
     {
       "name": "THEME",
@@ -478,20 +360,6 @@
       "description": "Set to True to indicate the site is a Demo site, False otherwise.",
       "required": false,
       "value": "True"
-    },
-    {
-      "name": "AGENT_SERVICE_NAME",
-      "displayName": "Agent Service name",
-      "description": "Agent service name",
-      "required": true,
-      "value": "agent"
-    },
-    {
-      "name": "AGENT_ADMIN_PORT",
-      "displayName": "Agent Admin Port",
-      "description": "Agent admin port",
-      "required": true,
-      "value": "8024"
     },
     {
       "name": "CPU_REQUEST",

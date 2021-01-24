@@ -111,7 +111,7 @@
                     "name": "POSTGRESQL_USER",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${NAME}${SUFFIX}",
+                        "name": "${NAME}${CREDENTIAL_SUFFIX}",
                         "key": "database-user"
                       }
                     }
@@ -120,7 +120,7 @@
                     "name": "POSTGRESQL_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${NAME}${SUFFIX}",
+                        "name": "${NAME}${CREDENTIAL_SUFFIX}",
                         "key": "database-password"
                       }
                     }
@@ -129,7 +129,7 @@
                     "name": "POSTGRESQL_ADMIN_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${NAME}${SUFFIX}",
+                        "name": "${NAME}${CREDENTIAL_SUFFIX}",
                         "key": "admin-password"
                       }
                     }
@@ -294,6 +294,13 @@
       "name": "SUFFIX",
       "displayName": "Suffix",
       "description": "A name suffix used for all objects",
+      "required": false,
+      "value": "-indy-cat"
+    },
+    {
+      "name": "CREDENTIAL_SUFFIX",
+      "displayName": "Credential Suffix",
+      "description": "A name suffix used for linking credentials.",
       "required": false,
       "value": "-indy-cat"
     },

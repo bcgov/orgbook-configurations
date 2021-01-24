@@ -601,7 +601,7 @@ function offlineIndexSynced() {
     exit 1
   fi
 
-  recordCounts=$(getRecordCounts "${_dbPodName}")
+  recordCounts=$(getRecordCounts "${_dbPodName}" "" "${offlineIndexerResourceSuffix}")
   names=$(echo "${recordCounts}" | grep -w name | awk '{print $5}')
   addresses=$(echo "${recordCounts}" | grep -w  address | awk '{print $5}')
   credentials=$(echo "${recordCounts}" | grep -w  credential | awk '{print $5}')
@@ -1057,7 +1057,15 @@ case "${_cmd}" in
     direction=${1:-up}
     indexerPodName=${2:-offline-indexer}
     searchEnginePodName=${3:-search-engine}
+
+
+
+
     scaleOfflineIndexEnv "${direction}" "${indexerPodName}" "${searchEnginePodName}"
+    
+    
+    
+    
     ;;
   swapindexstorage)
     onlineSearchEngine=${1:-search-engine}

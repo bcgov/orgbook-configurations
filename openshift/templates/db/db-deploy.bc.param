@@ -5,6 +5,7 @@
 #=========================================================
 NAME=db
 SUFFIX=-indy-cat
+CREDENTIAL_SUFFIX=-indy-cat
 APP_NAME=OrgBook
 APP_GROUP=indy-catalyst
 IMAGE_NAMESPACE=devex-von-tools

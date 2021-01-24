@@ -5,6 +5,7 @@
 #=========================================================
 NAME=db
 SUFFIX=-oli
+CREDENTIAL_SUFFIX=-indy-cat
 APP_NAME=Offline-Indexing
 APP_GROUP=offline-indexing
 IMAGE_NAMESPACE=devex-von-tools

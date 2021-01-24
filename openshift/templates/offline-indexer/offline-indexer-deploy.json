@@ -120,7 +120,7 @@
                     "name": "DATABASE_USER",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${DATABASE_SERVICE_NAME}${INDEXING_SUFFIX}",
+                        "name": "${DATABASE_SERVICE_NAME}${CREDENTIAL_SUFFIX}",
                         "key": "database-user"
                       }
                     }
@@ -129,7 +129,7 @@
                     "name": "DATABASE_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${DATABASE_SERVICE_NAME}${INDEXING_SUFFIX}",
+                        "name": "${DATABASE_SERVICE_NAME}${CREDENTIAL_SUFFIX}",
                         "key": "database-password"
                       }
                     }
@@ -213,6 +213,13 @@
       "description": "A suffix of the services to which the indexer will connect.",
       "required": false,
       "value": "-oli"
+    },
+    {
+      "name": "CREDENTIAL_SUFFIX",
+      "displayName": "Credential Suffix",
+      "description": "A name suffix used for linking credentials.",
+      "required": false,
+      "value": "-indy-cat"
     },
     {
       "name": "APP_NAME",

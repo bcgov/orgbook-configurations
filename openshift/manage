@@ -52,9 +52,6 @@ usage () {
     rebuildSearchIndex
       - Rebuild the search index for a given environment.
 
-    rebuildofflinesearchindex
-      - Rebuild the search index in the offline environment.
-
     updateSearchIndex
       - Update the search index for a given environment.
       - Supports passing arguments to updateSearchIndex.sh.  For example:
@@ -142,6 +139,10 @@ usage () {
       - Get a list of running processes running on a pod.
         Runs 'ps -aux' on the pod.
 
+
+  Offline Indexing Commands:
+  ==========================
+
     removeOfflineIndexingEnvironment [<appGroup/>]
       - Remove an Offline Indexing Environment
         Parameters:
@@ -195,6 +196,21 @@ usage () {
         Examples;
           $0 -p bc-offline-indexing -e test indexStorageStatus
 
+    initOfflineIndexingEnv
+      - Restores the most recent backup to the offline indexing environment.
+
+    rebuildofflinesearchindex
+      - Rebuild the search index in the offline environment.
+
+    listOffineIndexingProcesses
+      - Get a list of processes running on the offline indexing pod.
+      - Offline indexing can take a day or so, so you are likely to loose any connection you
+        have to the container monitoring the indexing process.  This command allows you
+        to determine whether the indexing processes are still running.
+
+
+  Scaling Commands:
+  ==========================
     scaleUp
       - Scale up one or more pods.
         For example;
@@ -525,7 +541,7 @@ function rebuildSearchIndex() {
     else
       _indexerPodName=${_indexerPodName}${offlineIndexerResourceSuffix}
       _msg="\nRebuilding the offline search index ..."
-      _cmd='./scripts/rebuildSearchIndex.sh &'
+      _cmd='./scripts/rebuildSearchIndex.sh -b 1000 &'
     fi
 
     echoWarning "${_msg}"
@@ -753,20 +769,21 @@ function deleteAppGroup() {
 function scaleOfflineIndexEnv() {
   (
     _direction=$(toLower ${1})
-    _indexerPodName=${2}
-    _searchEnginePodName=${3}
+    _indexerPodName=${2}${offlineIndexerResourceSuffix}
+    _searchEnginePodName=${3}${offlineIndexerResourceSuffix}
+    _dbPodName=${4}${offlineIndexerResourceSuffix}
 
-    if [ -z "${_direction}" ] || [ -z "${_indexerPodName}" ] || [ -z "${_searchEnginePodName}" ]; then
-      echoError "\nscaleOfflineIndexEnv; You MUST specify the scaling direction, and the names of the indexer and search engine pods.\n"
+    if [ -z "${_direction}" ] || [ -z "${_indexerPodName}" ] || [ -z "${_searchEnginePodName}" ] || [ -z "${_dbPodName}" ]; then
+      echoError "\nscaleOfflineIndexEnv; You MUST specify the scaling direction, and the names of the indexer, search engine, and db pods.\n"
       exit 1
     fi
 
     if [ "${_direction}" == "down" ]; then
       echoWarning "\nScaling the offline indexing environment ${_direction} ..."
-      scaleDown -w "${_indexerPodName}${offlineIndexerResourceSuffix}" "${_searchEnginePodName}${offlineIndexerResourceSuffix}"
+      scaleDown -w "${_indexerPodName}" "${_searchEnginePodName}" "${_dbPodName}"
     elif [ "${_direction}" == "up" ]; then
       echoWarning "\nScaling the offline indexing environment ${_direction} ..."
-      scaleUp -w "${_searchEnginePodName}${offlineIndexerResourceSuffix}" "${_indexerPodName}${offlineIndexerResourceSuffix}"
+      scaleUp -w "${_dbPodName}" "${_searchEnginePodName}" "${_indexerPodName}"
     else
       echoError "Invalid scaling direction; ${_direction}"
     fi
@@ -785,7 +802,6 @@ function getRunningProcesses() {
     ${_podName}${resourceSuffix} \
     'ps -aux'
 }
-
 
 function indexStorageStatus() {
   (
@@ -813,28 +829,9 @@ function indexStorageStatus() {
 
 function swapIndexStorage() {
   (
-    # Trying update index script batching at 1000.
-
-    # ToDo:
-    # - Swap the index storage (PVCs) between the online and offline search-engines.
-    # - Offline indexing should be done as a rebuild indexes, since that will have a more difinitive indication of when it's finished.
-    #   - Otherwise there is no clear indication of progress until it's complete.
-
-    # Get the names of the currently mounted volume claims.
-    # Make sure they are different.
-    # Scale down the offline search-engine.
-    # Patch (swap the PVC) the online search-engine's configuraion.
-    # Wait for it to deploy/scale.
-    # Patch (swap the PVC) the offline search-engine's configuraion.
-    # Scale the offline indexing environment.
-    # Perform and offline update of the indexes.
-    # Swap the index storage back.
-    # End with the "correct" (original) PVCs mounted to their original pods.
-
     _onlineSearchEngine=${1}${resourceSuffix}
     _offlineSearchEngine=${2}${offlineIndexerResourceSuffix}
     _projectName=$(getProjectName)
-
     if [ -z "${_onlineSearchEngine}" ] || [ -z "${_offlineSearchEngine}" ]; then
       echoError "\nswapIndexStorage; You MUST specify the names of the online and offline search engine pods.\n"
       exit 1
@@ -924,6 +921,96 @@ function patchDeploymentConfig()
     # oc -n ${_projectName} patch dc ${_resourceName} --dry-run -o json -p "${_patch}"
   )
 }
+
+function getHostPrefix(){
+  (
+    _hostname=${1}
+    _hostPrefix=$(echo ${_hostname} | tr '[:lower:]' '[:upper:]' | sed "s~-~_~g")
+    echo "${_hostPrefix}"
+  )
+}
+
+function getHostUserParam(){
+  (
+    _hostname=${1}
+    _hostUser=$(getHostPrefix ${_hostname})_USER
+    echo "${_hostUser}"
+  )
+}
+
+function initOfflineIndexingEnv()
+{
+    _offlineIndexer=${1}${offlineIndexerResourceSuffix}
+    _offlineSearchEngine=${2}${offlineIndexerResourceSuffix}
+    _onlineDb=${3}${resourceSuffix}
+    _offlineDb=${4}${offlineIndexerResourceSuffix}
+    _offlineDbUserKey=${5}
+    _offlineDbAdminPasswordKey=${6}
+    _offlineDbBackupSpec=${7}
+    _offlineDbBackupFileFilter=${9}
+    _backupPod=${9}${resourceSuffix}
+    if [ -z "${_offlineIndexer}" ] || [ -z "${_onlineDb}" ] || [ -z "${_offlineDb}" ] || [ -z "${_offlineDbUserKey}" ] || [ -z "${_offlineDbAdminPasswordKey}" ] || [ -z "${_offlineDbBackupSpec}" ] || [ -z "${_offlineDbBackupFileFilter}" ] || [ -z "${_backupPod}" ]; then
+      echoError "\ninitOfflineIndexingEnv; One or more missing parameters.\n"
+      exit 1
+    fi
+
+    # echoWarning "_offlineIndexer: ${_offlineIndexer}"
+    # echoWarning "_offlineSearchEngine: ${_offlineSearchEngine}"
+    # echoWarning "_onlineDb: ${_onlineDb}"
+    # echoWarning "_offlineDb: ${_offlineDb}"
+    # echoWarning "_offlineDbUserKey: ${_offlineDbUserKey}"
+    # echoWarning "_offlineDbAdminPasswordKey: ${_offlineDbAdminPasswordKey}"
+    # echoWarning "_offlineDbBackupSpec: ${_offlineDbBackupSpec}"
+    # echoWarning "_offlineDbBackupFileFilter: ${_offlineDbBackupFileFilter}"
+    # echoWarning "_backupPod: ${_backupPod}"
+
+    # Scale down the offline indexer ...
+    echo "Scaling down ${_offlineIndexer} ..."
+    scaleDown -w "${_offlineIndexer}"
+    exitOnError
+
+    # Reset the offline indexing database ....
+    echo "Resetting ${_offlineDb} ..."
+    if isScaledUp ${_backupPod}; then
+      local backupStarted=1
+    else
+      local unset backupStarted
+      scaleUp -w "${_backupPod}"
+      exitOnError
+    fi
+
+    runInContainer -i -v \
+      ${_backupPod} \
+      "$(getHostUserParam ${_offlineDb})=$(getSecret ${_onlineDb} "${_offlineDbUserKey}") ./backup.sh -s -a $(getSecret ${_onlineDb} ${_offlineDbAdminPasswordKey}) -r ${_offlineDbBackupSpec} -f ${_offlineDbBackupFileFilter}"
+    # echoWarning "$(getHostUserParam ${_offlineDb})=$(getSecret ${_onlineDb} "${_offlineDbUserKey}") ./backup.sh -s -a $(getSecret ${_onlineDb} ${_offlineDbAdminPasswordKey}) -r ${_offlineDbBackupSpec} -f ${_offlineDbBackupFileFilter}"
+    exitOnError
+
+    if [ -z ${backupStarted} ]; then
+      # Leave the backup container in the same state we found it.
+      scaleDown "${_backupPod}"
+      exitOnError
+    fi
+
+    # Scale up the offline indexer ...
+    echo "Scaling up ${_offlineIndexer} ..."
+    scaleUp -w "${_offlineIndexer}"
+    exitOnError
+
+    # Delete the offline index ...
+    echo "Deleting the offline index ..."
+    deleteFromPod "${_offlineSearchEngine}" "/opt/solr/server/solr/mycores/credential_registry/data/index"
+    exitOnError
+    recyclePods -w "${_offlineSearchEngine}"
+}
+
+function listOffineIndexingProcesses()
+{
+  (
+    _podName=${1}
+    resourceSuffix=${offlineIndexerResourceSuffix}
+    getRunningProcesses ${_podName}
+  )
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -979,11 +1066,11 @@ case "${_cmd}" in
     ;;
   rebuildsearchindex)
     apiPodName=${1:-api}
-    rebuildSearchIndex "${apiPodName}"   
+    rebuildSearchIndex "${apiPodName}"
     ;;
   rebuildofflinesearchindex)
     indexerPodName=${1:-offline-indexer}
-    rebuildSearchIndex -o "${indexerPodName}"   
+    rebuildSearchIndex -o "${indexerPodName}"
     ;;
   updatesearchindex)
     updateSearchIndex ${@}
@@ -1052,20 +1139,12 @@ case "${_cmd}" in
     ;;
   getrunningprocesses)
     getRunningProcesses ${@}
-    ;;    
+    ;;
   scaleofflineindexenv)
     direction=${1:-up}
     indexerPodName=${2:-offline-indexer}
     searchEnginePodName=${3:-search-engine}
-
-
-
-
     scaleOfflineIndexEnv "${direction}" "${indexerPodName}" "${searchEnginePodName}"
-    
-    
-    
-    
     ;;
   swapindexstorage)
     onlineSearchEngine=${1:-search-engine}
@@ -1077,6 +1156,32 @@ case "${_cmd}" in
     offlineSearchEngine=${2:-search-engine}
     indexStorageStatus "${onlineSearchEngine}" "${offlineSearchEngine}"
     ;;
+  initofflineindexingenv)
+    offlineIndexer=${1:-offline-indexer}
+    offlineSearchEngine=${2:-search-engine}
+    onlineDb=${3:-db}
+    offlineDb=${4:-db}
+    offlineDbUserKey=${5:-database-user}
+    offlineDbAdminPasswordKey=${6:-admin-password}
+    offlineDbBackupSpec=${7:-db${offlineIndexerResourceSuffix}:5432/OrgBook}
+    offlineDbBackupFileFilter=${8:-db-indy-cat-OrgBook}
+    backupPod=${9:-backup}
+
+    initOfflineIndexingEnv "${offlineIndexer}" \
+                           "${offlineSearchEngine}" \
+                           "${onlineDb}" \
+                           "${offlineDb}" \
+                           "${offlineDbUserKey}" \
+                           "${offlineDbAdminPasswordKey}" \
+                           "${offlineDbBackupSpec}" \
+                           "${offlineDbBackupFileFilter}" \
+                           "${backupPod}"
+    ;;
+  listoffineindexingprocesses)
+    podName=${1:-offline-indexer}
+    listOffineIndexingProcesses ${podName}
+    ;;
+
 
   scaleup)
     scaleUp -w ${@}

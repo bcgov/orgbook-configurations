@@ -143,6 +143,71 @@ usage () {
   Offline Indexing Commands:
   ==========================
 
+    ===================================================================================================================================
+    An example workflow:
+    -----------------------------------------------------------------------------------------------------------------------------------
+      # Provision the offline indexing environment.
+      genDepls.sh -p bc-offline-indexing -e prod
+
+      # Or, update the offline indexing environment's configuration.
+      genDepls.sh -p bc-offline-indexing -e prod -u
+
+      # Promote the latest images to the offline indexing environment.
+      ./manage -p bc-offline-indexing -e tools promoteOffineIndexingImages test prod
+
+      # Initialize the offline indexing environment
+      ./manage -p bc-offline-indexing -e prod initOfflineIndexingEnv
+
+      # Check the status of the offline indexing environment.
+      ./manage -p bc-offline-indexing -e prod offlineIndexSynced
+
+      # Compare with the online environment.  The Actual Credential counts should be close, within a few thousand.
+      ./manage -p bc -e prod indexSynced
+
+      # Check the status of the offline indexing volumes.  Volumes should be stating on their original containers.
+      ./manage -p bc-offline-indexing -e prod indexStorageStatus
+
+      # Run the offline indexing process on the offline volume.  This could take a few days.
+      ./manage -p bc-offline-indexing -e prod rebuildOfflineSearchIndex
+
+      # Monitor the indexing progress until complete.
+      # You will likely loose the terminal connection to the pod rebuilding the index but the process will continue running.
+      ./manage -p bc-offline-indexing -e prod offlineIndexSynced
+      ./manage -p bc-offline-indexing -e prod listOffineIndexingProcesses
+
+      # Swap the offline indexing volumes.
+      ./manage -p bc-offline-indexing -e prod swapIndexStorage
+
+      # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
+      ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00
+
+      # Ensure the online indexes are syned.
+      ./manage -p bc -e prod indexSynced
+
+      # Initialize the offline indexing environment with a newer backup.  There could be thousands of new records by now.
+      ./manage -p bc-offline-indexing -e prod initOfflineIndexingEnv
+
+      # Run the offline indexing process again on the orginal volume.  This could take a few days.
+      ./manage -p bc-offline-indexing -e prod rebuildOfflineSearchIndex
+
+      # Monitor the indexing progress until complete.
+      # You will likely loose the terminal connection to the pod rebuilding the index but the process will continue running.
+      ./manage -p bc-offline-indexing -e prod offlineIndexSynced
+      ./manage -p bc-offline-indexing -e prod listOffineIndexingProcesses
+
+      # Swap the offline indexing volumes back to their original containers
+      ./manage -p bc-offline-indexing -e prod swapIndexStorage
+
+      # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
+      ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00
+
+      # Ensure the online indexes are syned.
+      ./manage -p bc -e prod indexSynced
+
+      # Scale down the offline indexing environment until the new time it's needed.
+      ./manage -p bc-offline-indexing -e prod scaleOfflineIndexEnv down
+    ===================================================================================================================================
+
     removeOfflineIndexingEnvironment [<appGroup/>]
       - Remove an Offline Indexing Environment
         Parameters:
@@ -163,7 +228,7 @@ usage () {
         Example;
           $0 -p bc-offline-indexing -e test offlineIndexSynced
 
-    scaleOfflineIndexEnv <direction/> [<indexerPodName/>] [<searchEnginePodName/>]
+    scaleOfflineIndexEnv <direction/> [<indexerPodName/>] [<searchEnginePodName/>] [<dbPodName/>]
       - Scale the offline indexing environment up or down.
         Parameters:
           <direction/>
@@ -172,6 +237,8 @@ usage () {
             - Optional - The name of the pod hosting the offline indexing service.
           <searchEnginePodName/>
             - Optional - The name of the pod hosting the offline search engine service.
+          <dbPodName/>
+            - Optional - The name of the pod hosting the offline database.
         Examples;
           $0 -p bc-offline-indexing -e test scaleOfflineIndexEnv up
           $0 -p bc-offline-indexing -e test scaleOfflineIndexEnv down
@@ -199,7 +266,7 @@ usage () {
     initOfflineIndexingEnv
       - Restores the most recent backup to the offline indexing environment.
 
-    rebuildofflinesearchindex
+    rebuildOfflineSearchIndex
       - Rebuild the search index in the offline environment.
 
     listOffineIndexingProcesses
@@ -1011,6 +1078,43 @@ function listOffineIndexingProcesses()
     getRunningProcesses ${_podName}
   )
 }
+
+function promoteOffineIndexingImages()
+{
+  (
+    _sourceEnv=${1}
+    _destEnv=${2}
+    _namespace=$(getProjectName)
+    _deploymentNamespace=${_namespace%-*}-${_destEnv}
+    if [ -z "${_sourceEnv}" ] || [ -z "${_destEnv}" ]; then
+      echoError "\npromoteOffineIndexingImages; You MUST supply both 'source' and 'destination' environments.\n"
+      exit 1
+    fi
+
+    if [[ ${_sourceEnv} != "latest"  ]]; then
+      sourceTag="oli-${_sourceEnv}"
+    else
+      sourceTag="${_sourceEnv}"
+    fi
+    destTag="oli-${_destEnv}"
+
+    offlineIndexingComponents="db search-engine api"
+    for offlineIndexingComponent in ${offlineIndexingComponents}; do
+      # Tag images ...
+      echo -e "\nTagging ${offlineIndexingComponent} for deploment to the ${_destEnv} environment ..."
+      oc -n ${TOOLS} tag ${offlineIndexingComponent}:${sourceTag} ${offlineIndexingComponent}:${destTag}
+
+      # Translate component name for deployment stage ...
+      if [[ ${offlineIndexingComponent} == "api" ]]; then
+        offlineIndexingComponent="offline-indexer"
+      fi
+
+      # Wait for rollout ...
+      echo -e "\nWatching the rollout of ${offlineIndexingComponent} into the ${_destEnv} environment ..."
+      oc -n ${_deploymentNamespace} rollout status dc ${offlineIndexingComponent}${offlineIndexerResourceSuffix}  -w
+    done
+  )
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -1144,7 +1248,8 @@ case "${_cmd}" in
     direction=${1:-up}
     indexerPodName=${2:-offline-indexer}
     searchEnginePodName=${3:-search-engine}
-    scaleOfflineIndexEnv "${direction}" "${indexerPodName}" "${searchEnginePodName}"
+    dbPodName=${4:-db}
+    scaleOfflineIndexEnv "${direction}" "${indexerPodName}" "${searchEnginePodName}" "${dbPodName}"
     ;;
   swapindexstorage)
     onlineSearchEngine=${1:-search-engine}
@@ -1180,6 +1285,9 @@ case "${_cmd}" in
   listoffineindexingprocesses)
     podName=${1:-offline-indexer}
     listOffineIndexingProcesses ${podName}
+    ;;
+  promoteoffineindexingimages)
+    promoteOffineIndexingImages ${@}
     ;;
 
 

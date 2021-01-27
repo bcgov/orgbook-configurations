@@ -164,7 +164,7 @@ usage () {
       # Compare with the online environment.  The Actual Credential counts should be close, within a few thousand.
       ./manage -p bc -e prod indexSynced
 
-      # Check the status of the offline indexing volumes.  Volumes should be stating on their original containers.
+      # Check the status of the offline indexing volumes.  Volumes should be starting on their original containers.
       ./manage -p bc-offline-indexing -e prod indexStorageStatus
 
       # Run the offline indexing process on the offline volume.  This could take a few days.
@@ -177,6 +177,9 @@ usage () {
 
       # Swap the offline indexing volumes.
       ./manage -p bc-offline-indexing -e prod swapIndexStorage
+
+      # Check the status of the offline indexing volumes.  Volumes should be on opposite containers now.
+      ./manage -p bc-offline-indexing -e prod indexStorageStatus
 
       # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
       ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00
@@ -197,6 +200,9 @@ usage () {
 
       # Swap the offline indexing volumes back to their original containers
       ./manage -p bc-offline-indexing -e prod swapIndexStorage
+
+      # Check the status of the offline indexing volumes.  Volumes should be connected to their original containers now.
+      ./manage -p bc-offline-indexing -e prod indexStorageStatus
 
       # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
       ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00

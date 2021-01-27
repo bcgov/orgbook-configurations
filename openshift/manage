@@ -171,7 +171,7 @@ usage () {
       ./manage -p bc-offline-indexing -e prod rebuildOfflineSearchIndex
 
       # Monitor the indexing progress until complete.
-      # You will likely loose the terminal connection to the pod rebuilding the index but the process will continue running.
+      # You will likely lose the terminal connection to the pod rebuilding the index but the process will continue running.
       ./manage -p bc-offline-indexing -e prod offlineIndexSynced
       ./manage -p bc-offline-indexing -e prod listOffineIndexingProcesses
 
@@ -181,11 +181,22 @@ usage () {
       # Check the status of the offline indexing volumes.  Volumes should be on opposite containers now.
       ./manage -p bc-offline-indexing -e prod indexStorageStatus
 
+      # ----------------------------------------------------------------------------------------------------------
+      # If offline indexing was done on a newer version of code containing indexing changes:
+      # Deploy that same version of code to the online environment now using the standard promotion pipelines.
+      # ----------------------------------------------------------------------------------------------------------
+
       # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
       ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00
 
-      # Ensure the online indexes are syned.
+      # Ensure the online indexes are synced.
       ./manage -p bc -e prod indexSynced
+
+      # ----------------------------------------------------------------------------------------------------------
+      # If offline indexing was done on a newer version of code containing indexing changes:
+      # Ensure you test the updated deployment before you continue.  If you need to roll back, you will have 
+      # to swap the index volumes back first.
+      # ----------------------------------------------------------------------------------------------------------
 
       # Initialize the offline indexing environment with a newer backup.  There could be thousands of new records by now.
       ./manage -p bc-offline-indexing -e prod initOfflineIndexingEnv
@@ -194,7 +205,7 @@ usage () {
       ./manage -p bc-offline-indexing -e prod rebuildOfflineSearchIndex
 
       # Monitor the indexing progress until complete.
-      # You will likely loose the terminal connection to the pod rebuilding the index but the process will continue running.
+      # You will likely lose the terminal connection to the pod rebuilding the index but the process will continue running.
       ./manage -p bc-offline-indexing -e prod offlineIndexSynced
       ./manage -p bc-offline-indexing -e prod listOffineIndexingProcesses
 
@@ -207,7 +218,7 @@ usage () {
       # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
       ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00
 
-      # Ensure the online indexes are syned.
+      # Ensure the online indexes are synced.
       ./manage -p bc -e prod indexSynced
 
       # Scale down the offline indexing environment until the new time it's needed.

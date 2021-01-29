@@ -167,6 +167,11 @@ usage () {
       # Check the status of the offline indexing volumes.  Volumes should be starting on their original containers.
       ./manage -p bc-offline-indexing -e prod indexStorageStatus
 
+      # ----------------------------------------------------------------------------------------------------------
+      # If offline indexing was done on a newer version of code containing indexing/model changes:
+      # Now is the time to run any SQL scripts or updates not covered by automated migrations.
+      # ----------------------------------------------------------------------------------------------------------
+
       # Run the offline indexing process on the offline volume.  This could take a few days.
       ./manage -p bc-offline-indexing -e prod rebuildOfflineSearchIndex
 
@@ -186,6 +191,11 @@ usage () {
       # Deploy that same version of code to the online environment now using the standard promotion pipelines.
       # ----------------------------------------------------------------------------------------------------------
 
+      # ----------------------------------------------------------------------------------------------------------
+      # If offline indexing was done on a newer version of code containing indexing/model changes:
+      # Now is the time to run any SQL scripts or updates not covered by automated migrations.
+      # ----------------------------------------------------------------------------------------------------------
+
       # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
       ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00
 
@@ -200,6 +210,11 @@ usage () {
 
       # Initialize the offline indexing environment with a newer backup.  There could be thousands of new records by now.
       ./manage -p bc-offline-indexing -e prod initOfflineIndexingEnv
+
+      # ----------------------------------------------------------------------------------------------------------
+      # If offline indexing was done on a newer version of code containing indexing/model changes:
+      # Now is the time to run any SQL scripts or updates not covered by automated migrations.
+      # ----------------------------------------------------------------------------------------------------------
 
       # Run the offline indexing process again on the orginal volume.  This could take a few days.
       ./manage -p bc-offline-indexing -e prod rebuildOfflineSearchIndex
@@ -621,11 +636,11 @@ function rebuildSearchIndex() {
     if [ -z "${runOffline}" ]; then
       _indexerPodName=${_indexerPodName}${resourceSuffix}
       _msg="\nRebuilding the search index ..."
-      _cmd='./scripts/rebuildSearchIndex.sh'
+      _cmd='./scripts/rebuildSearchIndex.sh 2>&1 | tee -a /tmp/rebuild-index.log'
     else
       _indexerPodName=${_indexerPodName}${offlineIndexerResourceSuffix}
       _msg="\nRebuilding the offline search index ..."
-      _cmd='./scripts/rebuildSearchIndex.sh -b 1000 &'
+      _cmd='./scripts/rebuildSearchIndex.sh -b 1000 2>&1 | tee -a /tmp/rebuild-offline-index.log'
     fi
 
     echoWarning "${_msg}"

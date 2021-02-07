@@ -139,6 +139,9 @@ usage () {
       - Get a list of running processes running on a pod.
         Runs 'ps -aux' on the pod.
 
+    tagApplicationImages <sourceTag/> <destinationTag/>
+      - Tags all of the application images.
+      - Handy for making backups of images.
 
   Offline Indexing Commands:
   ==========================
@@ -240,6 +243,13 @@ usage () {
       ./manage -p bc-offline-indexing -e prod scaleOfflineIndexEnv down
     ===================================================================================================================================
 
+    ===================================================================================================================================
+    Example of updating the offline indexes:
+    -----------------------------------------------------------------------------------------------------------------------------------
+      # Update offline indexes
+      ./manage -p bc-offline-indexing -e prod -s -oli updateSearchIndex -b 1000 -d 2021-02-02T00:00:00 offline-indexer
+    ===================================================================================================================================
+
     removeOfflineIndexingEnvironment [<appGroup/>]
       - Remove an Offline Indexing Environment
         Parameters:
@@ -307,6 +317,10 @@ usage () {
         have to the container monitoring the indexing process.  This command allows you
         to determine whether the indexing processes are still running.
 
+    promoteOffineIndexingImages <sourceEnv/> <destEnv/>
+      - Promote offine indexing images from one environment to another.
+        Examples;
+          $0 -p bc-offline-indexing -e tools promoteOffineIndexingImages test prod
 
   Scaling Commands:
   ==========================
@@ -1068,8 +1082,7 @@ function initOfflineIndexingEnv()
     scaleDown -w "${_offlineIndexer}"
     exitOnError
 
-    # Reset the offline indexing database ....
-    echo "Resetting ${_offlineDb} ..."
+    # Startup the backup container if needed ...
     if isScaledUp ${_backupPod}; then
       local backupStarted=1
     else
@@ -1078,14 +1091,16 @@ function initOfflineIndexingEnv()
       exitOnError
     fi
 
+    # Reset the offline indexing database ...
+    echo "Resetting ${_offlineDb} ..."
     runInContainer -i -v \
       ${_backupPod} \
       "$(getHostUserParam ${_offlineDb})=$(getSecret ${_onlineDb} "${_offlineDbUserKey}") ./backup.sh -s -a $(getSecret ${_onlineDb} ${_offlineDbAdminPasswordKey}) -r ${_offlineDbBackupSpec} -f ${_offlineDbBackupFileFilter}"
     # echoWarning "$(getHostUserParam ${_offlineDb})=$(getSecret ${_onlineDb} "${_offlineDbUserKey}") ./backup.sh -s -a $(getSecret ${_onlineDb} ${_offlineDbAdminPasswordKey}) -r ${_offlineDbBackupSpec} -f ${_offlineDbBackupFileFilter}"
     exitOnError
 
+    # Leave the backup container in the same state we found it ...
     if [ -z ${backupStarted} ]; then
-      # Leave the backup container in the same state we found it.
       scaleDown "${_backupPod}"
       exitOnError
     fi
@@ -1144,6 +1159,26 @@ function promoteOffineIndexingImages()
       # Wait for rollout ...
       echo -e "\nWatching the rollout of ${offlineIndexingComponent} into the ${_destEnv} environment ..."
       oc -n ${_deploymentNamespace} rollout status dc ${offlineIndexingComponent}${offlineIndexerResourceSuffix}  -w
+    done
+  )
+}
+
+function tagApplicationImages()
+{
+  (
+    _sourceTag=${1}
+    _destTag=${2}
+    
+    if [ -z "${_sourceTag}" ] || [ -z "${_destTag}" ]; then
+      echoError "\ntagApplicationImages; You MUST supply both 'source' and 'destination' tag.\n"
+      exit 1
+    fi
+
+    images="db search-engine msg-queue frontend agent backup schema-spy api"
+    for image in ${images}; do
+      # Tag images ...
+      echo -e "\nTagging ${image}:${_sourceTag} as ${image}:${_destTag} ..."
+      oc -n ${TOOLS} tag ${image}:${_sourceTag} ${image}:${_destTag}
     done
   )
 }
@@ -1320,6 +1355,9 @@ case "${_cmd}" in
     ;;
   promoteoffineindexingimages)
     promoteOffineIndexingImages ${@}
+    ;;
+  tagapplicationimages)
+    tagApplicationImages ${@}
     ;;
 
 

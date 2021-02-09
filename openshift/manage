@@ -741,11 +741,12 @@ function offlineIndexSynced() {
     "curl -s http://search-engine${offlineIndexerResourceSuffix}:8983/solr/credential_registry/admin/luke?wt=json&show=index&numTerms=0")
   indexCount=$(echo ${indexInfo} | sed 's~\(.*"numDocs":\)\([[:digit:]]\+\).*~\2~')
   indexDiff=$(( ${actualCount} - ${indexCount} ))
+  percentComplete=$(awk "BEGIN {print (${indexCount}/${actualCount}*100)}")
 
   if (( ${indexCount} == ${actualCount} )); then
     synced="true"
   else
-    synced="false - Difference: ${indexDiff}"
+    synced="false - Difference: ${indexDiff} (${percentComplete}% complete)"
   fi
 
   echo

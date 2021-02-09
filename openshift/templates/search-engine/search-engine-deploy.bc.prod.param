@@ -9,7 +9,7 @@
 # APP_GROUP=indy-catalyst
 # IMAGE_NAMESPACE=devex-von-tools
 TAG_NAME=bc-prod
-PERSISTENT_VOLUME_SIZE=8Gi
+# PERSISTENT_VOLUME_SIZE=10Gi
 # MOUNT_PATH=/opt/solr/server/solr/mycores
 # CORE_NAME=credential_registry
 # SOLR_LOG_LEVEL=WARN

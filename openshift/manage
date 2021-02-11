@@ -104,7 +104,7 @@ usage () {
        - Scan a given database table for corrupt records.
        - By default records are scanned 5000 at a time to roughly locate the affected records.
        - Additional parameters can then be used to narrow down on and identify the affected records.
-       
+
        - To get the actual 'id' of a given record once you've identified it's offset, set <limit/> to 1, and
          <startAtRecord/> and <stopAtRecord/> to the offset of the affected record.
 
@@ -135,6 +135,195 @@ usage () {
           $0 -p bc -e prod locateBadRecord wallet agent_indy_cat_wallet items 1 5907729 5907729
             - Get the 'id' of the record at offset 5907729.
 
+    getRunningProcesses
+      - Get a list of running processes running on a pod.
+        Runs 'ps -aux' on the pod.
+
+    tagApplicationImages <sourceTag/> <destinationTag/>
+      - Tags all of the application images.
+      - Handy for making backups of images.
+
+  Offline Indexing Commands:
+  ==========================
+
+    ===================================================================================================================================
+    An example workflow:
+    -----------------------------------------------------------------------------------------------------------------------------------
+      # Provision the offline indexing environment.
+      genDepls.sh -p bc-offline-indexing -e prod
+
+      # Or, update the offline indexing environment's configuration.
+      genDepls.sh -p bc-offline-indexing -e prod -u
+
+      # Promote the latest images to the offline indexing environment.
+      ./manage -p bc-offline-indexing -e tools promoteOffineIndexingImages test prod
+
+      # Initialize the offline indexing environment
+      ./manage -p bc-offline-indexing -e prod initOfflineIndexingEnv
+
+      # Check the status of the offline indexing environment.
+      ./manage -p bc-offline-indexing -e prod offlineIndexSynced
+
+      # Compare with the online environment.  The Actual Credential counts should be close, within a few thousand.
+      ./manage -p bc -e prod indexSynced
+
+      # Check the status of the offline indexing volumes.  Volumes should be starting on their original containers.
+      ./manage -p bc-offline-indexing -e prod indexStorageStatus
+
+      # ----------------------------------------------------------------------------------------------------------
+      # If offline indexing was done on a newer version of code containing indexing/model changes:
+      # Now is the time to run any SQL scripts or updates not covered by automated migrations.
+      # ----------------------------------------------------------------------------------------------------------
+
+      # Run the offline indexing process on the offline volume.  This could take a few days.
+      ./manage -p bc-offline-indexing -e prod rebuildOfflineSearchIndex
+
+      # Monitor the indexing progress until complete.
+      # You will likely lose the terminal connection to the pod rebuilding the index but the process will continue running.
+      ./manage -p bc-offline-indexing -e prod offlineIndexSynced
+      ./manage -p bc-offline-indexing -e prod listOffineIndexingProcesses
+
+      # Swap the offline indexing volumes.
+      ./manage -p bc-offline-indexing -e prod swapIndexStorage
+
+      # Check the status of the offline indexing volumes.  Volumes should be on opposite containers now.
+      ./manage -p bc-offline-indexing -e prod indexStorageStatus
+
+      # ----------------------------------------------------------------------------------------------------------
+      # If offline indexing was done on a newer version of code containing indexing changes:
+      # Deploy that same version of code to the online environment now using the standard promotion pipelines.
+      # ----------------------------------------------------------------------------------------------------------
+
+      # ----------------------------------------------------------------------------------------------------------
+      # If offline indexing was done on a newer version of code containing indexing/model changes:
+      # Now is the time to run any SQL scripts or updates not covered by automated migrations.
+      # ----------------------------------------------------------------------------------------------------------
+
+      # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
+      ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00
+
+      # Ensure the online indexes are synced.
+      ./manage -p bc -e prod indexSynced
+
+      # ----------------------------------------------------------------------------------------------------------
+      # If offline indexing was done on a newer version of code containing indexing changes:
+      # Ensure you test the updated deployment before you continue.  If you need to roll back, you will have 
+      # to swap the index volumes back first.
+      # ----------------------------------------------------------------------------------------------------------
+
+      # Initialize the offline indexing environment with a newer backup.  There could be thousands of new records by now.
+      ./manage -p bc-offline-indexing -e prod initOfflineIndexingEnv
+
+      # ----------------------------------------------------------------------------------------------------------
+      # If offline indexing was done on a newer version of code containing indexing/model changes:
+      # Now is the time to run any SQL scripts or updates not covered by automated migrations.
+      # ----------------------------------------------------------------------------------------------------------
+
+      # Run the offline indexing process again on the orginal volume.  This could take a few days.
+      ./manage -p bc-offline-indexing -e prod rebuildOfflineSearchIndex
+
+      # Monitor the indexing progress until complete.
+      # You will likely lose the terminal connection to the pod rebuilding the index but the process will continue running.
+      ./manage -p bc-offline-indexing -e prod offlineIndexSynced
+      ./manage -p bc-offline-indexing -e prod listOffineIndexingProcesses
+
+      # Swap the offline indexing volumes back to their original containers
+      ./manage -p bc-offline-indexing -e prod swapIndexStorage
+
+      # Check the status of the offline indexing volumes.  Volumes should be connected to their original containers now.
+      ./manage -p bc-offline-indexing -e prod indexStorageStatus
+
+      # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
+      ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00
+
+      # Ensure the online indexes are synced.
+      ./manage -p bc -e prod indexSynced
+
+      # Scale down the offline indexing environment until the new time it's needed.
+      ./manage -p bc-offline-indexing -e prod scaleOfflineIndexEnv down
+    ===================================================================================================================================
+
+    ===================================================================================================================================
+    Example of updating the offline indexes:
+    -----------------------------------------------------------------------------------------------------------------------------------
+      # Update offline indexes
+      ./manage -p bc-offline-indexing -e prod -s -oli updateSearchIndex -b 1000 -d 2021-02-02T00:00:00 offline-indexer
+    ===================================================================================================================================
+
+    removeOfflineIndexingEnvironment [<appGroup/>]
+      - Remove an Offline Indexing Environment
+        Parameters:
+          <appGroup/>
+            - Optional - The name of the Offline Indexing Environment to remove.  Removes the default 'offline-indexing' resources by default.
+        Example;
+          $0 -p bc-offline-indexing -e test removeOfflineIndexingEnvironment
+
+    offlineIndexSynced [<indexerPodName/>] [<dbPodName/>]
+      - Get the status of an offline index sync process.
+        Parameters:
+          <indexerPodName/>
+            - Optional - The name of the Offline Indexing pod.  Defaults to 'offline-indexer'.
+          <dbPodName/>
+            - Optional - The name of the pod hosting the database being indexed.  Defaults to 'db'.
+          <offlineIndexerResourceSuffix/>
+            - Optional environment variable - The suffix of the offline indexing resources.  Defaults to '-oli'.
+        Example;
+          $0 -p bc-offline-indexing -e test offlineIndexSynced
+
+    scaleOfflineIndexEnv <direction/> [<indexerPodName/>] [<searchEnginePodName/>] [<dbPodName/>]
+      - Scale the offline indexing environment up or down.
+        Parameters:
+          <direction/>
+            - up or down.
+          <indexerPodName/>
+            - Optional - The name of the pod hosting the offline indexing service.
+          <searchEnginePodName/>
+            - Optional - The name of the pod hosting the offline search engine service.
+          <dbPodName/>
+            - Optional - The name of the pod hosting the offline database.
+        Examples;
+          $0 -p bc-offline-indexing -e test scaleOfflineIndexEnv up
+          $0 -p bc-offline-indexing -e test scaleOfflineIndexEnv down
+
+    swapIndexStorage [<onlineSearchEngine/>] [<offlineSearchEngine/>]
+      - Swap the index storage between the online and offline search engines.
+        Parameters:
+          <onlineSearchEngine/>
+            - Optional - The name of the pod hosting the online search engine service.
+          <offlineSearchEngine/>
+            - Optional - The name of the pod hosting the offline search engine service.
+        Examples;
+          $0 -p bc-offline-indexing -e test swapIndexStorage
+
+    indexStorageStatus [<onlineSearchEngine/>] [<offlineSearchEngine/>]
+      - Determine which PVC is mounted to which container.
+        Parameters:
+          <onlineSearchEngine/>
+            - Optional - The name of the pod hosting the online search engine service.
+          <offlineSearchEngine/>
+            - Optional - The name of the pod hosting the offline search engine service.
+        Examples;
+          $0 -p bc-offline-indexing -e test indexStorageStatus
+
+    initOfflineIndexingEnv
+      - Restores the most recent backup to the offline indexing environment.
+
+    rebuildOfflineSearchIndex
+      - Rebuild the search index in the offline environment.
+
+    listOffineIndexingProcesses
+      - Get a list of processes running on the offline indexing pod.
+      - Offline indexing can take a day or so, so you are likely to loose any connection you
+        have to the container monitoring the indexing process.  This command allows you
+        to determine whether the indexing processes are still running.
+
+    promoteOffineIndexingImages <sourceEnv/> <destEnv/>
+      - Promote offine indexing images from one environment to another.
+        Examples;
+          $0 -p bc-offline-indexing -e tools promoteOffineIndexingImages test prod
+
+  Scaling Commands:
+  ==========================
     scaleUp
       - Scale up one or more pods.
         For example;
@@ -157,6 +346,7 @@ EOF
 # Defaults:
 # -----------------------------------------------------------------------------------------------------------------
 resourceSuffix="${resourceSuffix:--indy-cat}"
+offlineIndexerResourceSuffix=${offlineIndexerResourceSuffix:--oli}
 # -----------------------------------------------------------------------------------------------------------------
 
 # =================================================================================================================
@@ -387,7 +577,7 @@ EOF
   )
 }
 
-resetSearchIndex() {
+function resetSearchIndex() {
   _apiPodName=${1}
   _solrPodName=${2}
   if [ -z "${_apiPodName}" ] || [ -z "${_solrPodName}" ]; then
@@ -440,15 +630,37 @@ function deleteSearchIndex() {
 }
 
 function rebuildSearchIndex() {
-  _apiPodName=${1}
-  if [ -z "${_apiPodName}" ]; then
-    echoError \\n"rebuildSearchIndex; Missing parameter!"\\n
-    exit 1
-  fi
+  (
+    local OPTIND
+    local OPTARG
+    unset local offline
+    while getopts o FLAG; do
+      case $FLAG in
+        o ) runOffline=1 ;;
+      esac
+    done
+    shift $((OPTIND-1))
 
-  echoWarning "\nRebuilding the search index ..."
-  runInContainer ${_apiPodName}${resourceSuffix} './scripts/rebuildSearchIndex.sh'
-  exitOnError
+    _indexerPodName=${1}
+    if [ -z "${_indexerPodName}" ]; then
+      echoError \\n"rebuildSearchIndex; Missing parameter!"\\n
+      exit 1
+    fi
+
+    if [ -z "${runOffline}" ]; then
+      _indexerPodName=${_indexerPodName}${resourceSuffix}
+      _msg="\nRebuilding the search index ..."
+      _cmd='./scripts/rebuildSearchIndex.sh 2>&1 | tee -a /tmp/rebuild-index.log'
+    else
+      _indexerPodName=${_indexerPodName}${offlineIndexerResourceSuffix}
+      _msg="\nRebuilding the offline search index ..."
+      _cmd='./scripts/rebuildSearchIndex.sh -b 1000 2>&1 | tee -a /tmp/rebuild-offline-index.log'
+    fi
+
+    echoWarning "${_msg}"
+    runInContainer "${_indexerPodName}" "${_cmd}"
+    exitOnError
+  )
 }
 
 function updateSearchIndex() {
@@ -484,7 +696,16 @@ function indexSynced() {
     exit 1
   fi
 
-  indexInfo=$(curl -s https://orgbook.gov.bc.ca/api/quickload)
+  if [ "${DEPLOYMENT_ENV_NAME}" == "prod" ]; then
+    orgbookUrl="https://orgbook.gov.bc.ca/api/quickload"
+  else
+    orgbookUrl="https://${DEPLOYMENT_ENV_NAME}.orgbook.gov.bc.ca/api/quickload"
+  fi
+
+  echo
+  echoWarning "Fetching info from ${orgbookUrl} ..."
+
+  indexInfo=$(curl -s ${orgbookUrl})
   actualCount=$(echo ${indexInfo} | jq -r '.counts.actual_item_count')
   indexCount=$(echo ${indexInfo} | jq -r '.credential_counts.total_indexed_items')
   indexDiff=$(( ${actualCount} - ${indexCount} ))
@@ -501,7 +722,44 @@ function indexSynced() {
   echo "Actual Credentials: ${actualCount}"
 }
 
-deleteTopic() {
+function offlineIndexSynced() {
+  _indexerPodName=${1}
+  _dbPodName=${2}
+  if [ -z "${_indexerPodName}" ] || [ -z "${_dbPodName}" ]; then
+    echoError \\n"rebuildSearchIndex; Missing parameter!"\\n
+    exit 1
+  fi
+
+  recordCounts=$(getRecordCounts "${_dbPodName}" "" "${offlineIndexerResourceSuffix}")
+  names=$(echo "${recordCounts}" | grep -w name | awk '{print $5}')
+  addresses=$(echo "${recordCounts}" | grep -w  address | awk '{print $5}')
+  credentials=$(echo "${recordCounts}" | grep -w  credential | awk '{print $5}')
+  topics=$(echo "${recordCounts}" | grep -w  topic | awk '{print $5}')
+  actualCount=$(( ${names} + ${addresses} + ${credentials} + ${topics} ))
+
+  indexInfo=$(runInContainer "${_indexerPodName}${offlineIndexerResourceSuffix}" \
+    "curl -s http://search-engine${offlineIndexerResourceSuffix}:8983/solr/credential_registry/admin/luke?wt=json&show=index&numTerms=0")
+  indexCount=$(echo ${indexInfo} | sed 's~\(.*"numDocs":\)\([[:digit:]]\+\).*~\2~')
+  indexDiff=$(( ${actualCount} - ${indexCount} ))
+  percentComplete=$(awk "BEGIN {print (${indexCount}/${actualCount}*100)}")
+
+  if (( ${indexCount} == ${actualCount} )); then
+    synced="true"
+  else
+    synced="false - Difference: ${indexDiff} (${percentComplete}% complete)"
+  fi
+
+  echo
+  echo "Indexes Synced: ${synced}"
+  echo "Indexed Credentials: ${indexCount}"
+  echo "Actual Credentials: ${actualCount}"
+  echo "  - Names: ${names}"
+  echo "  - Addresses: ${addresses}"
+  echo "  - Credentials: ${credentials}"
+  echo "  - Topics: ${topics}"
+}
+
+function deleteTopic() {
   _topic_id=${1}
   _apiPodName=${2:-api}
   if [ -z "${_topic_id}" ] || [ -z "${_apiPodName}" ]; then
@@ -585,7 +843,7 @@ function locateBadRecord() {
     echo "  - Step: ${_limit}"
     echo
 
-    if (( "${offset}" == "${end}" )); then 
+    if (( "${offset}" == "${end}" )); then
       runInContainer \
         ${_podName}${resourceSuffix} \
         "psql -d ${_databaseName}  -ac \"select id from ${_tableName} order by id limit ${_limit} offset ${offset};\""
@@ -611,6 +869,320 @@ function locateBadRecord() {
   )
 }
 
+function deleteAppGroup() {
+  (
+    _appGroup=${1}
+    _projectName=$(getProjectName)
+
+    # offline-indexing
+    printAndAskToContinue "If you contiune all of the [${_appGroup}] application resources will be perminently deleted from [${_projectName}]."
+    oc -n ${_projectName} delete all,pvc,secret,configmap,nsp -l app-group=${_appGroup}
+  )
+}
+
+function scaleOfflineIndexEnv() {
+  (
+    _direction=$(toLower ${1})
+    _indexerPodName=${2}${offlineIndexerResourceSuffix}
+    _searchEnginePodName=${3}${offlineIndexerResourceSuffix}
+    _dbPodName=${4}${offlineIndexerResourceSuffix}
+
+    if [ -z "${_direction}" ] || [ -z "${_indexerPodName}" ] || [ -z "${_searchEnginePodName}" ] || [ -z "${_dbPodName}" ]; then
+      echoError "\nscaleOfflineIndexEnv; You MUST specify the scaling direction, and the names of the indexer, search engine, and db pods.\n"
+      exit 1
+    fi
+
+    if [ "${_direction}" == "down" ]; then
+      echoWarning "\nScaling the offline indexing environment ${_direction} ..."
+      scaleDown -w "${_indexerPodName}" "${_searchEnginePodName}" "${_dbPodName}"
+    elif [ "${_direction}" == "up" ]; then
+      echoWarning "\nScaling the offline indexing environment ${_direction} ..."
+      scaleUp -w "${_dbPodName}" "${_searchEnginePodName}" "${_indexerPodName}"
+    else
+      echoError "Invalid scaling direction; ${_direction}"
+    fi
+  )
+}
+
+function getRunningProcesses() {
+  _podName=${1}
+  if [ -z "${_podName}" ]; then
+    echoError "\ngetRunningProcesses; You MUST specify a pod name.\n"
+    exit 1
+  fi
+
+  echo
+  runInContainer \
+    ${_podName}${resourceSuffix} \
+    'ps -aux'
+}
+
+function indexStorageStatus() {
+  (
+    _onlineSearchEngine=${1}${resourceSuffix}
+    _offlineSearchEngine=${2}${offlineIndexerResourceSuffix}
+    _projectName=$(getProjectName)
+
+    if [ -z "${_onlineSearchEngine}" ] || [ -z "${_offlineSearchEngine}" ]; then
+      echoError "\nswapIndexStorage; You MUST specify the names of the online and offline search engine pods.\n"
+      exit 1
+    fi
+
+    # Fetch the volume info
+    onlineSearchEngineVolume=$(getVolume "${_onlineSearchEngine}" "${_projectName}")
+    onlineSearchEnginePvc=$(getClaimName "${onlineSearchEngineVolume}")
+    offlineSearchEngineVolume=$(getVolume "${_offlineSearchEngine}" "${_projectName}")
+    offlineSearchEnginePvc=$(getClaimName "${offlineSearchEngineVolume}")
+
+    echoWarning \\n"Container - ${_onlineSearchEngine}:"
+    echoWarning "  - PVC: ${onlineSearchEnginePvc}"
+    echoWarning \\n"Container - ${_offlineSearchEngine}:"
+    echoWarning "  - PCV: ${offlineSearchEnginePvc}"
+  )
+}
+
+function swapIndexStorage() {
+  (
+    _onlineSearchEngine=${1}${resourceSuffix}
+    _offlineSearchEngine=${2}${offlineIndexerResourceSuffix}
+    _projectName=$(getProjectName)
+    if [ -z "${_onlineSearchEngine}" ] || [ -z "${_offlineSearchEngine}" ]; then
+      echoError "\nswapIndexStorage; You MUST specify the names of the online and offline search engine pods.\n"
+      exit 1
+    fi
+
+    # Fetch the volume info
+    onlineSearchEngineVolume=$(getVolume "${_onlineSearchEngine}" "${_projectName}")
+    onlineSearchEnginePvc=$(getClaimName "${onlineSearchEngineVolume}")
+    offlineSearchEngineVolume=$(getVolume "${_offlineSearchEngine}" "${_projectName}")
+    offlineSearchEnginePvc=$(getClaimName "${offlineSearchEngineVolume}")
+
+    # echoWarning "\nonlineSearchEngineVolume:\n${onlineSearchEngineVolume}\n"
+    # echoWarning "\nonlineSearchEnginePvc:\n${onlineSearchEnginePvc}\n"
+    # echoWarning "\nofflineSearchEngineVolume:\n${offlineSearchEngineVolume}\n"
+    # echoWarning "\nofflineSearchEnginePvc:\n${offlineSearchEnginePvc}\n"
+
+    printAndAskToContinue "If you contiune the following PVC swap will be performed:\n  - PVC[${onlineSearchEnginePvc}] from DC[${_onlineSearchEngine}] to DC[${_offlineSearchEngine}]\n  - PVC[${offlineSearchEnginePvc}] from DC[${_offlineSearchEngine}] to DC[${_onlineSearchEngine}]"
+
+    # Prep patches needed to swap the PVCs
+    onlineVolumePatch=$(getVolumePatch "${onlineSearchEngineVolume}" "${offlineSearchEnginePvc}")
+    offlineVolumePatch=$(getVolumePatch "${offlineSearchEngineVolume}" "${onlineSearchEnginePvc}")
+
+    # echoWarning "\nonlineVolumePatch:\n${onlineVolumePatch}\n"
+    # echoWarning "\nofflineVolumePatch:\n${offlineVolumePatch}\n"
+
+    # Swap the PVCs
+    patchDeploymentConfig "${_onlineSearchEngine}" "${onlineVolumePatch}" "${_projectName}"
+    patchDeploymentConfig "${_offlineSearchEngine}" "${offlineVolumePatch}" "${_projectName}"
+  )
+}
+
+function getVolume() {
+  (
+    _resourceName=${1}
+    _projectName=${2:-$(getProjectName)}
+    if [ -z "${_resourceName}" ]; then
+      echoError "\ngetVolume; You MUST specify the fully qualified name of the resource.\n"
+      exit 1
+    fi
+
+    volumeDef=$(oc -n ${_projectName} get dc ${_resourceName} -o json | jq ".spec.template.spec.volumes[] | select(.name | startswith(\"${_resourceName}\"))")
+    echo "${volumeDef}"
+  )
+}
+
+function getVolumePatch()
+{
+  (
+    _volumeDef=${1}
+    _newClaimName=${2}
+    if [ -z "${_volumeDef}" ] || [ -z "${_newClaimName}" ]; then
+      echoError "\ngetVolumePatch; You MUST supply the json definition for the volume, and the name of the new PVC to mount.\n"
+      exit 1
+    fi
+
+    newVolumeDef=$(echo "${_volumeDef}" | jq ".persistentVolumeClaim.claimName = \"${_newClaimName}\"")
+    patch=$(echo "{\"spec\":{\"template\":{\"spec\":{\"volumes\":[${newVolumeDef}]}}}}" | jq .)
+    echo "${patch}"
+  )
+}
+
+function getClaimName() {
+  (
+    _volumeDef=${1}
+    if [ -z "${_volumeDef}" ]; then
+      echoError "\ngetClaimName; You MUST supply the json definition for the volume.\n"
+      exit 1
+    fi
+
+    claimName=$(echo "${_volumeDef}" | jq -r '.persistentVolumeClaim.claimName')
+    echo "${claimName}"
+  )
+}
+
+function patchDeploymentConfig()
+{
+  (
+    _resourceName=${1}
+    _patch=${2}
+    _projectName=${3:-$(getProjectName)}
+    if [ -z "${_resourceName}" ] || [ -z "${_patch}" ]; then
+      echoError "\npatchDeploymentConfig; You MUST specify the fully qualified name of the deployment configuration, and the patch to apply.\n"
+      exit 1
+    fi
+
+    oc -n ${_projectName} patch dc ${_resourceName} -p "${_patch}"
+    # oc -n ${_projectName} patch dc ${_resourceName} --dry-run -o json -p "${_patch}"
+  )
+}
+
+function getHostPrefix(){
+  (
+    _hostname=${1}
+    _hostPrefix=$(echo ${_hostname} | tr '[:lower:]' '[:upper:]' | sed "s~-~_~g")
+    echo "${_hostPrefix}"
+  )
+}
+
+function getHostUserParam(){
+  (
+    _hostname=${1}
+    _hostUser=$(getHostPrefix ${_hostname})_USER
+    echo "${_hostUser}"
+  )
+}
+
+function initOfflineIndexingEnv()
+{
+    _offlineIndexer=${1}${offlineIndexerResourceSuffix}
+    _offlineSearchEngine=${2}${offlineIndexerResourceSuffix}
+    _onlineDb=${3}${resourceSuffix}
+    _offlineDb=${4}${offlineIndexerResourceSuffix}
+    _offlineDbUserKey=${5}
+    _offlineDbAdminPasswordKey=${6}
+    _offlineDbBackupSpec=${7}
+    _offlineDbBackupFileFilter=${9}
+    _backupPod=${9}${resourceSuffix}
+    if [ -z "${_offlineIndexer}" ] || [ -z "${_onlineDb}" ] || [ -z "${_offlineDb}" ] || [ -z "${_offlineDbUserKey}" ] || [ -z "${_offlineDbAdminPasswordKey}" ] || [ -z "${_offlineDbBackupSpec}" ] || [ -z "${_offlineDbBackupFileFilter}" ] || [ -z "${_backupPod}" ]; then
+      echoError "\ninitOfflineIndexingEnv; One or more missing parameters.\n"
+      exit 1
+    fi
+
+    # echoWarning "_offlineIndexer: ${_offlineIndexer}"
+    # echoWarning "_offlineSearchEngine: ${_offlineSearchEngine}"
+    # echoWarning "_onlineDb: ${_onlineDb}"
+    # echoWarning "_offlineDb: ${_offlineDb}"
+    # echoWarning "_offlineDbUserKey: ${_offlineDbUserKey}"
+    # echoWarning "_offlineDbAdminPasswordKey: ${_offlineDbAdminPasswordKey}"
+    # echoWarning "_offlineDbBackupSpec: ${_offlineDbBackupSpec}"
+    # echoWarning "_offlineDbBackupFileFilter: ${_offlineDbBackupFileFilter}"
+    # echoWarning "_backupPod: ${_backupPod}"
+
+    # Scale down the offline indexer ...
+    echo "Scaling down ${_offlineIndexer} ..."
+    scaleDown -w "${_offlineIndexer}"
+    exitOnError
+
+    # Startup the backup container if needed ...
+    if isScaledUp ${_backupPod}; then
+      local backupStarted=1
+    else
+      local unset backupStarted
+      scaleUp -w "${_backupPod}"
+      exitOnError
+    fi
+
+    # Reset the offline indexing database ...
+    echo "Resetting ${_offlineDb} ..."
+    runInContainer -i -v \
+      ${_backupPod} \
+      "$(getHostUserParam ${_offlineDb})=$(getSecret ${_onlineDb} "${_offlineDbUserKey}") ./backup.sh -s -a $(getSecret ${_onlineDb} ${_offlineDbAdminPasswordKey}) -r ${_offlineDbBackupSpec} -f ${_offlineDbBackupFileFilter}"
+    # echoWarning "$(getHostUserParam ${_offlineDb})=$(getSecret ${_onlineDb} "${_offlineDbUserKey}") ./backup.sh -s -a $(getSecret ${_onlineDb} ${_offlineDbAdminPasswordKey}) -r ${_offlineDbBackupSpec} -f ${_offlineDbBackupFileFilter}"
+    exitOnError
+
+    # Leave the backup container in the same state we found it ...
+    if [ -z ${backupStarted} ]; then
+      scaleDown "${_backupPod}"
+      exitOnError
+    fi
+
+    # Scale up the offline indexer ...
+    echo "Scaling up ${_offlineIndexer} ..."
+    scaleUp -w "${_offlineIndexer}"
+    exitOnError
+
+    # Delete the offline index ...
+    echo "Deleting the offline index ..."
+    deleteFromPod "${_offlineSearchEngine}" "/opt/solr/server/solr/mycores/credential_registry/data/index"
+    exitOnError
+    recyclePods -w "${_offlineSearchEngine}"
+}
+
+function listOffineIndexingProcesses()
+{
+  (
+    _podName=${1}
+    resourceSuffix=${offlineIndexerResourceSuffix}
+    getRunningProcesses ${_podName}
+  )
+}
+
+function promoteOffineIndexingImages()
+{
+  (
+    _sourceEnv=${1}
+    _destEnv=${2}
+    _namespace=$(getProjectName)
+    _deploymentNamespace=${_namespace%-*}-${_destEnv}
+    if [ -z "${_sourceEnv}" ] || [ -z "${_destEnv}" ]; then
+      echoError "\npromoteOffineIndexingImages; You MUST supply both 'source' and 'destination' environments.\n"
+      exit 1
+    fi
+
+    if [[ ${_sourceEnv} != "latest"  ]]; then
+      sourceTag="oli-${_sourceEnv}"
+    else
+      sourceTag="${_sourceEnv}"
+    fi
+    destTag="oli-${_destEnv}"
+
+    offlineIndexingComponents="db search-engine api"
+    for offlineIndexingComponent in ${offlineIndexingComponents}; do
+      # Tag images ...
+      echo -e "\nTagging ${offlineIndexingComponent} for deploment to the ${_destEnv} environment ..."
+      oc -n ${TOOLS} tag ${offlineIndexingComponent}:${sourceTag} ${offlineIndexingComponent}:${destTag}
+
+      # Translate component name for deployment stage ...
+      if [[ ${offlineIndexingComponent} == "api" ]]; then
+        offlineIndexingComponent="offline-indexer"
+      fi
+
+      # Wait for rollout ...
+      echo -e "\nWatching the rollout of ${offlineIndexingComponent} into the ${_destEnv} environment ..."
+      oc -n ${_deploymentNamespace} rollout status dc ${offlineIndexingComponent}${offlineIndexerResourceSuffix}  -w
+    done
+  )
+}
+
+function tagApplicationImages()
+{
+  (
+    _sourceTag=${1}
+    _destTag=${2}
+    
+    if [ -z "${_sourceTag}" ] || [ -z "${_destTag}" ]; then
+      echoError "\ntagApplicationImages; You MUST supply both 'source' and 'destination' tag.\n"
+      exit 1
+    fi
+
+    images="db search-engine msg-queue frontend agent backup schema-spy api"
+    for image in ${images}; do
+      # Tag images ...
+      echo -e "\nTagging ${image}:${_sourceTag} as ${image}:${_destTag} ..."
+      oc -n ${TOOLS} tag ${image}:${_sourceTag} ${image}:${_destTag}
+    done
+  )
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -668,6 +1240,10 @@ case "${_cmd}" in
     apiPodName=${1:-api}
     rebuildSearchIndex "${apiPodName}"
     ;;
+  rebuildofflinesearchindex)
+    indexerPodName=${1:-offline-indexer}
+    rebuildSearchIndex -o "${indexerPodName}"
+    ;;
   updatesearchindex)
     updateSearchIndex ${@}
     ;;
@@ -675,6 +1251,11 @@ case "${_cmd}" in
     apiPodName=${1:-api}
     dbPodName=${2:-db}
     indexSynced "${apiPodName}" "${dbPodName}"
+    ;;
+  offlineindexsynced)
+    indexerPodName=${1:-offline-indexer}
+    dbPodName=${2:-db}
+    offlineIndexSynced "${indexerPodName}" "${dbPodName}"
     ;;
   deletetopic)
     topic_id=${1}
@@ -724,6 +1305,62 @@ case "${_cmd}" in
     stopAtRecord=${6}
     locateBadRecord "${dbPodName}" "${databaseName}" "${tableName}" "${limit}" "${startAtRecord}" "${stopAtRecord}"
     ;;
+  removeofflineindexingenvironment)
+    appGroup=${1:-offline-indexing}
+    deleteAppGroup "${appGroup}"
+    ;;
+  getrunningprocesses)
+    getRunningProcesses ${@}
+    ;;
+  scaleofflineindexenv)
+    direction=${1:-up}
+    indexerPodName=${2:-offline-indexer}
+    searchEnginePodName=${3:-search-engine}
+    dbPodName=${4:-db}
+    scaleOfflineIndexEnv "${direction}" "${indexerPodName}" "${searchEnginePodName}" "${dbPodName}"
+    ;;
+  swapindexstorage)
+    onlineSearchEngine=${1:-search-engine}
+    offlineSearchEngine=${2:-search-engine}
+    swapIndexStorage "${onlineSearchEngine}" "${offlineSearchEngine}"
+    ;;
+  indexstoragestatus)
+    onlineSearchEngine=${1:-search-engine}
+    offlineSearchEngine=${2:-search-engine}
+    indexStorageStatus "${onlineSearchEngine}" "${offlineSearchEngine}"
+    ;;
+  initofflineindexingenv)
+    offlineIndexer=${1:-offline-indexer}
+    offlineSearchEngine=${2:-search-engine}
+    onlineDb=${3:-db}
+    offlineDb=${4:-db}
+    offlineDbUserKey=${5:-database-user}
+    offlineDbAdminPasswordKey=${6:-admin-password}
+    offlineDbBackupSpec=${7:-db${offlineIndexerResourceSuffix}:5432/OrgBook}
+    offlineDbBackupFileFilter=${8:-db-indy-cat-OrgBook}
+    backupPod=${9:-backup}
+
+    initOfflineIndexingEnv "${offlineIndexer}" \
+                           "${offlineSearchEngine}" \
+                           "${onlineDb}" \
+                           "${offlineDb}" \
+                           "${offlineDbUserKey}" \
+                           "${offlineDbAdminPasswordKey}" \
+                           "${offlineDbBackupSpec}" \
+                           "${offlineDbBackupFileFilter}" \
+                           "${backupPod}"
+    ;;
+  listoffineindexingprocesses)
+    podName=${1:-offline-indexer}
+    listOffineIndexingProcesses ${podName}
+    ;;
+  promoteoffineindexingimages)
+    promoteOffineIndexingImages ${@}
+    ;;
+  tagapplicationimages)
+    tagApplicationImages ${@}
+    ;;
+
 
   scaleup)
     scaleUp -w ${@}

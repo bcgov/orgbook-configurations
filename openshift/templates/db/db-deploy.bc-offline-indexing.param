@@ -4,25 +4,25 @@
 # Template File: ../openshift/templates/db/db-deploy.json
 #=========================================================
 NAME=db
-SUFFIX=-indy-cat
+SUFFIX=-oli
 CREDENTIAL_SUFFIX=-indy-cat
-APP_NAME=OrgBook
-APP_GROUP=indy-catalyst
+APP_NAME=Offline-Indexing
+APP_GROUP=offline-indexing
 IMAGE_NAMESPACE=devex-von-tools
 SOURCE_IMAGE_NAME=db
-TAG_NAME=dev
+TAG_NAME=oli-dev
 POSTGRESQL_DATABASE_NAME=OrgBook
 # POSTGRESQL_USER=[a-zA-Z_][a-zA-Z0-9_]{10}
 # POSTGRESQL_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # POSTGRESQL_ADMIN_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 MOUNT_PATH=/var/lib/pgsql/data
-PERSISTENT_VOLUME_SIZE=30Gi
-PERSISTENT_VOLUME_CLASS=gluster-file-db
+PERSISTENT_VOLUME_SIZE=40Gi
+PERSISTENT_VOLUME_CLASS=netapp-file-standard
 LOGGING_CONFIG_FILE_NAME=logging.conf
-LOGGING_CONFIG_MAP_NAME=db-logging-conf-indy-cat
+LOGGING_CONFIG_MAP_NAME=db-logging-conf-oli
 LOGGING_CONFIG_MOUNT_PATH=/opt/app-root/src/postgresql-cfg/
 AUTOVACUMM_CONFIG_FILE_NAME=autovacuum.conf
-AUTOVACUMM_CONFIG_MAP_NAME=db-autovacuum-conf-indy-cat
+AUTOVACUMM_CONFIG_MAP_NAME=db-autovacuum-conf-oli
 AUTOVACUMM_CONFIG_MOUNT_PATH=/opt/app-root/src/postgresql-cfg/
 CPU_REQUEST=10m
 CPU_LIMIT=2000m

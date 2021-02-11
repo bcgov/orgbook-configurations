@@ -286,7 +286,7 @@ usage () {
           $0 -p bc-offline-indexing -e test scaleOfflineIndexEnv down
 
     swapIndexStorage [<onlineSearchEngine/>] [<offlineSearchEngine/>]
-      - Swap the index storage between the online nad offline search engines.
+      - Swap the index storage between the online and offline search engines.
         Parameters:
           <onlineSearchEngine/>
             - Optional - The name of the pod hosting the online search engine service.
@@ -935,7 +935,7 @@ function indexStorageStatus() {
     offlineSearchEnginePvc=$(getClaimName "${offlineSearchEngineVolume}")
 
     echoWarning \\n"Container - ${_onlineSearchEngine}:"
-    echoWarning "  - PCV: ${onlineSearchEnginePvc}"
+    echoWarning "  - PVC: ${onlineSearchEnginePvc}"
     echoWarning \\n"Container - ${_offlineSearchEngine}:"
     echoWarning "  - PCV: ${offlineSearchEnginePvc}"
   )

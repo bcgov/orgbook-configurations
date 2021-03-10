@@ -331,7 +331,7 @@ parameters:
     value: 240Gi
   - name: PERSISTENT_VOLUME_CLASS
     displayName: Persistent Volume Class name
-    description: The class of the volume; netapp-block-standard, netapp-block-standard, netapp-file-extended, netapp-block-extended, netapp-file-backup
+    description: The class of the volume; netapp-block-standard, netapp-block-standard, netapp-file-extended, or netapp-block-extended.
     required: false
     value: netapp-block-standard
   - name: LOGGING_CONFIG_FILE_NAME

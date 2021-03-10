@@ -7,6 +7,7 @@
 # ROLE=agent
 # WALLET_ROLE=wallet
 # CONTROLLER_ROLE=api
+# MSG_QUEUE_WORKER_ROLE=msg-queue-worker
 # NAMESPACE=8ad0ea
 # SUFFIX=-bc
 # APP_NAME=orgbook
@@ -31,7 +32,7 @@ AGENT_READ_ONLY_LEDGER=true
 # AGENT_TRACING=false
 # AGENT_TRACE_TARGET=log
 # AGENT_TRACE_TAG=
-# AGENT_TRACE_LABEL=
+# AGENT_TRACE_LABEL='${HOSTNAME}'
 # TAILS_FILES_DIR=/home/indy/.indy_client/tails
 # TAILS_FILES_VOLUME_CLASS=netapp-file-standard
 # TAILS_FILES_VOLUME_SIZE=2Gi

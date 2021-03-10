@@ -592,7 +592,7 @@ parameters:
     displayName: Enable agent tracing
     description: Enable/Disable tracing.
     required: false
-    value: ""
+    value: "false"
   - name: AGENT_TRACE_TARGET
     displayName: Set the agent's trace target.
     description: Set the tracing target.  Target for trace events ("log", "message", or http endpoint).
@@ -625,7 +625,7 @@ parameters:
     displayName: Tails File Storage Dir
     description: The size of the persistent volume , e.g. 512Mi, 1Gi, 2Gi.
     required: true
-    value: 1Gi
+    value: 2Gi
   - name: TAILS_SERVER_BASE_URL
     displayName: Tails Server Base Url
     description: The base URL for the Tails Server.

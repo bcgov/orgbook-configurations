@@ -1,12 +1,12 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/backup/backup-build.json
+# Template File: ../openshift/templates/backup/backup-build.yaml
 #=========================================================
 NAME=backup
-SUFFIX=-indy-cat
+SUFFIX=-primary
 APP_NAME=OrgBook
-APP_GROUP=indy-catalyst
+APP_GROUP=primary-instance
 GIT_REPO_URL=https://github.com/BCDevOps/backup-container.git
 GIT_REF=2.3.2
 SOURCE_CONTEXT_DIR=/docker

@@ -7,40 +7,40 @@ metadata:
     tags: django
     iconClass: icon-python
 objects:
-  - kind: NetworkSecurityPolicy
-    apiVersion: security.devops.gov.bc.ca/v1alpha1
-    metadata:
-      name: ${NAME}${SUFFIX}
-      labels:
-        name: ${NAME}${SUFFIX}
-        app: ${APP_NAME}${SUFFIX}
-        app-group: ${APP_GROUP}
-        env: ${TAG_NAME}
-    spec:
-      description: |
-        Allow the msg-queue-worker pods to communicate with the agent, the database, the message queue, and the search-engine.
-      source:
-        - - role=${ROLE}
-          - app=${APP_NAME}${SUFFIX}
-          - env=${TAG_NAME}
-          - $namespace=${NAMESPACE}-${TAG_NAME}
-      destination:
-        - - role=${DATABASE_ROLE}
-          - app=${APP_NAME}${SUFFIX}
-          - env=${TAG_NAME}
-          - $namespace=${NAMESPACE}-${TAG_NAME}
-        - - role=${SEARCH_ENGINE_ROLE}
-          - app=${APP_NAME}${SUFFIX}
-          - env=${TAG_NAME}
-          - $namespace=${NAMESPACE}-${TAG_NAME}
-        - - role=${AGENT_ROLE}
-          - app=${APP_NAME}${SUFFIX}
-          - env=${TAG_NAME}
-          - $namespace=${NAMESPACE}-${TAG_NAME}
-        - - role=${MSG_QUEUE_ROLE}
-          - app=${APP_NAME}${SUFFIX}
-          - env=${TAG_NAME}
-          - $namespace=${NAMESPACE}-${TAG_NAME}
+  # - kind: NetworkSecurityPolicy
+  #   apiVersion: security.devops.gov.bc.ca/v1alpha1
+  #   metadata:
+  #     name: ${NAME}${SUFFIX}
+  #     labels:
+  #       name: ${NAME}${SUFFIX}
+  #       app: ${APP_NAME}${SUFFIX}
+  #       app-group: ${APP_GROUP}
+  #       env: ${TAG_NAME}
+  #   spec:
+  #     description: |
+  #       Allow the msg-queue-worker pods to communicate with the agent, the database, the message queue, and the search-engine.
+  #     source:
+  #       - - role=${ROLE}
+  #         - app=${APP_NAME}${SUFFIX}
+  #         - env=${TAG_NAME}
+  #         - $namespace=${NAMESPACE}-${TAG_NAME}
+  #     destination:
+  #       - - role=${DATABASE_ROLE}
+  #         - app=${APP_NAME}${SUFFIX}
+  #         - env=${TAG_NAME}
+  #         - $namespace=${NAMESPACE}-${TAG_NAME}
+  #       - - role=${SEARCH_ENGINE_ROLE}
+  #         - app=${APP_NAME}${SUFFIX}
+  #         - env=${TAG_NAME}
+  #         - $namespace=${NAMESPACE}-${TAG_NAME}
+  #       - - role=${AGENT_ROLE}
+  #         - app=${APP_NAME}${SUFFIX}
+  #         - env=${TAG_NAME}
+  #         - $namespace=${NAMESPACE}-${TAG_NAME}
+  #       - - role=${MSG_QUEUE_ROLE}
+  #         - app=${APP_NAME}${SUFFIX}
+  #         - env=${TAG_NAME}
+  #         - $namespace=${NAMESPACE}-${TAG_NAME}
 
   - kind: DeploymentConfig
     apiVersion: v1

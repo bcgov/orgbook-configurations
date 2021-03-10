@@ -7,40 +7,74 @@ metadata:
     tags: django
     iconClass: icon-python
 objects:
-  - kind: NetworkSecurityPolicy
-    apiVersion: security.devops.gov.bc.ca/v1alpha1
+
+  - kind: NetworkPolicy
+    apiVersion: networking.k8s.io/v1
     metadata:
       name: ${NAME}${SUFFIX}
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
         env: ${TAG_NAME}
     spec:
       description: |
-        Allow the api pods to communicate with the agent, the database, the message queue, and the search-engine.
-      source:
-        - - role=${ROLE}
-          - app=${APP_NAME}${SUFFIX}
-          - env=${TAG_NAME}
-          - $namespace=${NAMESPACE}-${TAG_NAME}
-      destination:
-        - - role=${DATABASE_ROLE}
-          - app=${APP_NAME}${SUFFIX}
-          - env=${TAG_NAME}
-          - $namespace=${NAMESPACE}-${TAG_NAME}
-        - - role=${SEARCH_ENGINE_ROLE}
-          - app=${APP_NAME}${SUFFIX}
-          - env=${TAG_NAME}
-          - $namespace=${NAMESPACE}-${TAG_NAME}
-        - - role=${AGENT_ROLE}
-          - app=${APP_NAME}${SUFFIX}
-          - env=${TAG_NAME}
-          - $namespace=${NAMESPACE}-${TAG_NAME}
-        - - role=${MSG_QUEUE_ROLE}
-          - app=${APP_NAME}${SUFFIX}
-          - env=${TAG_NAME}
-          - $namespace=${NAMESPACE}-${TAG_NAME}
+        Allow the agent and event processor to access the controller.
+      ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                  role: ${AGENT_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+          ports:
+            - protocol: TCP
+              port: 8080
+      podSelector:
+        matchLabels:
+          role: ${ROLE}
+          app: ${APP_NAME}${SUFFIX}
+          env: ${TAG_NAME}
+
+  # - kind: NetworkSecurityPolicy
+  #   apiVersion: security.devops.gov.bc.ca/v1alpha1
+  #   metadata:
+  #     name: ${NAME}${SUFFIX}
+  #     labels:
+  #       name: ${NAME}${SUFFIX}
+  #       app: ${APP_NAME}${SUFFIX}
+  #       app-group: ${APP_GROUP}
+  #       env: ${TAG_NAME}
+  #   spec:
+  #     description: |
+  #       Allow the api pods to communicate with the agent, the database, the message queue, and the search-engine.
+  #     source:
+  #       - - role=${ROLE}
+  #         - app=${APP_NAME}${SUFFIX}
+  #         - env=${TAG_NAME}
+  #         - $namespace=${NAMESPACE}-${TAG_NAME}
+  #     destination:
+  #       - - role=${DATABASE_ROLE}
+  #         - app=${APP_NAME}${SUFFIX}
+  #         - env=${TAG_NAME}
+  #         - $namespace=${NAMESPACE}-${TAG_NAME}
+  #       - - role=${SEARCH_ENGINE_ROLE}
+  #         - app=${APP_NAME}${SUFFIX}
+  #         - env=${TAG_NAME}
+  #         - $namespace=${NAMESPACE}-${TAG_NAME}
+  #       - - role=${AGENT_ROLE}
+  #         - app=${APP_NAME}${SUFFIX}
+  #         - env=${TAG_NAME}
+  #         - $namespace=${NAMESPACE}-${TAG_NAME}
+  #       - - role=${MSG_QUEUE_ROLE}
+  #         - app=${APP_NAME}${SUFFIX}
+  #         - env=${TAG_NAME}
+  #         - $namespace=${NAMESPACE}-${TAG_NAME}
 
   - kind: Secret
     apiVersion: v1

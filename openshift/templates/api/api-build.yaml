@@ -39,8 +39,6 @@ objects:
           env:
             - name: PIP_INDEX_URL
               value: ${PIP_INDEX_URL}
-          pullSecret:
-            name: ${DOCKER_PULL_CREDENTIALS}
       output:
         to:
           kind: ImageStreamTag
@@ -107,11 +105,6 @@ parameters:
     description: The name of the Docker image registry.
     required: false
     value: docker-remote.artifacts.developer.gov.bc.ca/
-  - name: DOCKER_PULL_CREDENTIALS
-    displayName: Docker Pull Credentials
-    description: The name of the secret that will be used to authenticate with the Docker image registry.
-    required: false
-    value: docker-pull-secret
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag
     description: The tag given to the built image.

@@ -251,9 +251,9 @@ parameters:
     value: WARN
   - name: PERSISTENT_VOLUME_CLASS
     displayName: Persistent Volume Class name
-    description: The class of the volume; netapp-file-standard, netapp-block-standard, netapp-file-extended, netapp-block-extended, netapp-file-backup. gluster-block performs the best for Solr.
+    description: The class of the volume; netapp-file-standard, netapp-file-extended, netapp-block-standard, or netapp-block-extended. netapp-block-standard performs the best for Solr.
     required: false
-    value: gluster-block
+    value: netapp-block-standard
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.

@@ -320,9 +320,9 @@ parameters:
     value: 5Gi
   - name: PERSISTENT_VOLUME_CLASS
     displayName: Persistent Volume Class name
-    description: The class of the volume; netapp-file-standard, netapp-block-standard, netapp-file-extended, netapp-block-extended, netapp-file-backup
+    description: The class of the volume; netapp-file-standard, netapp-file-extended, netapp-block-standard, or netapp-block-extended.
     required: false
-    value: gluster-block
+    value: netapp-block-standard
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.

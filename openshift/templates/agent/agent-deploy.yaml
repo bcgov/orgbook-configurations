@@ -618,7 +618,7 @@ parameters:
     value: /home/indy/.indy_client/tails
   - name: TAILS_FILES_VOLUME_CLASS
     displayName: Tails File Storage Volume Class
-    description: The class of the volume; gluster-file, gluster-block, gluster-file-db, netapp-file-standard, netapp-block-standard.
+    description: The class of the volume; netapp-file-standard, netapp-file-extended, netapp-block-standard, or netapp-block-extended.
     required: true
     value: netapp-file-standard
   - name: TAILS_FILES_VOLUME_SIZE

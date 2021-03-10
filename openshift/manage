@@ -70,7 +70,7 @@ usage () {
     getDbDiskUsage
       - Get the disk usage information for a given database pod.
         For example;
-          $0 -e dev getDbDiskUsage wallet-indy-cat
+          $0 -e dev getDbDiskUsage wallet-bc
 
     listDatabases <podName/>
       - List the databases hosted on a given postgresql pod instance.
@@ -345,7 +345,7 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Defaults:
 # -----------------------------------------------------------------------------------------------------------------
-resourceSuffix="${resourceSuffix:--indy-cat}"
+resourceSuffix="${resourceSuffix:--bc}"
 offlineIndexerResourceSuffix=${offlineIndexerResourceSuffix:--oli}
 # -----------------------------------------------------------------------------------------------------------------
 
@@ -462,7 +462,7 @@ function reset() {
     walletDbPod=${5}
     backupPod=${6}
     walletDbName=${7} # Example; agent_indy_cat_wallet
-    walletDbBackupSpec=${8} # Example; "wallet-indy-cat:5432/${walletDbName}"
+    walletDbBackupSpec=${8} # Example; "wallet-bc:5432/${walletDbName}"
     walletDbBackupFileFilter=${9} # Example; /backups/initialized-wallet
     walletDbAdminPasswordKey=${10}
     dbPod=${11}
@@ -1208,7 +1208,7 @@ case "${_cmd}" in
     walletDbPod=${5:-wallet}
     backupPod=${6:-backup}
     walletDbName=${7:-"agent_indy_cat_wallet"}
-    walletDbBackupSpec=${8:-"wallet-indy-cat:5432/${walletDbName}"}
+    walletDbBackupSpec=${8:-"wallet-bc:5432/${walletDbName}"}
     walletDbBackupFileFilter=${9:-"/backups/initialized-wallet"}
     walletDbAdminPasswordKey=${10:-"admin-password"}
     dbPod=${11:-db}

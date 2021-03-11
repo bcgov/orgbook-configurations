@@ -1,10 +1,12 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/msg-queue/msg-queue-deploy.json
+# Template File: ../openshift/templates/msg-queue/msg-queue-deploy.yaml
 #=========================================================
 # NAME=msg-queue
 # ROLE=msg-queue
+# CONTROLLER_ROLE=api
+# MSG_QUEUE_WORKER_ROLE=msg-queue-worker
 # NAMESPACE=8ad0ea
 # SUFFIX=-bc
 # APP_NAME=orgbook

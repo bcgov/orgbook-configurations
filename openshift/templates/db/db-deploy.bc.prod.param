@@ -1,10 +1,14 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/db/db-deploy.json
+# Template File: ../openshift/templates/db/db-deploy.yaml
 #=========================================================
 # NAME=db
 # ROLE=db
+# API_ROLE=api
+# BACKUP_ROLE=backup
+# BACKUP_APP_NAME=Backup
+# SCHEMA_SPY_ROLE=schema-spy
 # SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr

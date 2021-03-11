@@ -1,10 +1,13 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/wallet/wallet-deploy.json
+# Template File: ../openshift/templates/wallet/wallet-deploy.yaml
 #=========================================================
 # NAME=wallet
 # ROLE=wallet
+# AGENT_ROLE=agent
+# BACKUP_ROLE=backup
+# BACKUP_APP_NAME=Backup
 # SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
@@ -16,7 +19,7 @@ TAG_NAME=bc-prod
 # POSTGRESQL_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # POSTGRESQL_ADMIN_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # MOUNT_PATH=/var/lib/pgsql/data
-PERSISTENT_VOLUME_SIZE=200Gi
+# PERSISTENT_VOLUME_SIZE=200Gi
 # PERSISTENT_VOLUME_CLASS=netapp-block-standard
 # LOGGING_CONFIG_FILE_NAME=logging.conf
 # LOGGING_CONFIG_MAP_NAME=wallet-logging-conf-bc

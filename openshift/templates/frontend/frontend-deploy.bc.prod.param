@@ -1,9 +1,12 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/frontend/frontend-deploy.json
+# Template File: ../openshift/templates/frontend/frontend-deploy.yaml
 #=========================================================
 # NAME=frontend
+# ROLE=frontend
+# API_ROLE=api
+# NAMESPACE=8ad0ea
 # SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
@@ -23,7 +26,7 @@ APPLICATION_DOMAIN=orgbook-prod.apps.silver.devops.gov.bc.ca
 TAG_NAME=bc-prod
 # HTTP_BASIC=
 # THEME=bcgov
-MIN_REPLICAS=3
+# MIN_REPLICAS=3
 # MAX_REPLICAS=6
 # CPU_REQUEST=10m
 # CPU_LIMIT=250m

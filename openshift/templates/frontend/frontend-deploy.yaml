@@ -316,7 +316,7 @@ parameters:
   - name: API_RATE_LIMIT
     description: API Rate Limit
     displayName: API Rate Limit
-    value: ""
+    value: "limit_req zone=bra25 burst=100;"
   - name: BLACK_LIST_CONFIG_FILE_NAME
     displayName: Config File Name
     description: The name of the configuration file.
@@ -357,7 +357,7 @@ parameters:
     displayName: Minimum Replicas
     description: The minimum number of pods to have running.
     required: true
-    value: "2"
+    value: "3"
   - name: MAX_REPLICAS
     displayName: Maximum Replicas
     description: The maximum number of pods to have running.

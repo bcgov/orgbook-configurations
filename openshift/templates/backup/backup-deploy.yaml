@@ -257,7 +257,7 @@ parameters:
     displayName: Database Server Timeout
     description: The timeout, in seconds, to wait for the local database server to startup during a verification.
     required: true
-    value: "60"
+    value: "300"
   - name: CONFIG_FILE_NAME
     displayName: Config File Name
     description: The name of the configuration file.

@@ -280,6 +280,10 @@ parameters:
     required: true
     value: schema-spy
 
+  - name: NAMESPACE
+    displayName: The target namespace for the resources.
+    required: true
+    value: 8ad0ea
   - name: SUFFIX
     displayName: Suffix
     description: A name suffix used for all objects

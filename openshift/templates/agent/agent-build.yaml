@@ -33,7 +33,7 @@ objects:
           dockerfilePath: ${DOCKER_FILE_PATH}
           from:
             kind: DockerImage
-            name: "${DOCKER_IMAGE_REGISTRY}${SOURCE_IMAGE_NAME}"
+            name: "${SOURCE_IMAGE_REGISTRY}${SOURCE_IMAGE_NAME}"
       output:
         to:
           kind: ImageStreamTag
@@ -93,9 +93,9 @@ parameters:
     description: The path to the docker file.
     required: true
     value: Dockerfile
-  - name: DOCKER_IMAGE_REGISTRY
-    displayName: Docker Image Registry
-    description: The name of the Docker image registry.
+  - name: SOURCE_IMAGE_REGISTRY
+    displayName: Source Image Registry
+    description: The name of the Source Image Registry.
     required: false
     value: docker-remote.artifacts.developer.gov.bc.ca/
   - name: SOURCE_IMAGE_NAME

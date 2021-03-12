@@ -39,7 +39,7 @@ objects:
         dockerStrategy:
           from:
             kind: ${SOURCE_IMAGE_KIND}
-            name: ${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}
+            name: ${SOURCE_IMAGE_REGISTRY}${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}
           dockerfilePath: ${DOCKER_FILE_PATH}
       output:
         to:
@@ -86,6 +86,11 @@ parameters:
     description: The 'kind' (type) of the  source image; typically ImageStreamTag, or DockerImage.
     required: true
     value: DockerImage
+  - name: SOURCE_IMAGE_REGISTRY
+    displayName: Source Image Registry
+    description: The name of the Source Image Registry.
+    required: false
+    value: docker-remote.artifacts.developer.gov.bc.ca/
   - name: SOURCE_IMAGE_NAME
     displayName: Source Image Name
     description: The name of the source image.

@@ -11,7 +11,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        template: ${NAME}${SUFFIX}-template
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       storageClassName: ${BACKUP_VOLUME_CLASS}
       accessModes:
@@ -27,7 +28,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        template: ${NAME}${SUFFIX}-template
+        role: ${ROLE}
+        env: ${TAG_NAME}
     spec:
       storageClassName: ${VERIFICATION_VOLUME_CLASS}
       accessModes:
@@ -43,6 +45,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
     stringData:
       webhook-url: ${WEBHOOK_URL}
     type: Opaque
@@ -54,7 +58,8 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        template: ${NAME}${SUFFIX}-template
+        role: ${ROLE}
+        env: ${TAG_NAME}
       annotations:
         description: Defines how to deploy the ${NAME}${SUFFIX} server
     spec:
@@ -81,7 +86,8 @@ objects:
             name: ${NAME}${SUFFIX}
             app: ${APP_NAME}${SUFFIX}
             app-group: ${APP_GROUP}
-            template: ${NAME}${SUFFIX}-template
+            role: ${ROLE}
+            env: ${TAG_NAME}
         spec:
           volumes:
             - name: ${BACKUP_VOLUME_NAME}
@@ -111,22 +117,22 @@ objects:
                   value: ${WEEKLY_BACKUPS}
                 - name: MONTHLY_BACKUPS
                   value: ${MONTHLY_BACKUPS}
-                - name: DB_INDY_CAT_USER
+                - name: DB_BC_USER
                   valueFrom:
                     secretKeyRef:
                       name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
                       key: ${DATABASE_USER_KEY_NAME}
-                - name: DB_INDY_CAT_PASSWORD
+                - name: DB_BC_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
                       key: ${DATABASE_PASSWORD_KEY_NAME}
-                - name: WALLET_INDY_CAT_USER
+                - name: WALLET_BC_USER
                   valueFrom:
                     secretKeyRef:
                       name: ${WALLET_DB_HOST_NAME}${SUFFIX}
                       key: ${DATABASE_USER_KEY_NAME}
-                - name: WALLET_INDY_CAT_PASSWORD
+                - name: WALLET_BC_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: ${WALLET_DB_HOST_NAME}${SUFFIX}
@@ -161,6 +167,11 @@ parameters:
   - name: NAME
     displayName: Name
     description: The name assigned to all of the resources defined in this template.
+    required: true
+    value: backup
+  - name: ROLE
+    displayName: Role
+    description: Role
     required: true
     value: backup
   - name: SUFFIX

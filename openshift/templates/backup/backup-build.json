@@ -107,7 +107,7 @@
       "displayName": "Git Reference",
       "description": "The git reference or branch.",
       "required": true,
-      "value": "master"
+      "value": "2.3.2"
     },
     {
       "name": "SOURCE_CONTEXT_DIR",
@@ -128,14 +128,14 @@
       "displayName": "Source Image Name",
       "description": "The name of the source image.",
       "required": true,
-      "value": "registry.access.redhat.com/rhscl/postgresql-10-rhel7"
+      "value": "centos/postgresql-12-centos7"
     },
     {
       "name": "SOURCE_IMAGE_TAG",
       "displayName": "Source Image Tag",
       "description": "The tag of the source image.",
       "required": true,
-      "value": "latest"
+      "value": "20200917-804ef01"
     },
     {
       "name": "DOCKER_FILE_PATH",

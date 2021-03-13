@@ -9,6 +9,32 @@ objects:
   - kind: NetworkPolicy
     apiVersion: networking.k8s.io/v1
     metadata:
+      name: ${NAME}${SUFFIX}-allow-ingress
+      labels:
+        name: ${NAME}${SUFFIX}-allow-ingress
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow traffic from routes into the ${ROLE} container(s).
+      ingress:
+        - from:
+            - namespaceSelector:
+                matchLabels:
+                  network.openshift.io/policy-group: ingress
+      podSelector:
+        matchLabels:
+          role: ${ROLE}
+          app: ${APP_NAME}${SUFFIX}
+          env: ${TAG_NAME}
+      policyTypes:
+        - Ingress
+
+  - kind: NetworkPolicy
+    apiVersion: networking.k8s.io/v1
+    metadata:
       name: ${NAME}${SUFFIX}
       labels:
         name: ${NAME}${SUFFIX}
@@ -175,12 +201,12 @@ objects:
                 - containerPort: 5672
                   protocol: TCP
               env:
-                - name: RABBIT_DEFAULT_USER
+                - name: RABBITMQ_DEFAULT_USER
                   valueFrom:
                     secretKeyRef:
                       name: ${NAME}${SUFFIX}
                       key: default-user
-                - name: RABBIT_DEFAULT_PASS
+                - name: RABBITMQ_DEFAULT_PASS
                   valueFrom:
                     secretKeyRef:
                       name: ${NAME}${SUFFIX}

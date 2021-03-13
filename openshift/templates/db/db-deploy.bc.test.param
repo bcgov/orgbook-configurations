@@ -6,9 +6,11 @@
 # NAME=db
 # ROLE=db
 # API_ROLE=api
+# MSG_QUEUE_WORKER_ROLE=msg-queue-worker
 # BACKUP_ROLE=backup
 # BACKUP_APP_NAME=Backup
 # SCHEMA_SPY_ROLE=schema-spy
+# NAMESPACE=8ad0ea
 # SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr

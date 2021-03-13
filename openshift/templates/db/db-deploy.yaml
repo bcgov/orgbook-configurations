@@ -31,6 +31,15 @@ objects:
                   environment: ${TAG_NAME}
             - podSelector:
                 matchLabels:
+                  role: ${MSG_QUEUE_WORKER_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
                   role: ${BACKUP_ROLE}
                   app: ${BACKUP_APP_NAME}${SUFFIX}
                   env: ${TAG_NAME}
@@ -264,6 +273,11 @@ parameters:
     description: Api Role
     required: true
     value: api
+  - name: MSG_QUEUE_WORKER_ROLE
+    displayName: Message Queue Worker Role
+    description: Message Queue Worker Role
+    required: true
+    value: msg-queue-worker
   - name: BACKUP_ROLE
     displayName: Backup Role
     description: Backup Role

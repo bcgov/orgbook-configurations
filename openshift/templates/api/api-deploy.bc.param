@@ -6,6 +6,7 @@
 NAME=api
 ROLE=api
 AGENT_ROLE=agent
+FRONTEND_ROLE=frontend
 DATABASE_ROLE=db
 SEARCH_ENGINE_ROLE=search-engine
 MSG_QUEUE_ROLE=msg-queue

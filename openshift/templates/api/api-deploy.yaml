@@ -32,6 +32,15 @@ objects:
                 matchLabels:
                   name: ${NAMESPACE}
                   environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${FRONTEND_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
           ports:
             - protocol: TCP
               port: 8080
@@ -340,6 +349,11 @@ parameters:
     description: Agent Role
     required: true
     value: agent
+  - name: FRONTEND_ROLE
+    displayName: Frontend Role
+    description: Frontend Role
+    required: true
+    value: frontend
   - name: DATABASE_ROLE
     displayName: Database Role
     description: Database Role

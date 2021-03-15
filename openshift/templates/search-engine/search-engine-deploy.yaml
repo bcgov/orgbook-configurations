@@ -39,7 +39,7 @@ objects:
                   environment: ${TAG_NAME}
           ports:
             - protocol: TCP
-              port: 5672
+              port: 8983
       podSelector:
         matchLabels:
           role: ${ROLE}

@@ -17,7 +17,7 @@ objects:
         env: ${TAG_NAME}
     spec:
       description: |
-        Allow the agent(s) to access the wallet.
+        Allow the api, msg queue worker, backup container, and schema spy to access the database.
       ingress:
         - from:
             - podSelector:

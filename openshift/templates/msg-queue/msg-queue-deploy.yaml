@@ -44,7 +44,7 @@ objects:
         env: ${TAG_NAME}
     spec:
       description: |
-        Allow the agent and event processor to access the controller.
+        Allow the controller and msg queue worker to access the msg queue.
       ingress:
         - from:
             - podSelector:

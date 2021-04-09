@@ -20,7 +20,7 @@ objects:
         env: ${TAG_NAME}
     spec:
       description: |
-        Allow the agent and event processor to access the controller.
+        Allow the agent and frontend to access the controller.
       ingress:
         - from:
             - podSelector:

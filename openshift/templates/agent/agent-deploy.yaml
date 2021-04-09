@@ -43,7 +43,7 @@ objects:
         env: ${TAG_NAME}
     spec:
       description: |
-        Allow the controller to access the agent admin interface.
+        Allow the controller and msg queue worker to access the agent admin interface.
       ingress:
         - from:
             - podSelector:

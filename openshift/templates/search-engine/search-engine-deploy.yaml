@@ -4,6 +4,48 @@ metadata:
   name: ${NAME}${SUFFIX}-deployment-template
 objects:
 
+  - kind: NetworkPolicy
+    apiVersion: networking.k8s.io/v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow the agent and event processor to access the controller.
+      ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                  role: ${CONTROLLER_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${MSG_QUEUE_WORKER_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+          ports:
+            - protocol: TCP
+              port: 8983
+      podSelector:
+        matchLabels:
+          role: ${ROLE}
+          app: ${APP_NAME}${SUFFIX}
+          env: ${TAG_NAME}
+
   - kind: Service
     apiVersion: v1
     metadata:
@@ -141,11 +183,23 @@ parameters:
     description: The name assigned to all of the resources defined in this template.
     required: true
     value: search-engine
+    
   - name: ROLE
     displayName: Role
     description: Service Role
     required: true
     value: search-engine
+  - name: CONTROLLER_ROLE
+    displayName: Controller Role
+    description: Controller Role
+    required: true
+    value: api
+  - name: MSG_QUEUE_WORKER_ROLE
+    displayName: Message Queue Worker Role
+    description: Message Queue Worker Role
+    required: true
+    value: msg-queue-worker
+
   - name: NAMESPACE
     displayName: The target namespace for the resources.
     required: true
@@ -179,7 +233,7 @@ parameters:
     displayName: Persistent Volume Size
     description: The size of the persistent volume , e.g. 512Mi, 1Gi, 2Gi.
     required: true
-    value: 5Gi
+    value: 8Gi
   - name: MOUNT_PATH
     displayName: Mount Path
     description: The path to mount the persistent volume.
@@ -197,9 +251,9 @@ parameters:
     value: WARN
   - name: PERSISTENT_VOLUME_CLASS
     displayName: Persistent Volume Class name
-    description: The class of the volume; netapp-file-standard, netapp-block-standard, netapp-file-extended, netapp-block-extended, netapp-file-backup. gluster-block performs the best for Solr.
+    description: The class of the volume; netapp-file-standard, netapp-file-extended, netapp-block-standard, or netapp-block-extended. netapp-block-standard performs the best for Solr.
     required: false
-    value: gluster-block
+    value: netapp-block-standard
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.

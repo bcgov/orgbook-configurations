@@ -5,14 +5,15 @@
 #=========================================================
 # NAME=search-engine
 # ROLE=search-engine
-# DATABASE_ROLE=db
+# CONTROLLER_ROLE=api
+# MSG_QUEUE_WORKER_ROLE=msg-queue-worker
 # NAMESPACE=8ad0ea
 # SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=8ad0ea-tools
 TAG_NAME=dev
-# PERSISTENT_VOLUME_SIZE=5Gi
+# PERSISTENT_VOLUME_SIZE=8Gi
 # MOUNT_PATH=/opt/solr/server/solr/mycores
 # CORE_NAME=credential_registry
 # SOLR_LOG_LEVEL=WARN

@@ -6,6 +6,65 @@ metadata:
     tags: ${NAME}${SUFFIX}
   name: ${NAME}${SUFFIX}-persistent-template
 objects:
+
+  - kind: NetworkPolicy
+    apiVersion: networking.k8s.io/v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow the api, msg queue worker, backup container, and schema spy to access the database.
+      ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                  role: ${API_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${MSG_QUEUE_WORKER_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${BACKUP_ROLE}
+                  app: ${BACKUP_APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${SCHEMA_SPY_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+          ports:
+            - protocol: TCP
+              port: 5432
+      podSelector:
+        matchLabels:
+          role: ${ROLE}
+          app: ${APP_NAME}${SUFFIX}
+          env: ${TAG_NAME}
+
   - kind: DeploymentConfig
     apiVersion: v1
     metadata:
@@ -203,11 +262,42 @@ parameters:
     description: The name assigned to all of the OpenShift resources associated to the server instance.
     required: true
     value: db
+
   - name: ROLE
     displayName: Role
     description: Role
     required: true
     value: db
+  - name: API_ROLE
+    displayName: Api Role
+    description: Api Role
+    required: true
+    value: api
+  - name: MSG_QUEUE_WORKER_ROLE
+    displayName: Message Queue Worker Role
+    description: Message Queue Worker Role
+    required: true
+    value: msg-queue-worker
+  - name: BACKUP_ROLE
+    displayName: Backup Role
+    description: Backup Role
+    required: true
+    value: backup
+  - name: BACKUP_APP_NAME
+    displayName: Backup App Name
+    description: The App Name associated with the backup container.
+    required: true
+    value: Backup
+  - name: SCHEMA_SPY_ROLE
+    displayName: Schema-Spy Role
+    description: Schema-Spy Role
+    required: true
+    value: schema-spy
+
+  - name: NAMESPACE
+    displayName: The target namespace for the resources.
+    required: true
+    value: 8ad0ea
   - name: SUFFIX
     displayName: Suffix
     description: A name suffix used for all objects
@@ -273,7 +363,7 @@ parameters:
     value: 30Gi
   - name: PERSISTENT_VOLUME_CLASS
     displayName: Persistent Volume Class name
-    description: The class of the volume; netapp-block-standard, netapp-block-standard, netapp-file-extended, netapp-block-extended, netapp-file-backup
+    description: The class of the volume; netapp-file-standard, netapp-file-extended, netapp-block-standard, or netapp-block-extended.
     required: false
     value: netapp-block-standard
   - name: LOGGING_CONFIG_FILE_NAME

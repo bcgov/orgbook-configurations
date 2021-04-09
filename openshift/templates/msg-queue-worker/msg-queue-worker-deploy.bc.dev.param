@@ -1,7 +1,7 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/msg-queue-worker/msg-queue-worker-deploy.json
+# Template File: ../openshift/templates/msg-queue-worker/msg-queue-worker-deploy.yaml
 #=========================================================
 # NAME=msg-queue-worker
 # ROLE=msg-queue-worker
@@ -40,6 +40,6 @@ TAG_NAME=dev
 # MIN_REPLICAS=2
 # MAX_REPLICAS=6
 # CPU_REQUEST=10m
-# CPU_LIMIT=300m
+# CPU_LIMIT=500m
 # MEMORY_REQUEST=10Mi
-# MEMORY_LIMIT=1250Mi
+# MEMORY_LIMIT=2000Mi

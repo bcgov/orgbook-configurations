@@ -33,9 +33,7 @@ objects:
           dockerfilePath: ${DOCKER_FILE_PATH}
           from:
             kind: DockerImage
-            name: "${DOCKER_IMAGE_REGISTRY}${SOURCE_IMAGE_NAME}"
-          pullSecret:
-            name: ${DOCKER_PULL_CREDENTIALS}
+            name: "${SOURCE_IMAGE_REGISTRY}${SOURCE_IMAGE_NAME}"
       output:
         to:
           kind: ImageStreamTag
@@ -95,9 +93,9 @@ parameters:
     description: The path to the docker file.
     required: true
     value: Dockerfile
-  - name: DOCKER_IMAGE_REGISTRY
-    displayName: Docker Image Registry
-    description: The name of the Docker image registry.
+  - name: SOURCE_IMAGE_REGISTRY
+    displayName: Source Image Registry
+    description: The name of the Source Image Registry.
     required: false
     value: docker-remote.artifacts.developer.gov.bc.ca/
   - name: SOURCE_IMAGE_NAME
@@ -105,11 +103,6 @@ parameters:
     description: The name of the Docker image to be used for the build. Overrides the FROM instruction in the Dockerfile.
     required: false
     value: bcgovimages/aries-cloudagent:py36-1.15-1_0.6.0
-  - name: DOCKER_PULL_CREDENTIALS
-    displayName: Docker Pull Credentials
-    description: The name of the secret that will be used to authenticate with the Docker image registry.
-    required: false
-    value: docker-pull-secret
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag
     description: The tag given to the built image.

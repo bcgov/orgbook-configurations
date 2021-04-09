@@ -35,12 +35,10 @@ objects:
         sourceStrategy:
           from:
             kind: ${SOURCE_IMAGE_KIND}
-            name: ${DOCKER_IMAGE_REGISTRY}${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}
+            name: ${SOURCE_IMAGE_REGISTRY}${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}
           env:
             - name: PIP_INDEX_URL
               value: ${PIP_INDEX_URL}
-          pullSecret:
-            name: ${DOCKER_PULL_CREDENTIALS}
       output:
         to:
           kind: ImageStreamTag
@@ -102,16 +100,11 @@ parameters:
     displayName: Custom PyPi Index URL
     description: The custom PyPi index URL
     value: ""
-  - name: DOCKER_IMAGE_REGISTRY
-    displayName: Docker Image Registry
-    description: The name of the Docker image registry.
+  - name: SOURCE_IMAGE_REGISTRY
+    displayName: Source Image Registry
+    description: The name of the Source Image Registry.
     required: false
     value: docker-remote.artifacts.developer.gov.bc.ca/
-  - name: DOCKER_PULL_CREDENTIALS
-    displayName: Docker Pull Credentials
-    description: The name of the secret that will be used to authenticate with the Docker image registry.
-    required: false
-    value: docker-pull-secret
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag
     description: The tag given to the built image.

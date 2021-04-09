@@ -5,18 +5,19 @@
 #=========================================================
 # NAME=search-engine
 # ROLE=search-engine
-# DATABASE_ROLE=db
+# CONTROLLER_ROLE=api
+# MSG_QUEUE_WORKER_ROLE=msg-queue-worker
 # NAMESPACE=8ad0ea
 # SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=8ad0ea-tools
 TAG_NAME=bc-prod
-PERSISTENT_VOLUME_SIZE=8Gi
+# PERSISTENT_VOLUME_SIZE=8Gi
 # MOUNT_PATH=/opt/solr/server/solr/mycores
 # CORE_NAME=credential_registry
 # SOLR_LOG_LEVEL=WARN
-PERSISTENT_VOLUME_CLASS=netapp-block-standard
+# PERSISTENT_VOLUME_CLASS=netapp-block-standard
 # CPU_REQUEST=10m
 # CPU_LIMIT=750m
 # MEMORY_REQUEST=10Mi

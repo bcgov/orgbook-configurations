@@ -67,7 +67,7 @@ parameters:
     displayName: Git Repo URL
     description: The URL to your GIT repo.
     required: true
-    value: https://github.com/wadeking98/aries-vcr.git
+    value: https://github.com/bcgov/aries-vcr.git
   - name: GIT_REF
     displayName: Git Reference
     description: The git reference or branch.

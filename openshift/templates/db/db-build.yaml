@@ -36,6 +36,7 @@ objects:
         sourceStrategy:
           from:
             kind: ${SOURCE_IMAGE_KIND}
+            namespace: ${SOURCE_IMAGE_NAMESPACE}
             name: ${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}
       output:
         to:
@@ -77,21 +78,26 @@ parameters:
     description: The source context directory.
     required: false
     value: server/db/config
+  - name: SOURCE_IMAGE_NAMESPACE
+    displayName: Source Image Namespace
+    description: The namespace of the source image
+    required: true
+    value: openshift
   - name: SOURCE_IMAGE_KIND
     displayName: Source Image Kind
     description: The 'kind' (type) of the  source image; typically ImageStreamTag, or DockerImage.
     required: true
-    value: DockerImage
+    value: ImageStreamTag
   - name: SOURCE_IMAGE_NAME
     displayName: Source Image Name
     required: true
     description: The name of the source image.
-    value: registry.access.redhat.com/rhscl/postgresql-10-rhel7
+    value: postgresql
   - name: SOURCE_IMAGE_TAG
     displayName: Source Image Tag
     required: true
     description: The tag of the source image.
-    value: latest
+    value: "12"
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag
     description: The tag given to the built image.

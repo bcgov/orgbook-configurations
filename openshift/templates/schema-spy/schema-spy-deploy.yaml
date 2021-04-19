@@ -165,7 +165,10 @@ objects:
                 - name: DATABASE_SERVICE_NAME
                   value: ${DATABASE_SERVICE_NAME}${SUFFIX}
                 - name: POSTGRESQL_DATABASE
-                  value: ${DATABASE_NAME}
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      key: database-name
                 - name: POSTGRESQL_USER
                   valueFrom:
                     secretKeyRef:

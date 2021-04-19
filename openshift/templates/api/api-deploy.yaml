@@ -212,7 +212,10 @@ objects:
                 - name: DATABASE_ENGINE
                   value: ${DATABASE_ENGINE}
                 - name: DATABASE_NAME
-                  value: ${DATABASE_NAME}
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      key: database-name
                 - name: DATABASE_USER
                   valueFrom:
                     secretKeyRef:
@@ -403,11 +406,6 @@ parameters:
     required: true
     description: "Database engine: postgresql, mysql, or sqlite (default)."
     value: postgresql
-  - name: DATABASE_NAME
-    displayName: Database Name
-    required: true
-    description: Name of the deployed database (see environment variables in deployed database).
-    value: aries-vcr
   - name: APP_FILE
     displayName: Application File
     description: Used to run the application from a Python script. This should be a path to a Python file (defaults to app.py unless set to null) that will be passed to the Python interpreter to start the application (optional).

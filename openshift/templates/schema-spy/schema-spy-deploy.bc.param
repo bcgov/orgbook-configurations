@@ -13,7 +13,6 @@ APP_GROUP=aries-vcr
 IMAGE_NAMESPACE=8ad0ea-tools
 APPLICATION_DOMAIN=schema-spy-orgbook-bc-dev.apps.silver.devops.gov.bc.ca
 DATABASE_SERVICE_NAME=db
-DATABASE_NAME=aries-vcr
 OUTPUT_PATH=/var/www/html/doc
 # SCHEMASPY_USER=[a-zA-Z_][a-zA-Z0-9_]{10}
 # SCHEMASPY_PLAIN_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}

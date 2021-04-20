@@ -21,7 +21,7 @@ API_RATE_LIMIT=limit_req zone=bra25 burst=100;
 BLACK_LIST_CONFIG_FILE_NAME=blacklist.conf
 BLACK_LIST_CONFIG_MAP_NAME=blacklist-conf
 BLACK_LIST_CONFIG_MOUNT_PATH=/etc/nginx/
-APPLICATION_DOMAIN=orgbook-dev.apps.silver.devops.gov.bc.ca
+APPLICATION_DOMAIN=dev.orgbook.gov.bc.ca
 ROUTE_TIMEOUT=120s
 TAG_NAME=dev
 HTTP_BASIC=

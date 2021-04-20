@@ -12,14 +12,14 @@
 # SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
-APPLICATION_DOMAIN=orgbook-agent-dev.apps.silver.devops.gov.bc.ca 
-APPLICATION_ADMIN_DOMAIN=orgbook-agent-admin-dev.apps.silver.devops.gov.bc.ca
+APPLICATION_DOMAIN=agent-dev.orgbook.gov.bc.ca
+APPLICATION_ADMIN_DOMAIN=agent-admin-dev.orgbook.gov.bc.ca
 # ROUTE_TIMEOUT=120s
 # IMAGE_NAMESPACE=8ad0ea-tools
 # NAMESPACE_NAME=8ad0ea
 TAG_NAME=dev
 # AGENT_LABEL_NAME=OrgBook BC Agent
-AGENT_BASE_URL=https://orgbook-agent-dev.apps.silver.devops.gov.bc.ca
+AGENT_BASE_URL=https://agent-dev.orgbook.gov.bc.ca
 # WEBHOOK_URL=http://api-bc:8080/agentcb
 # AGENT_ADMIN_PORT=8024
 # ADMIN_API_KEY=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
@@ -36,7 +36,7 @@ AGENT_BASE_URL=https://orgbook-agent-dev.apps.silver.devops.gov.bc.ca
 # TAILS_FILES_DIR=/home/indy/.indy_client/tails
 # TAILS_FILES_VOLUME_CLASS=netapp-file-standard
 # TAILS_FILES_VOLUME_SIZE=2Gi
-# TAILS_SERVER_BASE_URL=https://tails-server-dev.pathfinder.gov.bc.ca
+# TAILS_SERVER_BASE_URL=https://tails-dev.vonx.io
 # WALLET_STORAGE_TYPE=postgres_storage
 # WALLET_HOST=wallet
 # WALLET_HOST_PORT=5432

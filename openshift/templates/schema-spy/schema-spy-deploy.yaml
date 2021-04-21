@@ -33,29 +33,6 @@ objects:
       policyTypes:
         - Ingress
 
-  # - kind: NetworkSecurityPolicy
-  #   apiVersion: security.devops.gov.bc.ca/v1alpha1
-  #   metadata:
-  #     name: ${NAME}${SUFFIX}
-  #     labels:
-  #       name: ${NAME}${SUFFIX}
-  #       app: ${APP_NAME}${SUFFIX}
-  #       app-group: ${APP_GROUP}
-  #       env: ${TAG_NAME}
-  #   spec:
-  #     description: |
-  #       Allow schema-spy pods to communicate with the database.
-  #     source:
-  #       - - role=${ROLE}
-  #         - app=${APP_NAME}${SUFFIX}
-  #         - env=${TAG_NAME}
-  #         - $namespace=${NAMESPACE}-${TAG_NAME}
-  #     destination:
-  #       - - role=${DATABASE_ROLE}
-  #         - app=${APP_NAME}${SUFFIX}
-  #         - env=${TAG_NAME}
-  #         - $namespace=${NAMESPACE}-${TAG_NAME}
-
   - kind: Secret
     apiVersion: v1
     metadata:

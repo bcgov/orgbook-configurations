@@ -9,7 +9,7 @@
 # APP_GROUP=indy-catalyst
 # SOURCE_IMAGE_NAME=backup
 # IMAGE_NAMESPACE=8ad0ea-tools
-TAG_NAME=bc-test
+TAG_NAME=test
 # DATABASE_DEPLOYMENT_NAME=db
 # WALLET_DB_HOST_NAME=wallet
 # DATABASE_USER_KEY_NAME=database-user

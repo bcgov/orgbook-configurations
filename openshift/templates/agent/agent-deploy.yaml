@@ -504,12 +504,12 @@ parameters:
     displayName: Application Hostname
     description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
     required: false
-    value: agent-dev.orgbook.gov.bc.ca
+    value: bc-reg-agent-dev.orgbook.gov.bc.ca
   - name: APPLICATION_ADMIN_DOMAIN
     displayName: Application Admin Endpoint Hostname
     description: The exposed admin hostname that will route to the service, if left blank a value will be defaulted.
     required: false
-    value: agent-admin-dev.orgbook.gov.bc.ca
+    value: bc-reg-agent-admin-dev.orgbook.gov.bc.ca
   - name: ROUTE_TIMEOUT
     displayName: Route Timeout
     description: The timeout for the application route.  When this timeout is exceeded the application's route will respond with a 504 Gateway Timeout error.
@@ -538,7 +538,7 @@ parameters:
     displayName: Agent endpoint
     description: The endpoint of the agent
     required: true
-    value: https://agent-dev.orgbook.gov.bc.ca
+    value: https://bc-reg-agent-dev.orgbook.gov.bc.ca
   - name: WEBHOOK_URL
     displayName: Webhook URL
     description: The webhook endpoint

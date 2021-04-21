@@ -12,14 +12,14 @@
 # SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
-APPLICATION_DOMAIN=bc-reg-agent-test.orgbook.gov.bc.ca
-APPLICATION_ADMIN_DOMAIN=bc-reg-agent-admin-test.orgbook.gov.bc.ca
+APPLICATION_DOMAIN=agent-test.orgbook.gov.bc.ca
+APPLICATION_ADMIN_DOMAIN=agent-admin-test.orgbook.gov.bc.ca
 # ROUTE_TIMEOUT=120s
 # IMAGE_NAMESPACE=8ad0ea-tools
 # NAMESPACE_NAME=8ad0ea
-TAG_NAME=bc-test
+TAG_NAME=test
 # AGENT_LABEL_NAME=OrgBook BC Agent
-AGENT_BASE_URL=https://bc-reg-agent-test.orgbook.gov.bc.ca
+AGENT_BASE_URL=https://agent-test.orgbook.gov.bc.ca
 # WEBHOOK_URL=http://api-bc:8080/agentcb
 # AGENT_ADMIN_PORT=8024
 # ADMIN_API_KEY=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}

@@ -23,7 +23,7 @@
 # BLACK_LIST_CONFIG_MOUNT_PATH=/etc/nginx/
 APPLICATION_DOMAIN=test.orgbook.gov.bc.ca
 # ROUTE_TIMEOUT=120s
-TAG_NAME=bc-test
+TAG_NAME=test
 # HTTP_BASIC=
 # THEME=bcgov
 # MIN_REPLICAS=3

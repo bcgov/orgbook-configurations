@@ -12,7 +12,7 @@
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=8ad0ea-tools
-TAG_NAME=bc-test
+TAG_NAME=test
 APPLICATION_DOMAIN=orgbook-msg-queue-test.apps.silver.devops.gov.bc.ca
 # DEFAULT_USER_NAME=[a-zA-Z_][a-zA-Z0-9_]{10}
 # DEFAULT_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}

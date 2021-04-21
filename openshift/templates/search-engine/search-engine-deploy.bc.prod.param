@@ -12,7 +12,7 @@
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=8ad0ea-tools
-TAG_NAME=bc-prod
+TAG_NAME=prod
 # PERSISTENT_VOLUME_SIZE=8Gi
 # MOUNT_PATH=/opt/solr/server/solr/mycores
 # CORE_NAME=credential_registry

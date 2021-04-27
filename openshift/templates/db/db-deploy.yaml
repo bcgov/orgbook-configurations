@@ -6,7 +6,6 @@ metadata:
     tags: ${NAME}${SUFFIX}
   name: ${NAME}${SUFFIX}-persistent-template
 objects:
-
   - kind: NetworkPolicy
     apiVersion: networking.k8s.io/v1
     metadata:
@@ -108,6 +107,15 @@ objects:
             env: ${TAG_NAME}
         spec:
           volumes:
+            # Fix for 'could not resize shared memory segment "/PostgreSQL.1116482346" to 16777216 bytes'
+            # issue during BC Reg <=> OrgBook data audit query execution on OCP4.
+            #   - https://stackoverflow.com/questions/46085748/define-size-for-dev-shm-on-container-engine/46434614#46434614
+            #   - https://github.com/kubernetes/kubernetes/pull/63641
+            - name: dshm
+              emptyDir:
+                medium: Memory
+                # Need to find a reasonable limit.
+                # sizeLimit: 128Mi
             - name: ${NAME}${SUFFIX}-data
               persistentVolumeClaim:
                 claimName: ${NAME}${SUFFIX}
@@ -158,6 +166,8 @@ objects:
                   cpu: ${CPU_LIMIT}
                   memory: ${MEMORY_LIMIT}
               volumeMounts:
+                - name: dshm
+                  mountPath: /dev/shm
                 - name: ${NAME}${SUFFIX}-data
                   mountPath: ${MOUNT_PATH}
                 - name: ${NAME}${SUFFIX}-logging-config-volume

@@ -119,7 +119,7 @@ objects:
               kind: ImageStreamTag
               namespace: ${IMAGE_NAMESPACE}
               name: ${NAME}:${TAG_NAME}
-      replicas: 1
+      replicas: 0
       selector:
         name: ${NAME}${SUFFIX}
       template:

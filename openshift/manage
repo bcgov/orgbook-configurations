@@ -689,23 +689,16 @@ function updateSearchIndex() {
 }
 
 function indexSynced() {
-  _apiPodName=${1}
-  _dbPodName=${2}
+  _quickLoadUrl=${1:-https://orgbook.gov.bc.ca/api/quickload}
+  _apiPodName=${2}
+  _dbPodName=${3}
+
   if [ -z "${_apiPodName}" ] || [ -z "${_dbPodName}" ]; then
     echoError \\n"rebuildSearchIndex; Missing parameter!"\\n
     exit 1
   fi
 
-  if [ "${DEPLOYMENT_ENV_NAME}" == "prod" ]; then
-    orgbookUrl="https://orgbook.gov.bc.ca/api/quickload"
-  else
-    orgbookUrl="https://${DEPLOYMENT_ENV_NAME}.orgbook.gov.bc.ca/api/quickload"
-  fi
-
-  echo
-  echoWarning "Fetching info from ${orgbookUrl} ..."
-
-  indexInfo=$(curl -s ${orgbookUrl})
+  indexInfo=$(curl -s ${_quickLoadUrl})
   actualCount=$(echo ${indexInfo} | jq -r '.counts.actual_item_count')
   indexCount=$(echo ${indexInfo} | jq -r '.credential_counts.total_indexed_items')
   indexDiff=$(( ${actualCount} - ${indexCount} ))
@@ -1248,9 +1241,10 @@ case "${_cmd}" in
     updateSearchIndex ${@}
     ;;
   indexsynced)
-    apiPodName=${1:-api}
-    dbPodName=${2:-db}
-    indexSynced "${apiPodName}" "${dbPodName}"
+    quickLoadUrl=${1}
+    apiPodName=${2:-api}
+    dbPodName=${3:-db}
+    indexSynced "${quickLoadUrl}" "${apiPodName}" "${dbPodName}"
     ;;
   offlineindexsynced)
     indexerPodName=${1:-offline-indexer}

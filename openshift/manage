@@ -423,7 +423,7 @@ function deleteSolrCore() {
   fi
 
   printAndAskToContinue "If you contiune the search-engine core on ${_solrPodName}${resourceSuffix} will be deleted."
-  deleteFromPod "${_solrPodName}${resourceSuffix}" "/opt/solr/server/solr/mycores/*"
+  deleteFromPod "${_solrPodName}${resourceSuffix}" "/var/solr/data/*"
   exitOnError
 }
 
@@ -435,7 +435,7 @@ function deleteSearchIndex() {
   fi
 
   printAndAskToContinue "If you contiune the search index on ${_solrPodName}${resourceSuffix} will be deleted."
-  deleteFromPod "${_solrPodName}${resourceSuffix}" "/opt/solr/server/solr/mycores/credential_registry/data/index"
+  deleteFromPod "${_solrPodName}${resourceSuffix}" "/var/solr/data/credential_registry/data/index"
   exitOnError
 }
 

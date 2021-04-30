@@ -494,7 +494,8 @@ function indexSynced() {
   if (( ${indexCount} == ${actualCount} )); then
     synced="true"
   else
-    synced="false - Difference: ${indexDiff}"
+    percentComplete=$(awk "BEGIN {print (${indexCount}/${actualCount}*100)}")
+    synced="false - Difference: ${indexDiff} (${percentComplete}% complete)"
   fi
 
   echo
@@ -637,7 +638,7 @@ case "${_cmd}" in
     msgQueueWorkerPod=${4:-msg-queue-worker}
     walletDbPod=${5:-wallet}
     backupPod=${6:-backup}
-    walletDbName=${7:-"agent_indy_cat_wallet"}
+    walletDbName=${7:-"agent_bc_wallet"}
     walletDbBackupSpec=${8:-"wallet-bc:5432/${walletDbName}"}
     walletDbBackupFileFilter=${9:-"/backups/initialized-wallet"}
     walletDbAdminPasswordKey=${10:-"admin-password"}

@@ -569,4 +569,4 @@ parameters:
     displayName: Resources Memory Limit
     description: The resources Memory limit (in Mi, Gi, etc) for this build.
     required: true
-    value: 256Mi
+    value: 512Mi

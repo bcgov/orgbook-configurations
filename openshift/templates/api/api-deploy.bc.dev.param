@@ -55,4 +55,4 @@ APPLICATION_URL=https://orgbook-dev.apps.silver.devops.gov.bc.ca
 # CPU_REQUEST=10m
 # CPU_LIMIT=300m
 # MEMORY_REQUEST=10Mi
-# MEMORY_LIMIT=256Mi
+# MEMORY_LIMIT=512Mi

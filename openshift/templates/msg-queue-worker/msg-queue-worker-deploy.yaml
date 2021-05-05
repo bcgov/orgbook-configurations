@@ -25,7 +25,8 @@ objects:
         app.openshift.io/connects-to: >-
           [{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${RABBITMQ_SVC_NAME}${SUFFIX}"},
           {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${SOLR_SERVICE_NAME}${SUFFIX}"},
-          {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${DATABASE_DEPLOYMENT_NAME}${SUFFIX}"}]
+          {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${DATABASE_DEPLOYMENT_NAME}${SUFFIX}"},
+          {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${AGENT_SERVICE_NAME}${SUFFIX}"}]
     spec:
       strategy:
         type: Rolling

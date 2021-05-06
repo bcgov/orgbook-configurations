@@ -24,9 +24,9 @@ objects:
         description: Defines how to deploy the application server
         app.openshift.io/connects-to: >-
           [{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${RABBITMQ_SVC_NAME}${SUFFIX}"},
-          {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${SOLR_SERVICE_NAME}${SUFFIX}"},
-          {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${DATABASE_DEPLOYMENT_NAME}${SUFFIX}"},
-          {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${AGENT_SERVICE_NAME}${SUFFIX}"}]
+          {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${SOLR_HOST}${SUFFIX}"},
+          {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${DATABASE_HOST}${SUFFIX}"},
+          {"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${AGENT_HOST}${SUFFIX}"}]
     spec:
       strategy:
         type: Rolling
@@ -69,23 +69,23 @@ objects:
                 - name: APP_CONFIG
                   value: ${APP_CONFIG}
                 - name: DATABASE_SERVICE_NAME
-                  value: ${DATABASE_SERVICE_NAME}${SUFFIX}
+                  value: ${DATABASE_HOST}${SUFFIX}
                 - name: DATABASE_ENGINE
                   value: ${DATABASE_ENGINE}
                 - name: DATABASE_NAME
                   valueFrom:
                     secretKeyRef:
-                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      name: ${DATABASE_HOST}${SUFFIX}
                       key: database-name
                 - name: DATABASE_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      name: ${DATABASE_HOST}${SUFFIX}
                       key: database-user
                 - name: DATABASE_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      name: ${DATABASE_HOST}${SUFFIX}
                       key: database-password
                 - name: RABBITMQ_SVC_NAME
                   value: ${RABBITMQ_SVC_NAME}${SUFFIX}
@@ -100,14 +100,14 @@ objects:
                       name: ${RABBITMQ_SVC_NAME}${SUFFIX}
                       key: default-password
                 - name: AGENT_ADMIN_URL
-                  value: http://${AGENT_SERVICE_NAME}${SUFFIX}:${AGENT_ADMIN_PORT}
+                  value: http://${AGENT_HOST}${SUFFIX}:${AGENT_ADMIN_PORT}
                 - name: AGENT_ADMIN_API_KEY
                   valueFrom:
                     secretKeyRef:
-                      name: ${AGENT_SERVICE_NAME}${SUFFIX}
+                      name: ${AGENT_HOST}${SUFFIX}
                       key: admin-api-key
                 - name: SOLR_SERVICE_NAME
-                  value: ${SOLR_SERVICE_NAME}${SUFFIX}
+                  value: ${SOLR_HOST}${SUFFIX}
                 - name: SOLR_CORE_NAME
                   value: ${SOLR_CORE_NAME}
                 - name: SKIP_INDEXING_ON_STARTUP
@@ -209,7 +209,7 @@ parameters:
     required: true
     description: The namespace of the OpenShift project containing the imagestream for the application.
     value: 8ad0ea-tools
-  - name: DATABASE_SERVICE_NAME
+  - name: DATABASE_HOST
     displayName: Database Service Name
     description: The name of the database server/service.
     required: true
@@ -241,7 +241,7 @@ parameters:
     description: Django logging level.
     required: true
     value: WARN
-  - name: SOLR_SERVICE_NAME
+  - name: SOLR_HOST
     displayName: SOLR Service Name
     description: The name of the service associated with the SOLR search engine.
     required: false
@@ -276,11 +276,6 @@ parameters:
     description: The TAG name for this environment, e.g., dev, test, prod
     value: dev
     required: true
-  - name: DATABASE_DEPLOYMENT_NAME
-    displayName: Database Deployment Name
-    description: The name associated to the database deployment resources.  In particular, this is used to wire up the credentials associated to the database.
-    required: true
-    value: db
   - name: THEME
     displayName: Thearies-vcr Theme
     description: The theme to use for the tob-api.  This defines which customizations to load for the application.
@@ -306,7 +301,7 @@ parameters:
     description: The name of the RabbitMQ service.
     required: true
     value: msg-queue
-  - name: AGENT_SERVICE_NAME
+  - name: AGENT_HOST
     displayName: Agent Service name
     description: Agent service name
     required: true

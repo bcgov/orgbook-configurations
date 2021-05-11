@@ -70,7 +70,7 @@ parameters:
     displayName: Git Reference
     description: The git reference or branch.
     required: true
-    value: solr-8.8.1
+    value: "8.8.1"
   - name: SOURCE_CONTEXT_DIR
     displayName: Source Context Directory
     description: The source context directory.

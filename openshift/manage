@@ -70,7 +70,7 @@ usage () {
     getDbDiskUsage
       - Get the disk usage information for a given database pod.
         For example;
-          $0 -e dev getDbDiskUsage wallet-indy-cat
+          $0 -e dev getDbDiskUsage wallet-bc
 
     listDatabases <podName/>
       - List the databases hosted on a given postgresql pod instance.
@@ -345,7 +345,7 @@ EOF
 # -----------------------------------------------------------------------------------------------------------------
 # Defaults:
 # -----------------------------------------------------------------------------------------------------------------
-resourceSuffix="${resourceSuffix:--indy-cat}"
+resourceSuffix="${resourceSuffix:--bc}"
 offlineIndexerResourceSuffix=${offlineIndexerResourceSuffix:--oli}
 # -----------------------------------------------------------------------------------------------------------------
 
@@ -462,7 +462,7 @@ function reset() {
     walletDbPod=${5}
     backupPod=${6}
     walletDbName=${7} # Example; agent_indy_cat_wallet
-    walletDbBackupSpec=${8} # Example; "wallet-indy-cat:5432/${walletDbName}"
+    walletDbBackupSpec=${8} # Example; "wallet-bc:5432/${walletDbName}"
     walletDbBackupFileFilter=${9} # Example; /backups/initialized-wallet
     walletDbAdminPasswordKey=${10}
     dbPod=${11}
@@ -613,7 +613,7 @@ function deleteSolrCore() {
   fi
 
   printAndAskToContinue "If you contiune the search-engine core on ${_solrPodName}${resourceSuffix} will be deleted."
-  deleteFromPod "${_solrPodName}${resourceSuffix}" "/opt/solr/server/solr/mycores/*"
+  deleteFromPod "${_solrPodName}${resourceSuffix}" "/var/solr/data/*"
   exitOnError
 }
 
@@ -625,7 +625,7 @@ function deleteSearchIndex() {
   fi
 
   printAndAskToContinue "If you contiune the search index on ${_solrPodName}${resourceSuffix} will be deleted."
-  deleteFromPod "${_solrPodName}${resourceSuffix}" "/opt/solr/server/solr/mycores/credential_registry/data/index"
+  deleteFromPod "${_solrPodName}${resourceSuffix}" "/var/solr/data/credential_registry/data/index"
   exitOnError
 }
 
@@ -689,23 +689,16 @@ function updateSearchIndex() {
 }
 
 function indexSynced() {
-  _apiPodName=${1}
-  _dbPodName=${2}
+  _quickLoadUrl=${1:-https://orgbook.gov.bc.ca/api/quickload}
+  _apiPodName=${2}
+  _dbPodName=${3}
+
   if [ -z "${_apiPodName}" ] || [ -z "${_dbPodName}" ]; then
     echoError \\n"rebuildSearchIndex; Missing parameter!"\\n
     exit 1
   fi
 
-  if [ "${DEPLOYMENT_ENV_NAME}" == "prod" ]; then
-    orgbookUrl="https://orgbook.gov.bc.ca/api/quickload"
-  else
-    orgbookUrl="https://${DEPLOYMENT_ENV_NAME}.orgbook.gov.bc.ca/api/quickload"
-  fi
-
-  echo
-  echoWarning "Fetching info from ${orgbookUrl} ..."
-
-  indexInfo=$(curl -s ${orgbookUrl})
+  indexInfo=$(curl -s ${_quickLoadUrl})
   actualCount=$(echo ${indexInfo} | jq -r '.counts.actual_item_count')
   indexCount=$(echo ${indexInfo} | jq -r '.credential_counts.total_indexed_items')
   indexDiff=$(( ${actualCount} - ${indexCount} ))
@@ -713,7 +706,8 @@ function indexSynced() {
   if (( ${indexCount} == ${actualCount} )); then
     synced="true"
   else
-    synced="false - Difference: ${indexDiff}"
+    percentComplete=$(awk "BEGIN {print (${indexCount}/${actualCount}*100)}")
+    synced="false - Difference: ${indexDiff} (${percentComplete}% complete)"
   fi
 
   echo
@@ -1207,8 +1201,8 @@ case "${_cmd}" in
     msgQueueWorkerPod=${4:-msg-queue-worker}
     walletDbPod=${5:-wallet}
     backupPod=${6:-backup}
-    walletDbName=${7:-"agent_indy_cat_wallet"}
-    walletDbBackupSpec=${8:-"wallet-indy-cat:5432/${walletDbName}"}
+    walletDbName=${7:-"agent_bc_wallet"}
+    walletDbBackupSpec=${8:-"wallet-bc:5432/${walletDbName}"}
     walletDbBackupFileFilter=${9:-"/backups/initialized-wallet"}
     walletDbAdminPasswordKey=${10:-"admin-password"}
     dbPod=${11:-db}
@@ -1248,9 +1242,10 @@ case "${_cmd}" in
     updateSearchIndex ${@}
     ;;
   indexsynced)
-    apiPodName=${1:-api}
-    dbPodName=${2:-db}
-    indexSynced "${apiPodName}" "${dbPodName}"
+    quickLoadUrl=${1}
+    apiPodName=${2:-api}
+    dbPodName=${3:-db}
+    indexSynced "${quickLoadUrl}" "${apiPodName}" "${dbPodName}"
     ;;
   offlineindexsynced)
     indexerPodName=${1:-offline-indexer}

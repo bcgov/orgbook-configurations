@@ -1,15 +1,15 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/backup/backup-deploy.json
+# Template File: ../openshift/templates/backup/backup-deploy.yaml
 #=========================================================
 # NAME=backup
-# SUFFIX=-indy-cat
+# SUFFIX=-bc
 # APP_NAME=Backup
 # APP_GROUP=indy-catalyst
 # SOURCE_IMAGE_NAME=backup
-# IMAGE_NAMESPACE=devex-von-tools
-TAG_NAME=bc-test
+# IMAGE_NAMESPACE=8ad0ea-tools
+TAG_NAME=test
 # DATABASE_DEPLOYMENT_NAME=db
 # WALLET_DB_HOST_NAME=wallet
 # DATABASE_USER_KEY_NAME=database-user
@@ -17,7 +17,7 @@ TAG_NAME=bc-test
 # BACKUP_STRATEGY=rolling
 # WEBHOOK_URL=
 ENVIRONMENT_FRIENDLY_NAME=OrgBook-BC (test)
-ENVIRONMENT_NAME=devex-von-bc-tob-test
+ENVIRONMENT_NAME=8ad0ea-test
 # BACKUP_DIR=/backups/
 # DAILY_BACKUPS=2
 # WEEKLY_BACKUPS=1
@@ -26,13 +26,12 @@ ENVIRONMENT_NAME=devex-von-bc-tob-test
 # CONFIG_FILE_NAME=backup.conf
 # CONFIG_MAP_NAME=backup-conf
 # CONFIG_MOUNT_PATH=/
-BACKUP_VOLUME_NAME=bk-devex-von-bc-tob-test-xjrmkhsnshay
+# BACKUP_VOLUME_NAME=backup
 BACKUP_VOLUME_SIZE=120Gi
-BACKUP_VOLUME_CLASS=nfs-backup
+# BACKUP_VOLUME_CLASS=netapp-file-backup
 # VERIFICATION_VOLUME_NAME=backup-verification
-# This is not enough, need 50Gi for verification, but that puts the environment over quota.
-VERIFICATION_VOLUME_SIZE=40Gi
-VERIFICATION_VOLUME_CLASS=netapp-file-standard
+VERIFICATION_VOLUME_SIZE=50Gi
+# VERIFICATION_VOLUME_CLASS=netapp-file-standard
 # VERIFICATION_VOLUME_MOUNT_PATH=/var/lib/pgsql/data
 # CPU_REQUEST=0
 # CPU_LIMIT=0

@@ -1,16 +1,22 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/api/api-deploy.json
+# Template File: ../openshift/templates/api/api-deploy.yaml
 #=========================================================
 # NAME=api
-# SUFFIX=-indy-cat
-# APP_NAME=OrgBook
-# APP_GROUP=indy-catalyst
-# IMAGE_NAMESPACE=devex-von-tools
+# ROLE=api
+# AGENT_ROLE=agent
+# FRONTEND_ROLE=frontend
+# DATABASE_ROLE=db
+# SEARCH_ENGINE_ROLE=search-engine
+# MSG_QUEUE_ROLE=msg-queue
+# NAMESPACE=8ad0ea
+# SUFFIX=-bc
+# APP_NAME=orgbook
+# APP_GROUP=aries-vcr
+# IMAGE_NAMESPACE=8ad0ea-tools
 # DATABASE_SERVICE_NAME=db
 # DATABASE_ENGINE=postgresql
-# DATABASE_NAME=OrgBook
 # APP_FILE=app-vonx.py
 # APP_CONFIG=
 # APP_MODULE=api_indy.tob_anchor.boot:init_app
@@ -24,9 +30,9 @@
 # ENABLE_SUGGESTER_REBUILD=
 # RTI_WAIT_TIME=5
 # RTI_MAX_SOLR_BATCH=25
-# RTI_RAISE_ERRORS=false
-# RTI_ABORT_ON_ERRORS=false
-TAG_NAME=bc-prod
+RTI_RAISE_ERRORS=false
+RTI_ABORT_ON_ERRORS=false
+TAG_NAME=prod
 # DATABASE_DEPLOYMENT_NAME=db
 # MSG_QUEUE_DEPLOYMENT_NAME=msg-queue
 # THEME=bcgov
@@ -35,7 +41,7 @@ TAG_NAME=bc-prod
 # USER_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # ADMIN_USER_ID=[a-zA-Z_][a-zA-Z0-9_]{10}
 # ADMIN_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
-APPLICATION_URL=https://orgbook-prod.pathfinder.gov.bc.ca
+APPLICATION_URL=https://orgbook.gov.bc.ca
 # EMAIL_SETTINGS_STORE_NAME=email-settings
 # FEEDBACK_TARGET_EMAIL=
 # SMTP_SERVER_ADDRESS=
@@ -46,7 +52,7 @@ DEMO_SITE=False
 # AGENT_ADMIN_PORT=8024
 MIN_REPLICAS=6
 # MAX_REPLICAS=16
-# CPU_REQUEST=150m
+CPU_REQUEST=150m
 # CPU_LIMIT=300m
-# MEMORY_REQUEST=256Mi
+MEMORY_REQUEST=256Mi
 # MEMORY_LIMIT=512Mi

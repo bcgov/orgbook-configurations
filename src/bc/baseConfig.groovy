@@ -9,10 +9,10 @@ class baseConfig {
   public static final String[] DEPLOYMENT_ENVIRONMENT_TAGS = ['dev', 'bc-test', 'bc-prod']
 
   // The name of the project namespace(s).
-  public static final String  NAME_SPACE = 'devex-von-bc-tob'
+  public static final String  NAME_SPACE = '8ad0ea'
 
   // Instance Suffix
-  public static final String  SUFFIX = '-indy-cat'
+  public static final String  SUFFIX = '-bc'
 
   // Apps - Listed in the order they should be tagged
   public static final String[] APPS = ['db', 'search-engine', 'msg-queue', 'frontend', 'agent', 'backup', 'schema-spy', 'api']

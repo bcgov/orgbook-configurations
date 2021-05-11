@@ -1,16 +1,21 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/msg-queue-worker/msg-queue-worker-deploy.json
+# Template File: ../openshift/templates/msg-queue-worker/msg-queue-worker-deploy.yaml
 #=========================================================
 # NAME=msg-queue-worker
-# SUFFIX=-indy-cat
-# APP_NAME=OrgBook
-# APP_GROUP=indy-catalyst
-# IMAGE_NAMESPACE=devex-von-tools
+# ROLE=msg-queue-worker
+# AGENT_ROLE=agent
+# DATABASE_ROLE=db
+# SEARCH_ENGINE_ROLE=search-engine
+# MSG_QUEUE_ROLE=msg-queue
+# NAMESPACE=8ad0ea
+# SUFFIX=-bc
+# APP_NAME=orgbook
+# APP_GROUP=aries-vcr
+# IMAGE_NAMESPACE=8ad0ea-tools
 # DATABASE_SERVICE_NAME=db
 # DATABASE_ENGINE=postgresql
-# DATABASE_NAME=OrgBook
 # APP_FILE=
 # APP_CONFIG=
 # #DJANGO_SECRET_KEY=[\w]{50}
@@ -22,7 +27,7 @@
 # ENABLE_REALTIME_INDEXING=1
 # ENABLE_SUGGESTER_REBUILD=
 # SOURCE_IMAGE_NAME=api
-TAG_NAME=bc-prod
+TAG_NAME=prod
 # DATABASE_DEPLOYMENT_NAME=db
 # THEME=bcgov
 # TRACE_EVENTS=false
@@ -34,6 +39,6 @@ TAG_NAME=bc-prod
 # MIN_REPLICAS=2
 # MAX_REPLICAS=6
 # CPU_REQUEST=10m
-# CPU_LIMIT=300m
+# CPU_LIMIT=500m
 # MEMORY_REQUEST=10Mi
-# MEMORY_LIMIT=1250Mi
+# MEMORY_LIMIT=2000Mi

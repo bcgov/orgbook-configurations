@@ -1,3 +1,4 @@
+#! /bin/bash
 _includeFile=$(type -p overrides.inc)
 if [ ! -z ${_includeFile} ]; then
   . ${_includeFile}
@@ -10,14 +11,14 @@ fi
 # ---------------------------------------------------------------------
 # The generated config maps are used to support logging and autovacuum configuration
 # ==================================================================================
-CONFIG_MAP_NAME=${LOGGING_CONFIG_MAP_NAME:-db-logging-conf-indy-cat}
+CONFIG_MAP_NAME=${LOGGING_CONFIG_MAP_NAME:-db-logging-conf-bc}
 SOURCE_FILE=$( dirname "$0" )/../db/config/postgresql-cfg/logging.conf
 OUTPUT_FORMAT=json
 OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
 printStatusMsg "Generating ConfigMap; ${CONFIG_MAP_NAME} ..."
 generateConfigMap "${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
 
-CONFIG_MAP_NAME=${AUTOVACUMM_CONFIG_MAP_NAME:-db-autovacuum-conf-indy-cat}
+CONFIG_MAP_NAME=${AUTOVACUMM_CONFIG_MAP_NAME:-db-autovacuum-conf-bc}
 SOURCE_FILE=$( dirname "$0" )/../db/config/postgresql-cfg/autovacuum.conf
 OUTPUT_FORMAT=json
 OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json

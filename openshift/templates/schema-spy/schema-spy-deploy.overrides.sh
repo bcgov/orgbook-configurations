@@ -1,3 +1,4 @@
+#! /bin/bash
 _includeFile=$(type -p overrides.inc)
 if [ ! -z ${_includeFile} ]; then
   . ${_includeFile}
@@ -13,23 +14,25 @@ fi
 #
 # The generated config map is used to update the Caddy configuration
 # ========================================================================
-CONFIG_MAP_NAME=schema-spy-caddy-conf-indy-cat
+CONFIG_MAP_NAME=${CONFIG_MAP_NAME:-schema-spy-caddy-conf}
 SOURCE_FILE=$( dirname "$0" )/Caddyfile
 OUTPUT_FORMAT=json
 OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
 
 printStatusMsg "Generating ConfigMap; ${CONFIG_MAP_NAME} ..."
-generateConfigMap "${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
+generateConfigMap "${CONFIG_MAP_NAME}${SUFFIX}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
 
 if createOperation; then
   # Randomly generate a set of credentials without asking ...
   printStatusMsg "Creating a set of random user credentials ..."
   writeParameter "SCHEMASPY_USER" $(generateUsername) "false"
-  writeParameter "SCHEMASPY_PASSWORD" $(generatePassword) "false"
+  writeParameter "SCHEMASPY_PLAIN_PASSWORD" $(generatePassword) "false"
+  writeParameter "SCHEMASPY_PASSWORD" "needs-to-be-hashed-and-base64-encoded" "false"
 else
   # Secrets are removed from the configurations during update operations ...
   printStatusMsg "Update operation detected ...\nSkipping the generation of random user credentials ...\n"
   writeParameter "SCHEMASPY_USER" "generation_skipped" "false"
+  writeParameter "SCHEMASPY_PLAIN_PASSWORD" "generation_skipped" "false"
   writeParameter "SCHEMASPY_PASSWORD" "generation_skipped" "false"
 fi
 

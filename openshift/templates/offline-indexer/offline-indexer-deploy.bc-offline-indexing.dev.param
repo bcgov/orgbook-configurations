@@ -1,0 +1,34 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: .
+# Template File: ../openshift/templates/offline-indexer/offline-indexer-deploy.json
+#=========================================================
+# NAME=offline-indexer
+# SUFFIX=-oli
+# INDEXING_SUFFIX=-oli
+# CREDENTIAL_SUFFIX=-indy-cat
+# APP_NAME=Offline-Indexing
+# APP_GROUP=offline-indexing
+# IMAGE_NAMESPACE=devex-von-tools
+# DATABASE_SERVICE_NAME=db
+# DATABASE_ENGINE=postgresql
+# DATABASE_NAME=OrgBook
+# APP_FILE=app-vonx.py
+# APP_CONFIG=
+# APP_MODULE=api_indy.tob_anchor.boot:init_app
+# #DJANGO_SECRET_KEY=[\w]{50}
+# DJANGO_DEBUG=False
+# DJANGO_LOG_LEVEL=WARN
+# SOLR_SERVICE_NAME=search-engine
+# SOLR_CORE_NAME=credential_registry
+# SKIP_INDEXING_ON_STARTUP=all
+# SOURCE_IMAGE_NAME=api
+TAG_NAME=oli-dev
+# THEME=bcgov
+# TRACE_EVENTS=false
+# RECORD_TIMINGS=false
+# DEMO_SITE=True
+# CPU_REQUEST=1000m
+# CPU_LIMIT=2000m
+# MEMORY_REQUEST=512Mi
+# MEMORY_LIMIT=2048Mi

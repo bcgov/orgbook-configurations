@@ -49,7 +49,7 @@ AGENT_BASE_URL=https://agent-dev.orgbook.gov.bc.ca
 # WALLET_DID=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # MIN_REPLICAS=2
 # MAX_REPLICAS=17
-# CPU_REQUEST=10m
+# CPU_REQUEST=250m
 # CPU_LIMIT=750m
-# MEMORY_REQUEST=10Mi
+# MEMORY_REQUEST=256Mi
 # MEMORY_LIMIT=512Mi

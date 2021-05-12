@@ -48,7 +48,7 @@ objects:
       annotations:
         description: Defines how to deploy the application server
         app.openshift.io/connects-to: >-
-          [{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${API_HOST}"}]
+          [{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${API_HOST}${SUFFIX}"}]
     spec:
       replicas: 2
       selector:
@@ -92,7 +92,7 @@ objects:
                 - name: API_URL
                   value: ${API_URL}
                 - name: API_SERVICE_NAME
-                  value: ${API_HOST}
+                  value: ${API_HOST}${SUFFIX}
                 - name: API_PATH
                   value: ${API_PATH}
                 - name: RealIpFrom
@@ -108,12 +108,12 @@ objects:
                 - name: HTTP_BASIC_USERNAME
                   valueFrom:
                     secretKeyRef:
-                      name: ${API_HOST}
+                      name: ${API_HOST}${SUFFIX}
                       key: api-user
                 - name: HTTP_BASIC_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${API_HOST}
+                      name: ${API_HOST}${SUFFIX}
                       key: api-password
                 - name: THEME
                   value: ${THEME}

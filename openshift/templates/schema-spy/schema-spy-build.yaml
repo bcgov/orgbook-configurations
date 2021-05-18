@@ -41,7 +41,6 @@ objects:
           name: ${NAME}:${OUTPUT_IMAGE_TAG}
       triggers:
         - type: ConfigChange
-        - type: ImageChange
 parameters:
   - name: NAME
     displayName: Schema Spy Name

@@ -20,7 +20,7 @@ objects:
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
     spec:
-      runPolicy: Serial
+      runPolicy: SerialLatestOnly
       source:
         type: Git
         git:

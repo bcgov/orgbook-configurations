@@ -25,9 +25,8 @@ objects:
         app-group: ${APP_GROUP}
     spec:
       triggers:
-        - type: ImageChange
         - type: ConfigChange
-      runPolicy: Serial
+      runPolicy: SerialLatestOnly
       source:
         type: Git
         git:

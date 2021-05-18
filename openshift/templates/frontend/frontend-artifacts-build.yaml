@@ -22,7 +22,7 @@ objects:
     spec:
       triggers:
         - type: ConfigChange
-      runPolicy: Serial
+      runPolicy: SerialLatestOnly
       source:
         type: Git
         contextDir: ${SOURCE_CONTEXT_DIR}

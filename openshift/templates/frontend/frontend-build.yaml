@@ -24,7 +24,6 @@ objects:
       completionDeadlineSeconds: 1800
       triggers:
         - type: ConfigChange
-        - type: ImageChange
       source:
         type: Dockerfile
         dockerfile: |-

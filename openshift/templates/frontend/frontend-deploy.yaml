@@ -277,6 +277,11 @@ parameters:
     name: REAL_IP_FROM
     required: true
     value: 172.51.0.0/16
+  - name: API_HOST
+    displayName: API HOST
+    description: The hostname of the api service.
+    required: true
+    value: api
   - description: The default URL to use when proxying requests to the application's API.  The value here will be overridden if a API_SERVICE_NAME is defined.
     displayName: API URL
     name: API_URL

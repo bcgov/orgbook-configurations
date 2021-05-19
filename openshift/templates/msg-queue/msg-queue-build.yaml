@@ -13,6 +13,7 @@ objects:
         app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
     spec:
+      runPolicy: SerialLatestOnly
       tags:
         - name: ${OUTPUT_IMAGE_TAG}
           annotations: null

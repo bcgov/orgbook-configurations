@@ -22,9 +22,7 @@ objects:
     spec:
       triggers:
         - type: ConfigChange
-        - type: ImageChange
-          imageChange: {}
-      runPolicy: Serial
+      runPolicy: SerialLatestOnly
       source:
         type: Git
         git:

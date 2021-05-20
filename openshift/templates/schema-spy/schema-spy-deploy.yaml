@@ -56,6 +56,7 @@ objects:
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
         role: ${ROLE}
         env: ${TAG_NAME}
@@ -77,6 +78,7 @@ objects:
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
         role: ${ROLE}
         env: ${TAG_NAME}
@@ -98,9 +100,14 @@ objects:
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
         role: ${ROLE}
         env: ${TAG_NAME}
+      annotations:
+        description: Defines how to deploy the application server
+        app.openshift.io/connects-to: >-
+          [{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${DATABASE_HOST}${SUFFIX}"}]
     spec:
       strategy:
         type: Recreate
@@ -128,6 +135,7 @@ objects:
           labels:
             name: ${NAME}${SUFFIX}
             app: ${APP_NAME}${SUFFIX}
+            app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
             app-group: ${APP_GROUP}
             role: ${ROLE}
             env: ${TAG_NAME}
@@ -140,21 +148,21 @@ objects:
                   protocol: TCP
               env:
                 - name: DATABASE_SERVICE_NAME
-                  value: ${DATABASE_SERVICE_NAME}${SUFFIX}
+                  value: ${DATABASE_HOST}${SUFFIX}
                 - name: POSTGRESQL_DATABASE
                   valueFrom:
                     secretKeyRef:
-                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      name: ${DATABASE_HOST}${SUFFIX}
                       key: database-name
                 - name: POSTGRESQL_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      name: ${DATABASE_HOST}${SUFFIX}
                       key: database-user
                 - name: POSTGRESQL_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${DATABASE_DEPLOYMENT_NAME}${SUFFIX}
+                      name: ${DATABASE_HOST}${SUFFIX}
                       key: database-password
                 - name: SCHEMASPY_USER
                   valueFrom:
@@ -242,7 +250,7 @@ parameters:
     displayName: Application Hostname
     description: The exposed hostname that will route to the service, if left blank a value will be defaulted.
     value: schema-spy-bc-dev.apps.silver.devops.gov.bc.ca
-  - name: DATABASE_SERVICE_NAME
+  - name: DATABASE_HOST
     displayName: Database Service Name
     required: true
     value: db
@@ -277,11 +285,6 @@ parameters:
     description: The TAG name for this environment, e.g., dev, test, prod
     value: dev
     required: true
-  - name: DATABASE_DEPLOYMENT_NAME
-    displayName: Database Deployment Name
-    description: The name associated to the database deployment resources.  In particular, this is used to wrie up the credentials associated to the database.
-    required: true
-    value: db
   - name: CONFIG_FILE_NAME
     displayName: Config File Name
     description: The name of the configuration file.

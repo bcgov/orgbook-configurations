@@ -40,10 +40,15 @@ objects:
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
         role: ${ROLE}
         env: ${TAG_NAME}
       name: ${NAME}${SUFFIX}
+      annotations:
+        description: Defines how to deploy the application server
+        app.openshift.io/connects-to: >-
+          [{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${API_HOST}${SUFFIX}"}]
     spec:
       replicas: 2
       selector:
@@ -63,6 +68,7 @@ objects:
           labels:
             name: ${NAME}${SUFFIX}
             app: ${APP_NAME}${SUFFIX}
+            app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
             app-group: ${APP_GROUP}
             role: ${ROLE}
             env: ${TAG_NAME}
@@ -86,7 +92,7 @@ objects:
                 - name: API_URL
                   value: ${API_URL}
                 - name: API_SERVICE_NAME
-                  value: ${API_SERVICE_NAME}
+                  value: ${API_HOST}${SUFFIX}
                 - name: API_PATH
                   value: ${API_PATH}
                 - name: RealIpFrom
@@ -102,12 +108,12 @@ objects:
                 - name: HTTP_BASIC_USERNAME
                   valueFrom:
                     secretKeyRef:
-                      name: ${API_SERVICE_NAME}
+                      name: ${API_HOST}${SUFFIX}
                       key: api-user
                 - name: HTTP_BASIC_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${API_SERVICE_NAME}
+                      name: ${API_HOST}${SUFFIX}
                       key: api-password
                 - name: THEME
                   value: ${THEME}
@@ -166,6 +172,7 @@ objects:
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
         role: ${ROLE}
         env: ${TAG_NAME}
@@ -189,6 +196,7 @@ objects:
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
         role: ${ROLE}
         env: ${TAG_NAME}
@@ -213,6 +221,7 @@ objects:
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
         role: ${ROLE}
         env: ${TAG_NAME}
@@ -268,6 +277,11 @@ parameters:
     name: REAL_IP_FROM
     required: true
     value: 172.51.0.0/16
+  - name: API_HOST
+    displayName: API HOST
+    description: The hostname of the api service.
+    required: true
+    value: api
   - description: The default URL to use when proxying requests to the application's API.  The value here will be overridden if a API_SERVICE_NAME is defined.
     displayName: API URL
     name: API_URL

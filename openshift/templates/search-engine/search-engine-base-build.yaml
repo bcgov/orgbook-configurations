@@ -11,6 +11,7 @@ objects:
       labels:
         name: ${NAME}
         app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
   - kind: BuildConfig
     apiVersion: v1
@@ -19,6 +20,7 @@ objects:
       labels:
         name: ${NAME}
         app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
     spec:
       triggers:

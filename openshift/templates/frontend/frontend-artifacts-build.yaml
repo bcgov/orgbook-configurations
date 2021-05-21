@@ -37,9 +37,6 @@ objects:
           from:
             kind: ${SOURCE_IMAGE_KIND}
             name: ${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}
-          env:
-            - name: THEME
-              value: ${THEME}
       output:
         to:
           kind: ImageStreamTag
@@ -81,17 +78,17 @@ parameters:
     displayName: GIT Source Repo URL
     description: A GIT URL to your source code.
     required: true
-    value: https://github.com/bcgov/aries-vcr.git
+    value: https://github.com/bcgov/orgbook-bc-client.git
   - name: GIT_REF
     displayName: Git Reference
     description: The git reference or branch.
-    required: true
-    value: master
+    required: false
+    value: 
   - name: SOURCE_CONTEXT_DIR
     displayName: Source Context Directory
     description: The source context directory.
     required: false
-    value: client
+    value: 
   - name: SOURCE_IMAGE_KIND
     displayName: Source Image Kind
     required: true
@@ -107,10 +104,6 @@ parameters:
     description: The tag of the source image.
     required: true
     value: latest
-  - name: THEME
-    displayName: The aries-vcr Theme Name
-    description: The name of the theme to be used for the site.
-    value: default
   - name: CPU_LIMIT
     displayName: Resources CPU Limit
     description: The resources CPU limit (in cores) for this build.

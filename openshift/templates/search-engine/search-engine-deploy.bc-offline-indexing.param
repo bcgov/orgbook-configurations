@@ -1,16 +1,20 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/search-engine/search-engine-deploy.json
+# Template File: ../openshift/templates/search-engine/search-engine-deploy.yaml
 #=========================================================
 NAME=search-engine
+ROLE=search-engine
+CONTROLLER_ROLE=api
+MSG_QUEUE_WORKER_ROLE=msg-queue-worker
+NAMESPACE=8ad0ea
 SUFFIX=-oli
 APP_NAME=Offline-Indexing
 APP_GROUP=offline-indexing
-IMAGE_NAMESPACE=devex-von-tools
+IMAGE_NAMESPACE=8ad0ea-tools
 TAG_NAME=oli-dev
 PERSISTENT_VOLUME_SIZE=10Gi
-MOUNT_PATH=/opt/solr/server/solr/mycores
+MOUNT_PATH=/var/solr/data
 CORE_NAME=credential_registry
 SOLR_LOG_LEVEL=WARN
 PERSISTENT_VOLUME_CLASS=netapp-block-standard

@@ -10,6 +10,10 @@
 # BACKUP_ROLE=backup
 # BACKUP_APP_NAME=Backup
 # SCHEMA_SPY_ROLE=schema-spy
+# OFFLINE_INDEXER_ROLE=offline-indexer
+# OFFLINE_INDEXER_APP_NAME=Offline-Indexing
+# OFFLINE_INDEXER_SUFFIX=-oli
+OFFLINE_INDEXER_TAG_NAME=oli-dev
 # NAMESPACE=8ad0ea
 # SUFFIX=-bc
 # APP_NAME=orgbook

@@ -55,6 +55,15 @@ objects:
                 matchLabels:
                   name: ${NAMESPACE}
                   environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${OFFLINE_INDEXER_ROLE}
+                  app: ${OFFLINE_INDEXER_APP_NAME}${OFFLINE_INDEXER_SUFFIX}
+                  env: ${OFFLINE_INDEXER_TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
           ports:
             - protocol: TCP
               port: 5432
@@ -308,6 +317,27 @@ parameters:
     description: Schema-Spy Role
     required: true
     value: schema-spy
+
+  - name: OFFLINE_INDEXER_ROLE
+    displayName: Offline Indexer Role
+    description: Offline Indexer Role
+    required: true
+    value: offline-indexer
+  - name: OFFLINE_INDEXER_APP_NAME
+    displayName: Offline Indexer App Name
+    description: Offline Indexer App Name
+    required: true
+    value: Offline-Indexing
+  - name: OFFLINE_INDEXER_SUFFIX
+    displayName: Offline Indexer Suffix
+    description: Offline Indexer Suffix
+    required: true
+    value: -oli
+  - name: OFFLINE_INDEXER_TAG_NAME
+    displayName: Offline Indexer Tag Name
+    description: Offline Indexer  Tag Name
+    required: true
+    value: oli-dev
 
   - name: NAMESPACE
     displayName: The target namespace for the resources.

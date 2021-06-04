@@ -32,7 +32,7 @@ objects:
             from:
               kind: ImageStreamTag
               namespace: ${IMAGE_NAMESPACE}
-              name: ${SOURCE_IMAGE_NAME}:${TAG_NAME}
+              name: ${SOURCE_IMAGE_NAME}:${IMAGE_TAG_NAME}
         - type: ConfigChange
       replicas: 0
       selector:
@@ -82,7 +82,10 @@ objects:
                 - name: DATABASE_ENGINE
                   value: ${DATABASE_ENGINE}
                 - name: DATABASE_NAME
-                  value: ${DATABASE_NAME}
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DATABASE_SERVICE_NAME}${CREDENTIAL_SUFFIX}
+                      key: database-name
                 - name: DATABASE_USER
                   valueFrom:
                     secretKeyRef:
@@ -120,6 +123,32 @@ objects:
                 limits:
                   cpu: ${CPU_LIMIT}
                   memory: ${MEMORY_LIMIT}
+
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      annotations:
+        description: Exposes and load balances the application pods
+        service.alpha.openshift.io/dependencies: '[{"name": "${DATABASE_HOST}", "kind": "Service"},{"name": "${SOLR_HOST}", "kind": "Service"}]'
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      ports:
+        - name: 8080-tcp
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        name: ${NAME}${SUFFIX}
+
+
+
 parameters:
   - name: NAME
     displayName: Name
@@ -226,11 +255,16 @@ parameters:
     description: The name of the image to use for this resource.
     required: true
     value: api
+  - name: IMAGE_TAG_NAME
+    displayName: Image TAG name
+    description: Image TAG name
+    required: true
+    value: oli-dev
   - name: TAG_NAME
     displayName: Environment TAG name
     description: The TAG name for this environment, e.g., dev, test, prod
-    value: oli-dev
     required: true
+    value: dev
   - name: THEME
     displayName: TheOrgBook Theme
     description: The theme to use for the tob-api.  This defines which customizations to load for the application.

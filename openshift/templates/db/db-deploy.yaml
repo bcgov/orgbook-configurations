@@ -13,6 +13,7 @@ objects:
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
         env: ${TAG_NAME}
     spec:
       description: |
@@ -59,7 +60,7 @@ objects:
                 matchLabels:
                   role: ${OFFLINE_INDEXER_ROLE}
                   app: ${OFFLINE_INDEXER_APP_NAME}${OFFLINE_INDEXER_SUFFIX}
-                  env: ${OFFLINE_INDEXER_TAG_NAME}
+                  env: ${TAG_NAME}
               namespaceSelector:
                 matchLabels:
                   name: ${NAMESPACE}
@@ -101,7 +102,7 @@ objects:
             from:
               kind: ImageStreamTag
               namespace: ${IMAGE_NAMESPACE}
-              name: ${SOURCE_IMAGE_NAME}:${TAG_NAME}
+              name: ${SOURCE_IMAGE_NAME}:${IMAGE_TAG_NAME}
         - type: ConfigChange
       replicas: 1
       test: false
@@ -333,11 +334,6 @@ parameters:
     description: Offline Indexer Suffix
     required: true
     value: -oli
-  - name: OFFLINE_INDEXER_TAG_NAME
-    displayName: Offline Indexer Tag Name
-    description: Offline Indexer  Tag Name
-    required: true
-    value: oli-dev
 
   - name: NAMESPACE
     displayName: The target namespace for the resources.
@@ -368,6 +364,11 @@ parameters:
     description: The name of the image to use for this resource.
     required: true
     value: db
+  - name: IMAGE_TAG_NAME
+    displayName: Image TAG name
+    description: Image TAG name
+    required: true
+    value: dev
   - name: TAG_NAME
     displayName: Environment TAG name
     description: The TAG name for this environment, e.g., dev, test, prod

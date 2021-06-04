@@ -7,11 +7,15 @@
 # ROLE=search-engine
 # CONTROLLER_ROLE=api
 # MSG_QUEUE_WORKER_ROLE=msg-queue-worker
+# OFFLINE_INDEXER_ROLE=offline-indexer
+# OFFLINE_INDEXER_APP_NAME=Offline-Indexing
+# OFFLINE_INDEXER_SUFFIX=-oli
 # NAMESPACE=8ad0ea
 # SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=8ad0ea-tools
+IMAGE_TAG_NAME=dev
 TAG_NAME=dev
 # PERSISTENT_VOLUME_SIZE=8Gi
 # MOUNT_PATH=/var/solr/data

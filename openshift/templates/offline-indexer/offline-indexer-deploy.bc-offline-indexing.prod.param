@@ -24,7 +24,8 @@
 # SOLR_CORE_NAME=credential_registry
 # SKIP_INDEXING_ON_STARTUP=all
 # SOURCE_IMAGE_NAME=api
-TAG_NAME=oli-prod
+TAG_NAME=prod
+IMAGE_TAG_NAME=oli-prod
 # THEME=bcgov
 # TRACE_EVENTS=false
 # RECORD_TIMINGS=false

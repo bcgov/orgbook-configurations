@@ -1,15 +1,16 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/offline-indexer/offline-indexer-deploy.json
+# Template File: ../openshift/templates/offline-indexer/offline-indexer-deploy.yaml
 #=========================================================
 # NAME=offline-indexer
+# ROLE=offline-indexer
 # SUFFIX=-oli
 # INDEXING_SUFFIX=-oli
-# CREDENTIAL_SUFFIX=-indy-cat
+# CREDENTIAL_SUFFIX=-bc
 # APP_NAME=Offline-Indexing
 # APP_GROUP=offline-indexing
-# IMAGE_NAMESPACE=devex-von-tools
+# IMAGE_NAMESPACE=8ad0ea-tools
 # DATABASE_SERVICE_NAME=db
 # DATABASE_ENGINE=postgresql
 # DATABASE_NAME=OrgBook
@@ -23,7 +24,8 @@
 # SOLR_CORE_NAME=credential_registry
 # SKIP_INDEXING_ON_STARTUP=all
 # SOURCE_IMAGE_NAME=api
-TAG_NAME=oli-dev
+TAG_NAME=dev
+IMAGE_TAG_NAME=oli-dev
 # THEME=bcgov
 # TRACE_EVENTS=false
 # RECORD_TIMINGS=false

@@ -1,17 +1,27 @@
 #=========================================================
 # OpenShift template parameters for:
 # Component: .
-# Template File: ../openshift/templates/db/db-deploy.json
+# Template File: ../openshift/templates/db/db-deploy.yaml
 #=========================================================
 NAME=db
+ROLE=db
+API_ROLE=api
+MSG_QUEUE_WORKER_ROLE=msg-queue-worker
+BACKUP_ROLE=backup
+BACKUP_APP_NAME=Backup
+SCHEMA_SPY_ROLE=schema-spy
+OFFLINE_INDEXER_ROLE=offline-indexer
+OFFLINE_INDEXER_APP_NAME=Offline-Indexing
+OFFLINE_INDEXER_SUFFIX=-oli
+NAMESPACE=8ad0ea
 SUFFIX=-oli
-CREDENTIAL_SUFFIX=-indy-cat
 APP_NAME=Offline-Indexing
 APP_GROUP=offline-indexing
-IMAGE_NAMESPACE=devex-von-tools
+IMAGE_NAMESPACE=8ad0ea-tools
 SOURCE_IMAGE_NAME=db
-TAG_NAME=oli-dev
-POSTGRESQL_DATABASE_NAME=OrgBook
+IMAGE_TAG_NAME=oli-dev
+TAG_NAME=dev
+POSTGRESQL_DATABASE_NAME=aries-vcr
 # POSTGRESQL_USER=[a-zA-Z_][a-zA-Z0-9_]{10}
 # POSTGRESQL_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}
 # POSTGRESQL_ADMIN_PASSWORD=[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}

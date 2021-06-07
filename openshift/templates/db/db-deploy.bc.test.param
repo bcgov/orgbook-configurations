@@ -10,12 +10,16 @@
 # BACKUP_ROLE=backup
 # BACKUP_APP_NAME=Backup
 # SCHEMA_SPY_ROLE=schema-spy
+# OFFLINE_INDEXER_ROLE=offline-indexer
+# OFFLINE_INDEXER_APP_NAME=Offline-Indexing
+# OFFLINE_INDEXER_SUFFIX=-oli
 # NAMESPACE=8ad0ea
 # SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=8ad0ea-tools
 # SOURCE_IMAGE_NAME=db
+IMAGE_TAG_NAME=test
 TAG_NAME=test
 # POSTGRESQL_DATABASE_NAME=aries-vcr
 # POSTGRESQL_USER=[a-zA-Z_][a-zA-Z0-9_]{10}

@@ -870,7 +870,7 @@ function deleteAppGroup() {
 
     # offline-indexing
     printAndAskToContinue "If you contiune all of the [${_appGroup}] application resources will be perminently deleted from [${_projectName}]."
-    oc -n ${_projectName} delete all,pvc,secret,configmap,nsp -l app-group=${_appGroup}
+    oc -n ${_projectName} delete all,pvc,secret,configmap,networkpolicy -l app-group=${_appGroup}
   )
 }
 
@@ -1332,7 +1332,7 @@ case "${_cmd}" in
     offlineDbUserKey=${5:-database-user}
     offlineDbAdminPasswordKey=${6:-admin-password}
     offlineDbBackupSpec=${7:-db${offlineIndexerResourceSuffix}:5432/OrgBook}
-    offlineDbBackupFileFilter=${8:-db-indy-cat-OrgBook}
+    offlineDbBackupFileFilter=${8:-db-bc-OrgBook}
     backupPod=${9:-backup}
 
     initOfflineIndexingEnv "${offlineIndexer}" \

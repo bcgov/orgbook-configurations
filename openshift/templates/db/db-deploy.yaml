@@ -13,6 +13,7 @@ objects:
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
         env: ${TAG_NAME}
     spec:
       description: |
@@ -55,6 +56,15 @@ objects:
                 matchLabels:
                   name: ${NAMESPACE}
                   environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${OFFLINE_INDEXER_ROLE}
+                  app: ${OFFLINE_INDEXER_APP_NAME}${OFFLINE_INDEXER_SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
           ports:
             - protocol: TCP
               port: 5432
@@ -92,7 +102,7 @@ objects:
             from:
               kind: ImageStreamTag
               namespace: ${IMAGE_NAMESPACE}
-              name: ${SOURCE_IMAGE_NAME}:${TAG_NAME}
+              name: ${SOURCE_IMAGE_NAME}:${IMAGE_TAG_NAME}
         - type: ConfigChange
       replicas: 1
       test: false
@@ -309,6 +319,22 @@ parameters:
     required: true
     value: schema-spy
 
+  - name: OFFLINE_INDEXER_ROLE
+    displayName: Offline Indexer Role
+    description: Offline Indexer Role
+    required: true
+    value: offline-indexer
+  - name: OFFLINE_INDEXER_APP_NAME
+    displayName: Offline Indexer App Name
+    description: Offline Indexer App Name
+    required: true
+    value: Offline-Indexing
+  - name: OFFLINE_INDEXER_SUFFIX
+    displayName: Offline Indexer Suffix
+    description: Offline Indexer Suffix
+    required: true
+    value: -oli
+
   - name: NAMESPACE
     displayName: The target namespace for the resources.
     required: true
@@ -338,6 +364,11 @@ parameters:
     description: The name of the image to use for this resource.
     required: true
     value: db
+  - name: IMAGE_TAG_NAME
+    displayName: Image TAG name
+    description: Image TAG name
+    required: true
+    value: dev
   - name: TAG_NAME
     displayName: Environment TAG name
     description: The TAG name for this environment, e.g., dev, test, prod

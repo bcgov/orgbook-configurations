@@ -37,6 +37,15 @@ objects:
                 matchLabels:
                   name: ${NAMESPACE}
                   environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${OFFLINE_INDEXER_ROLE}
+                  app: ${OFFLINE_INDEXER_APP_NAME}${OFFLINE_INDEXER_SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
           ports:
             - protocol: TCP
               port: 8983
@@ -116,7 +125,7 @@ objects:
             from:
               kind: ImageStreamTag
               namespace: ${IMAGE_NAMESPACE}
-              name: ${NAME}:${TAG_NAME}
+              name: ${NAME}:${IMAGE_TAG_NAME}
       replicas: 1
       test: false
       selector:
@@ -204,6 +213,22 @@ parameters:
     required: true
     value: msg-queue-worker
 
+  - name: OFFLINE_INDEXER_ROLE
+    displayName: Offline Indexer Role
+    description: Offline Indexer Role
+    required: true
+    value: offline-indexer
+  - name: OFFLINE_INDEXER_APP_NAME
+    displayName: Offline Indexer App Name
+    description: Offline Indexer App Name
+    required: true
+    value: offline-indexing
+  - name: OFFLINE_INDEXER_SUFFIX
+    displayName: Offline Indexer Suffix
+    description: Offline Indexer Suffix
+    required: true
+    value: -oli
+
   - name: NAMESPACE
     displayName: The target namespace for the resources.
     required: true
@@ -228,11 +253,16 @@ parameters:
     required: true
     description: The namespace of the OpenShift project containing the imagestream for the application.
     value: 8ad0ea-tools
+  - name: IMAGE_TAG_NAME
+    displayName: Image TAG name
+    description: Image TAG name
+    required: true
+    value: dev
   - name: TAG_NAME
     displayName: Environment TAG name
     description: The TAG name for this environment, e.g., dev, test, prod
-    value: dev
     required: true
+    value: dev
   - name: PERSISTENT_VOLUME_SIZE
     displayName: Persistent Volume Size
     description: The size of the persistent volume , e.g. 512Mi, 1Gi, 2Gi.

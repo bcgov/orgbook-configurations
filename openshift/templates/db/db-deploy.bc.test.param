@@ -9,6 +9,7 @@
 # MSG_QUEUE_WORKER_ROLE=msg-queue-worker
 # BACKUP_ROLE=backup
 # BACKUP_APP_NAME=Backup
+# BACKUP_SUFFIX=-bc
 # SCHEMA_SPY_ROLE=schema-spy
 # OFFLINE_INDEXER_ROLE=offline-indexer
 # OFFLINE_INDEXER_APP_NAME=Offline-Indexing

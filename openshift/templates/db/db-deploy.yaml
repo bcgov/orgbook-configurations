@@ -6,6 +6,7 @@ metadata:
     tags: ${NAME}${SUFFIX}
   name: ${NAME}${SUFFIX}-persistent-template
 objects:
+
   - kind: NetworkPolicy
     apiVersion: networking.k8s.io/v1
     metadata:
@@ -41,7 +42,7 @@ objects:
             - podSelector:
                 matchLabels:
                   role: ${BACKUP_ROLE}
-                  app: ${BACKUP_APP_NAME}${SUFFIX}
+                  app: ${BACKUP_APP_NAME}${BACKUP_SUFFIX}
                   env: ${TAG_NAME}
               namespaceSelector:
                 matchLabels:
@@ -303,6 +304,7 @@ parameters:
     description: Message Queue Worker Role
     required: true
     value: msg-queue-worker
+
   - name: BACKUP_ROLE
     displayName: Backup Role
     description: Backup Role
@@ -313,6 +315,12 @@ parameters:
     description: The App Name associated with the backup container.
     required: true
     value: Backup
+  - name: BACKUP_SUFFIX
+    displayName: Backup App Suffix
+    description: The suffix of the Backup App, this could be different then SUFFIX.
+    required: true
+    value: -bc
+
   - name: SCHEMA_SPY_ROLE
     displayName: Schema-Spy Role
     description: Schema-Spy Role

@@ -1055,7 +1055,7 @@ function initOfflineIndexingEnv()
     _offlineDbUserKey=${5}
     _offlineDbAdminPasswordKey=${6}
     _offlineDbBackupSpec=${7}
-    _offlineDbBackupFileFilter=${9}
+    _offlineDbBackupFileFilter=${8}
     _backupPod=${9}${resourceSuffix}
     if [ -z "${_offlineIndexer}" ] || [ -z "${_onlineDb}" ] || [ -z "${_offlineDb}" ] || [ -z "${_offlineDbUserKey}" ] || [ -z "${_offlineDbAdminPasswordKey}" ] || [ -z "${_offlineDbBackupSpec}" ] || [ -z "${_offlineDbBackupFileFilter}" ] || [ -z "${_backupPod}" ]; then
       echoError "\ninitOfflineIndexingEnv; One or more missing parameters.\n"
@@ -1107,7 +1107,7 @@ function initOfflineIndexingEnv()
 
     # Delete the offline index ...
     echo "Deleting the offline index ..."
-    deleteFromPod "${_offlineSearchEngine}" "/opt/solr/server/solr/mycores/credential_registry/data/index"
+    deleteFromPod "${_offlineSearchEngine}" "/var/solr/data/credential_registry/data/index"
     exitOnError
     recyclePods -w "${_offlineSearchEngine}"
 }
@@ -1331,8 +1331,8 @@ case "${_cmd}" in
     offlineDb=${4:-db}
     offlineDbUserKey=${5:-database-user}
     offlineDbAdminPasswordKey=${6:-admin-password}
-    offlineDbBackupSpec=${7:-db${offlineIndexerResourceSuffix}:5432/OrgBook}
-    offlineDbBackupFileFilter=${8:-db-bc-OrgBook}
+    offlineDbBackupSpec=${7:-db${offlineIndexerResourceSuffix}:5432/aries-vcr}
+    offlineDbBackupFileFilter=${8:-db-bc-aries-vcr}
     backupPod=${9:-backup}
 
     initOfflineIndexingEnv "${offlineIndexer}" \

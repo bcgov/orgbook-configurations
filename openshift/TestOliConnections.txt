@@ -1,0 +1,12 @@
+# Uses the 'testConnection' script from https://github.com/BCDevOps/openshift-developer-tools
+# Example:
+# echo -e "offline-indexer-oli\n backup-bc" | xargs -I {} testConnection -n 8ad0ea-dev -f TestOliConnections.txt -p {}
+
+# Expected results:
+#   - offline-indexer-oli can connect to both database instances and both search-engine instances.
+#   - backup-bc can connect to both database instances, but NOT the search-engine instances.
+
+db-bc:5432
+db-oli:5432
+search-engine-bc:8983
+search-engine-oli:8983

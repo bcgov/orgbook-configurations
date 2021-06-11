@@ -154,22 +154,22 @@ objects:
                 - name: POSTGRESQL_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}${SUFFIX}
+                      name: ${NAME}${CREDENTIAL_SUFFIX}
                       key: database-user
                 - name: POSTGRESQL_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}${SUFFIX}
+                      name: ${NAME}${CREDENTIAL_SUFFIX}
                       key: database-password
                 - name: POSTGRESQL_ADMIN_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}${SUFFIX}
+                      name: ${NAME}${CREDENTIAL_SUFFIX}
                       key: admin-password
                 - name: POSTGRESQL_DATABASE
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}${SUFFIX}
+                      name: ${NAME}${CREDENTIAL_SUFFIX}
                       key: database-name
               resources:
                 requests:
@@ -347,11 +347,18 @@ parameters:
     displayName: The target namespace for the resources.
     required: true
     value: 8ad0ea
+
   - name: SUFFIX
     displayName: Suffix
     description: A name suffix used for all objects
     required: false
     value: -bc
+  - name: CREDENTIAL_SUFFIX
+    displayName: Credential Suffix
+    description: A name suffix used for linking credentials.
+    required: false
+    value: -bc
+
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together in the OpenShift console.

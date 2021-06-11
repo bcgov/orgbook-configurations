@@ -16,6 +16,7 @@
 # OFFLINE_INDEXER_SUFFIX=-oli
 # NAMESPACE=8ad0ea
 # SUFFIX=-bc
+# CREDENTIAL_SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=8ad0ea-tools

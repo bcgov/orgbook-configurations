@@ -146,4 +146,4 @@ parameters:
     displayName: Resources Memory Request
     description: The resources Memory request (in Mi, Gi, etc) for this build.
     required: true
-    value: 2250Mi
+    value: 3Gi

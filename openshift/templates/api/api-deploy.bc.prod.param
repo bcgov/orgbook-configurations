@@ -46,6 +46,7 @@ APPLICATION_URL=https://orgbook.gov.bc.ca
 # SMTP_SERVER_ADDRESS=
 # TRACE_EVENTS=false
 # RECORD_TIMINGS=false
+SP_TRACKING_APP_ID=orgbook_api_prod
 DEMO_SITE=False
 # AGENT_HOST=agent
 # AGENT_ADMIN_PORT=8024

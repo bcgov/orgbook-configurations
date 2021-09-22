@@ -286,6 +286,8 @@ objects:
                   value: ${TRACE_EVENTS}
                 - name: RECORD_TIMINGS
                   value: ${RECORD_TIMINGS}
+                - name: SP_TRACKING_APP_ID
+                  value: ${SP_TRACKING_APP_ID}
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -531,6 +533,11 @@ parameters:
     description: Record Timings.  Enable/Disable method timings.
     required: false
     value: "false"
+  - name: SP_TRACKING_APP_ID
+    displayName: Snowplow Tracking Application ID
+    description: The application ID for use with Snowplow tracking events.
+    required: true
+    value: "orgbook_api_dev"
   - name: DEMO_SITE
     displayName: Demo Site Flag
     description: Set to True to indicate the site is a Demo site, False otherwise.
@@ -546,6 +553,7 @@ parameters:
     description: Agent admin port
     required: true
     value: "8024"
+
   - name: MIN_REPLICAS
     displayName: Minimum Replicas
     description: The minimum number of pods to have running.
@@ -556,6 +564,7 @@ parameters:
     description: The maximum number of pods to have running.
     required: true
     value: "16"
+
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.

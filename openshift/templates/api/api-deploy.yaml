@@ -288,6 +288,8 @@ objects:
                   value: ${RECORD_TIMINGS}
                 - name: SP_TRACKING_APP_ID
                   value: ${SP_TRACKING_APP_ID}
+                - name: API_VERSION_ROUTING_MIDDLEWARE
+                  value: ${API_VERSION_ROUTING_MIDDLEWARE}
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -538,6 +540,11 @@ parameters:
     description: The application ID for use with Snowplow tracking events.
     required: true
     value: "orgbook_api_dev"
+  - name: API_VERSION_ROUTING_MIDDLEWARE
+    displayName: API Version Routing Middleware
+    description: API Version Routing Middleware
+    required: true
+    value: vcr_server.middleware.api_tracking.SnowplowTrackingMiddleware
   - name: DEMO_SITE
     displayName: Demo Site Flag
     description: Set to True to indicate the site is a Demo site, False otherwise.

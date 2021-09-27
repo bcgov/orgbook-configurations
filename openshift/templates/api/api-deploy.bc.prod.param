@@ -47,6 +47,7 @@ APPLICATION_URL=https://orgbook.gov.bc.ca
 # TRACE_EVENTS=false
 # RECORD_TIMINGS=false
 SP_TRACKING_APP_ID=orgbook_api_prod
+# API_VERSION_ROUTING_MIDDLEWARE=vcr_server.middleware.api_tracking.SnowplowTrackingMiddleware
 DEMO_SITE=False
 # AGENT_HOST=agent
 # AGENT_ADMIN_PORT=8024

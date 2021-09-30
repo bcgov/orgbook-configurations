@@ -290,6 +290,8 @@ objects:
                   value: ${SP_TRACKING_APP_ID}
                 - name: API_VERSION_ROUTING_MIDDLEWARE
                   value: ${API_VERSION_ROUTING_MIDDLEWARE}
+                - name: SP_TRACKING_EMITTER
+                  value: ${SP_TRACKING_EMITTER}
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -535,6 +537,7 @@ parameters:
     description: Record Timings.  Enable/Disable method timings.
     required: false
     value: "false"
+
   - name: SP_TRACKING_APP_ID
     displayName: Snowplow Tracking Application ID
     description: The application ID for use with Snowplow tracking events.
@@ -545,6 +548,12 @@ parameters:
     description: API Version Routing Middleware
     required: true
     value: vcr_server.middleware.api_tracking.SnowplowTrackingMiddleware
+  - name: SP_TRACKING_EMITTER
+    displayName: Snowplow Tracking Emitter
+    description: Snowplow Tracking Emitter
+    required: true
+    value: spt.apps.gov.bc.ca
+
   - name: DEMO_SITE
     displayName: Demo Site Flag
     description: Set to True to indicate the site is a Demo site, False otherwise.

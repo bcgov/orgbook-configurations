@@ -104,7 +104,7 @@ parameters:
     displayName: Source Image Name
     description: The name of the Docker image to be used for the build. Overrides the FROM instruction in the Dockerfile.
     required: false
-    value: bcgovimages/aries-cloudagent:py36-1.16-1_0.7.0
+    value: bcgovimages/aries-cloudagent:py36-1.16-1_0.7.1
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag
     description: The tag given to the built image.

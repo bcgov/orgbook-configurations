@@ -208,6 +208,7 @@ objects:
         env: ${TAG_NAME}
     spec:
       scaleTargetRef:
+        apiVersion: apps.openshift.io/v1
         kind: DeploymentConfig
         name: ${NAME}${SUFFIX}
       minReplicas: ${{MIN_REPLICAS}}

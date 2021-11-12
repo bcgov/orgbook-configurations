@@ -55,7 +55,7 @@ usage () {
     updateSearchIndex
       - Update the search index for a given environment.
       - Supports passing arguments to updateSearchIndex.sh.  For example:
-          $0 -p bc -e dev updateSearchIndex -b 500 -d 2019-07-04T00:00:00
+          $0 -p bc -e dev updateSearchIndex -b 500 -d 2019-07-04T00:00:00Z
 
     indexSynced
       - Check to see if the search-engine indexes are syned with the database credentials.
@@ -200,7 +200,7 @@ usage () {
       # ----------------------------------------------------------------------------------------------------------
 
       # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
-      ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00
+      ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00Z
 
       # Ensure the online indexes are synced.
       ./manage -p bc -e prod indexSynced
@@ -234,7 +234,7 @@ usage () {
       ./manage -p bc-offline-indexing -e prod indexStorageStatus
 
       # Update the online indexes to sync up the new records that came in over the time the offline indexing was running.
-      ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00
+      ./manage -p bc -e prod updateSearchIndex -b 500 -d 2021-01-26T00:00:00Z
 
       # Ensure the online indexes are synced.
       ./manage -p bc -e prod indexSynced
@@ -247,7 +247,7 @@ usage () {
     Example of updating the offline indexes:
     -----------------------------------------------------------------------------------------------------------------------------------
       # Update offline indexes
-      ./manage -p bc-offline-indexing -e prod -s -oli updateSearchIndex -b 1000 -d 2021-02-02T00:00:00 offline-indexer
+      ./manage -p bc-offline-indexing -e prod -s -oli updateSearchIndex -b 1000 -d 2021-02-02T00:00:00Z offline-indexer
     ===================================================================================================================================
 
     removeOfflineIndexingEnvironment [<appGroup/>]

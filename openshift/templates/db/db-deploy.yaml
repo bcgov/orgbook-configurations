@@ -66,6 +66,15 @@ objects:
                 matchLabels:
                   name: ${NAMESPACE}
                   environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${AUDIT_ROLE}
+                  app: ${AUDIT_APP_NAME}${AUDIT_APP_SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${MONITORING_SERVICES_NAMESPACE}
+                  environment: ${TAG_NAME}
           ports:
             - protocol: TCP
               port: 5432
@@ -342,6 +351,27 @@ parameters:
     description: Offline Indexer Suffix
     required: true
     value: -oli
+
+  - name: AUDIT_ROLE
+    displayName: Audit Role
+    description: Audit Role
+    required: true
+    value: audit
+  - name: AUDIT_APP_NAME
+    displayName: Audit App Name
+    description: Audit App Name
+    required: true
+    value: Audit
+  - name: AUDIT_APP_SUFFIX
+    displayName: Audit App Suffix
+    description: Audit App Suffix
+    required: false
+    value:
+
+  - name: MONITORING_SERVICES_NAMESPACE
+    displayName: The namespace of the monitoring resources.
+    required: true
+    value: ca7f8f
 
   - name: NAMESPACE
     displayName: The target namespace for the resources.

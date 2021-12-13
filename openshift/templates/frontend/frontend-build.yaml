@@ -22,39 +22,45 @@ objects:
         app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
     spec:
-      runPolicy: Parallel
-      completionDeadlineSeconds: 1800
       triggers:
         - type: ConfigChange
+      runPolicy: SerialLatestOnly
       source:
-        type: Dockerfile
-        dockerfile: |-
-          FROM ${ARTIFACTS_IMAGE_REPOSITORY}${ARTIFACTS_IMAGE_NAME}:${ARTIFACTS_IMAGE_TAG} as artifacts
-          FROM ${RUNTIME_IMAGE_REPOSITORY}${RUNTIME_IMAGE_NAME}:${RUNTIME_IMAGE_TAG} as runtime
-          
-          # Copy artifacts into the runtime image
-          COPY --from=artifacts /opt/app-root/src/dist/ /tmp/app/dist/
-
-          # Since the runtime image is itself an s2i image we need to
-          # short circuit the s2i lifecycle.
-          # The runtime image "loses" its s2i runtime voodoo when it
-          # is used in a dockerSrategy, which is why the explicit `CMD` is necessary
-          CMD  /usr/libexec/s2i/run
+        type: Git
+        git:
+          ref: ${GIT_REF}
+          uri: ${GIT_REPO_URL}
+        contextDir: ${SOURCE_CONTEXT_DIR}
       strategy:
         type: Docker
         dockerStrategy:
+          dockerfilePath: ${DOCKER_FILE_PATH}
+          # Workaround for multi-stage Dockerfile builds.
+          # The service pulling the images during multi-stage Dockerfile builds appears to be different
+          # than the one(s) used for regular builds.  So the pull secret registration done by
+          # 'initOSProjects.sh' is not effective.  TODO: Figure this out.
+          pullSecret:
+            name: ${PULL_SECRET_NAME}
+          buildArgs:
+            - name: "build_image"
+              value: "${SOURCE_IMAGE_REGISTRY}${BUILD_IMAGE_NAME}"
+            - name: "runtime_image"
+              value: "${SOURCE_IMAGE_REGISTRY}${RUNTIME_IMAGE_NAME}"
       output:
         to:
           kind: ImageStreamTag
           name: ${NAME}:${OUTPUT_IMAGE_TAG}
       resources:
+        requests:
+          cpu: ${CPU_REQUEST}
+          memory: ${MEMORY_REQUEST}
         limits:
           cpu: ${CPU_LIMIT}
           memory: ${MEMORY_LIMIT}
 parameters:
   - name: NAME
     displayName: Name
-    description: The name assigned to all of the objects defined in this template.
+    description: The name assigned to all of the frontend objects defined in this template.    You should keep this as default unless your know what your doing.
     required: true
     value: frontend
   - name: SUFFIX
@@ -72,48 +78,72 @@ parameters:
     description: The name assigned to all of the deployments in this project.
     required: true
     value: aries-vcr
-  - name: ARTIFACTS_IMAGE_REPOSITORY
-    displayName: Source Image Repository
-    description: The Image Repository containing the images used for the build.
+  - name: GIT_REPO_URL
+    displayName: Git Repo URL
+    description: The URL to your GIT repo, don't use the this default unless your just experimenting.
     required: true
-    value: "image-registry.openshift-image-registry.svc:5000/8ad0ea-tools/"
-  - name: ARTIFACTS_IMAGE_NAME
-    displayName: Source Image Name
-    description: The name of the source image.
+    value: https://github.com/bcgov/orgbook-bc-client-vue.git
+  - name: GIT_REF
+    displayName: Git Reference
+    description: The git reference or branch.
+    required: false
+    value:
+  - name: SOURCE_CONTEXT_DIR
+    displayName: Source Context Directory
+    description: The source context directory.
+    required: false
+    value:
+  - name: DOCKER_FILE_PATH
+    displayName: Docker File Path
+    description: The path to the docker file.
     required: true
-    value: frontend-artifacts
-  - name: ARTIFACTS_IMAGE_TAG
-    displayName: Source Image Tag
-    description: The tag of the source image.
-    required: true
-    value: latest
-  - name: RUNTIME_IMAGE_REPOSITORY
-    displayName: Runtime Image Repository
-    description: The Image Repository containing the runtime image used for the build.
-    required: true
-    value: "image-registry.openshift-image-registry.svc:5000/8ad0ea-tools/"
+    value: docker/Dockerfile
+  - name: PULL_SECRET_NAME
+    displayName: Pull Secret Name
+    description: The name of the pull secret to use during the build.
+    required: false
+    value: artifactory-creds
+
+  - name: SOURCE_IMAGE_REGISTRY
+    displayName: Source Image Registry
+    description: The name of the Source Image Registry.
+    required: false
+    value: docker-remote.artifacts.developer.gov.bc.ca/
+
+  - name: BUILD_IMAGE_NAME
+    displayName: Build Image Name
+    description: The name of the Docker image to be used for the build stage.
+    required: false
+    value: node:fermium
   - name: RUNTIME_IMAGE_NAME
     displayName: Runtime Image Name
-    description: The name of the runtime image.
-    required: true
-    value: frontend-runtime
-  - name: RUNTIME_IMAGE_TAG
-    displayName: Runtime Image Tag
-    description: The tag of the Runtime image.
-    required: true
-    value: latest
+    description: The name of the Docker image to be used for the runtime stage.
+    required: false
+    value: caddy:alpine
+
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag
     description: The tag given to the built image.
     required: true
     value: latest
+
   - name: CPU_LIMIT
     displayName: Resources CPU Limit
     description: The resources CPU limit (in cores) for this build.
     required: true
-    value: "1"
+    value: "3"
   - name: MEMORY_LIMIT
     displayName: Resources Memory Limit
     description: The resources Memory limit (in Mi, Gi, etc) for this build.
     required: true
-    value: 4Gi
+    value: 6Gi
+  - name: CPU_REQUEST
+    displayName: Resources CPU Request
+    description: The resources CPU request (in cores) for this build.
+    required: true
+    value: "2"
+  - name: MEMORY_REQUEST
+    displayName: Resources Memory Request
+    description: The resources Memory request (in Mi, Gi, etc) for this build.
+    required: true
+    value: 3Gi

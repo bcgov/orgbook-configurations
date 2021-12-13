@@ -6,7 +6,6 @@ metadata:
     tags: angular,nginx
   name: ${NAME}
 objects:
-
   - kind: NetworkPolicy
     apiVersion: networking.k8s.io/v1
     metadata:
@@ -33,8 +32,8 @@ objects:
       policyTypes:
         - Ingress
 
-  - apiVersion: v1
-    kind: DeploymentConfig
+  - kind: DeploymentConfig
+    apiVersion: v1
     metadata:
       creationTimestamp: null
       labels:
@@ -75,12 +74,12 @@ objects:
             deploymentconfig: ${NAME}${SUFFIX}
         spec:
           volumes:
-            - name: ${NAME}${SUFFIX}-blacklist-config-volume
+            - name: ${NAME}${SUFFIX}-caddy-config-volume
               configMap:
-                name: ${BLACK_LIST_CONFIG_MAP_NAME}${SUFFIX}
+                name: ${NAME}-${CADDY_CONFIG_MAP_NAME}${SUFFIX}
                 items:
-                  - key: ${BLACK_LIST_CONFIG_FILE_NAME}
-                    path: ${BLACK_LIST_CONFIG_FILE_NAME}
+                  - key: ${CADDY_CONFIG_FILE_NAME}
+                    path: ${CADDY_CONFIG_FILE_NAME}
           containers:
             - image: ${NAME}${SUFFIX}
               imagePullPolicy: Always
@@ -89,34 +88,16 @@ objects:
                 - containerPort: 8080
                   protocol: TCP
               env:
-                - name: API_URL
-                  value: ${API_URL}
-                - name: API_SERVICE_NAME
+                - name: WEB_HOST_NAME
+                  value: ${WEB_HOST_NAME}
+                - name: WEB_HOST_PORT
+                  value: ${WEB_HOST_PORT}
+                - name: WEB_HOST_TLS
+                  value: ${WEB_HOST_TLS}
+                - name: API_HOST
                   value: ${API_HOST}${SUFFIX}
-                - name: API_PATH
-                  value: ${API_PATH}
-                - name: RealIpFrom
-                  value: ${REAL_IP_FROM}
-                - name: AdditionalRealIpFromRules
-                  value: ${AdditionalRealIpFromRules}
-                - name: IpFilterRules
-                  value: ${IpFilterRules}
-                - name: API_RATE_LIMIT
-                  value: ${API_RATE_LIMIT}
-                - name: HTTP_BASIC
-                  value: ${HTTP_BASIC}
-                - name: HTTP_BASIC_USERNAME
-                  valueFrom:
-                    secretKeyRef:
-                      name: ${API_HOST}${SUFFIX}
-                      key: api-user
-                - name: HTTP_BASIC_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: ${API_HOST}${SUFFIX}
-                      key: api-password
-                - name: THEME
-                  value: ${THEME}
+                - name: API_PORT
+                  value: ${API_PORT}
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -125,12 +106,12 @@ objects:
                   cpu: ${CPU_LIMIT}
                   memory: ${MEMORY_LIMIT}
               volumeMounts:
-                - name: ${NAME}${SUFFIX}-blacklist-config-volume
-                  mountPath: ${BLACK_LIST_CONFIG_MOUNT_PATH}${BLACK_LIST_CONFIG_FILE_NAME}
-                  subPath: ${BLACK_LIST_CONFIG_FILE_NAME}
+                - name: ${NAME}${SUFFIX}-caddy-config-volume
+                  mountPath: ${CADDY_CONFIG_MOUNT_PATH}${CADDY_CONFIG_FILE_NAME}
+                  subPath: ${CADDY_CONFIG_FILE_NAME}
               livenessProbe:
                 httpGet:
-                  path: /nginx_status
+                  path: /health
                   port: 8080
                   scheme: HTTP
                 initialDelaySeconds: 30
@@ -140,7 +121,7 @@ objects:
                 failureThreshold: 3
               readinessProbe:
                 httpGet:
-                  path: /nginx_status
+                  path: /health
                   port: 8080
                   scheme: HTTP
                 initialDelaySeconds: 10
@@ -165,8 +146,8 @@ objects:
               namespace: ${IMAGE_NAMESPACE}
               name: ${NAME}:${TAG_NAME}
 
-  - apiVersion: v1
-    kind: Service
+  - kind: Service
+    apiVersion: v1
     metadata:
       creationTimestamp: null
       labels:
@@ -189,8 +170,8 @@ objects:
       sessionAffinity: None
       type: ClusterIP
 
-  - apiVersion: v1
-    kind: Route
+  - kind: Route
+    apiVersion: v1
     metadata:
       name: ${NAME}${SUFFIX}
       labels:
@@ -273,60 +254,52 @@ parameters:
     name: IMAGE_NAMESPACE
     required: true
     value: 8ad0ea-tools
-  - description: OpenShift cluster private IP range in CIDR notation, used by Nginx ngx_http_realip_module.
-    displayName: OpenShift Cluster IP Range
-    name: REAL_IP_FROM
+
+  - name: WEB_HOST_NAME
+    displayName: Web HOST
+    description: The hostname of the web service.
+    required: false
+    value:
+  - name: WEB_HOST_PORT
+    displayName: Web Host Port
+    description: The port number on which the web service is listening.
     required: true
-    value: 172.51.0.0/16
+    value: "8080"
+  - name: WEB_HOST_TLS
+    displayName: Web Host TLS
+    description: The TLS setting ('on', or 'off') for the web service.
+    required: true
+    value: "off"
   - name: API_HOST
     displayName: API HOST
     description: The hostname of the api service.
     required: true
     value: api
-  - description: The default URL to use when proxying requests to the application's API.  The value here will be overridden if a API_SERVICE_NAME is defined.
-    displayName: API URL
-    name: API_URL
+  - name: API_PORT
+    displayName: API Port
+    description: The port number on which the api is listening.
     required: true
-    value: http://api-bc:8080/api
-  - description: The name of the service endpoint for the API.  Used to wire up to an API endpoint within the same project; overriding the URL defined by API_URL.
-    displayName: API Service Name
-    name: API_SERVICE_NAME
-    required: false
-    value: api-bc
-  - description: The root path for the API.  Used in conjunction with API_SERVICE_NAME.
-    displayName: API Path
-    name: API_PATH
-    required: true
-    value: /api
-  - description: Additional known and trusted reverse proxy ips conforming to nginx set_real_ip_from directive syntax. Multiple directives are allowed, separated by semicolon.
-    displayName: Additional real_ip_from Rules
-    name: AdditionalRealIpFromRules
-  - description: Nginx ngx_http_access_module ip filter rules
-    displayName: Ip Filter Rules
-    name: IpFilterRules
-    value: ""
-  - name: API_RATE_LIMIT
-    description: API Rate Limit
-    displayName: API Rate Limit
-    value: "limit_req zone=bra25 burst=100;"
-  - name: BLACK_LIST_CONFIG_FILE_NAME
+    value: "8080"
+
+  - name: CADDY_CONFIG_FILE_NAME
     displayName: Config File Name
     description: The name of the configuration file.
     required: true
-    value: blacklist.conf
-  - name: BLACK_LIST_CONFIG_MAP_NAME
+    value: Caddyfile
+  - name: CADDY_CONFIG_MAP_NAME
     displayName: Config Map Name
     description: The name of the configuration map.
     required: true
-    value: blacklist-conf
-  - name: BLACK_LIST_CONFIG_MOUNT_PATH
+    value: caddy-conf
+  - name: CADDY_CONFIG_MOUNT_PATH
     displayName: Config Mount Path
     description: The path to use to mount the config file.
     required: true
-    value: /etc/nginx/
-  - description: The exposed hostname that will route to the service, e.g., myappname.apps.silver.devops.gov.bc.ca, if left blank a value will be defaulted.
+    value: /etc/caddy/
+
+  - name: APPLICATION_DOMAIN
     displayName: Application Hostname
-    name: APPLICATION_DOMAIN
+    description: The exposed hostname that will route to the service, e.g., myappname.apps.silver.devops.gov.bc.ca, if left blank a value will be defaulted.
     value: dev.orgbook.gov.bc.ca
   - name: ROUTE_TIMEOUT
     displayName: Route Timeout
@@ -337,14 +310,7 @@ parameters:
     displayName: Env TAG name
     name: TAG_NAME
     value: dev
-  - description: For very simple HTTP Basic authentication, use %HTTP_BASIC% in your nginx config and provide the value here that you want in nginx config, e.g., `auth_basic 'restricted';`
-    displayName: HTTP Basic Nginx Config Line
-    name: HTTP_BASIC
-    value: ""
-  - name: THEME
-    displayName: Thearies-vcr Theme Name
-    description: The name of the theme to be used for the site.
-    value: bcgov
+
   - name: MIN_REPLICAS
     displayName: Minimum Replicas
     description: The minimum number of pods to have running.
@@ -355,6 +321,7 @@ parameters:
     description: The maximum number of pods to have running.
     required: true
     value: "6"
+
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.

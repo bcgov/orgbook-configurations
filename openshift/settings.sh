@@ -6,4 +6,4 @@ export GIT_REF="master"
 # Templates NOT in this list will have they GIT referances over-ridden
 # with the values of GIT_URI and GIT_REF
 export skip_git_overrides="schema-spy-build.yaml search-engine-base-build.yaml backup-build.yaml"
-export ignore_templates="offline-indexer-deploy frontend-v2-deploy"
+export ignore_templates="offline-indexer-deploy"

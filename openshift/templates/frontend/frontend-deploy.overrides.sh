@@ -11,9 +11,8 @@ fi
 # ------------------------------------------------------------------------
 # The generated config map is used to update the Backup configuration.
 # ========================================================================
-CONFIG_MAP_NAME=${CONFIG_MAP_NAME:-blacklist-conf}
-SOURCE_FILE=$( dirname "$0" )/config/blacklist.conf
-
+CONFIG_MAP_NAME=${NAME}-${CADDY_CONFIG_MAP_NAME:-caddy-conf}
+SOURCE_FILE=$( dirname "$0" )/config/Caddyfile
 OUTPUT_FORMAT=json
 OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
 

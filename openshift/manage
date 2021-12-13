@@ -1177,6 +1177,28 @@ function tagApplicationImages()
     done
   )
 }
+
+function orgBookV2Cleanup(){
+  (
+    _namespace=$(getProjectName)
+    if [[ ${DEPLOYMENT_ENV_NAME} == "tools" ]]; then
+      # Tools
+      printAndAskToContinue "If you contiune ALL resources for frontend-runtime, frontend-artifacts, and frontend-v2 will be deleted from ${_namespace}."
+      printAndAskToContinue "Are you absolutely sure?"
+      oc -n ${_namespace} delete all -l name=frontend-runtime
+      oc -n ${_namespace} delete all -l name=frontend-artifacts
+      oc -n ${_namespace} delete all -l name=frontend-v2
+      oc -n ${_namespace} delete bc frontend-v2-pipeline
+    else
+      # Dev/Test/Prod
+      printAndAskToContinue "If you contiune ALL resources for frontend-v2-bc plus configmap/frontend-v2-caddy-conf-bc and configmap/blacklist-conf-bc will be deleted from ${_namespace}."
+      printAndAskToContinue "Are you absolutely sure?"
+      oc -n ${_namespace} delete all,pvc,secret,configmap,networkpolicy -l name=frontend-v2-bc
+      oc -n ${_namespace} delete configmap/frontend-v2-caddy-conf-bc
+      oc -n ${_namespace} delete configmap/blacklist-conf-bc
+    fi
+  )
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -1356,6 +1378,9 @@ case "${_cmd}" in
     tagApplicationImages ${@}
     ;;
 
+  orgbookv2cleanup)
+    orgBookV2Cleanup ${@}
+    ;;
 
   scaleup)
     scaleUp -w ${@}

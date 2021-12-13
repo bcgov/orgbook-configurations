@@ -4,6 +4,20 @@
 }
 
 {$WEB_HOST_NAME}:{$WEB_HOST_PORT} {
+    # Most common security headers
+    header {
+        # enable CSP
+        Content-Security-Policy "default-src * data: blob: filesystem: 'unsafe-inline' 'unsafe-eval'";
+        # enable HSTS
+        Strict-Transport-Security "max-age=86400; includeSubDomains";
+        # disable clients from sniffing the media type
+        X-Content-Type-Options "nosniff";
+        # XSS protection
+        X-XSS-Protection 1;
+        # clickjacking protection
+        X-Frame-Options DENY;
+    }
+
     # Log everything to stdout
     log {
         output stdout
@@ -26,7 +40,7 @@
 
     # Required for SPA router to work
     @spa_router {
-        not path /api/*
+        not path /api/* /hooks/*
         file {
             try_files {path} /index.html
         }
@@ -35,6 +49,11 @@
 
     # Proxy requests to API service
     route /api/* {
+        reverse_proxy {$API_HOST}:{$API_PORT}
+    }
+
+    # Proxy requests to Hooks
+    route /hooks/* {
         reverse_proxy {$API_HOST}:{$API_PORT}
     }
 }

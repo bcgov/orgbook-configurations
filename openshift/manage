@@ -143,6 +143,10 @@ usage () {
       - Tags all of the application images.
       - Handy for making backups of images.
 
+    untagApplicationImages <tag/>
+      - Deletes a specific tag from all of the application images.
+      - Handy for cleaning up backups of images.
+
   Offline Indexing Commands:
   ==========================
 
@@ -1178,6 +1182,25 @@ function tagApplicationImages()
   )
 }
 
+function untagApplicationImages()
+{
+  (
+    _tag=${1}
+
+    if [ -z "${_tag}" ]; then
+      echoError "\nuntagApplicationImages; You MUST supply a tag.\n"
+      exit 1
+    fi
+
+    images="db search-engine msg-queue frontend agent backup schema-spy api"
+    for image in ${images}; do
+      # Untag images ...
+      echo -e "\nDeleting tag ${image}:${_tag} ..."
+      oc -n ${TOOLS} tag -d ${image}:${_tag}
+    done
+  )
+}
+
 function orgBookV2Cleanup(){
   (
     _namespace=$(getProjectName)
@@ -1377,6 +1400,9 @@ case "${_cmd}" in
     ;;
   tagapplicationimages)
     tagApplicationImages ${@}
+    ;;
+  untagapplicationimages)
+    untagApplicationImages ${@}
     ;;
 
   orgbookv2cleanup)

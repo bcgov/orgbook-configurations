@@ -301,7 +301,7 @@ objects:
                   memory: ${MEMORY_LIMIT}
 
   - kind: HorizontalPodAutoscaler
-    apiVersion: autoscaling/v1
+    apiVersion: autoscaling/v2beta2
     metadata:
       name: ${NAME}${SUFFIX}
       labels:
@@ -313,12 +313,27 @@ objects:
         env: ${TAG_NAME}
     spec:
       scaleTargetRef:
-        apiVersion: apps.openshift.io/v1
+        apiVersion: apps.openshift.io/v2
         kind: DeploymentConfig
         name: ${NAME}${SUFFIX}
       minReplicas: ${{MIN_REPLICAS}}
       maxReplicas: ${{MAX_REPLICAS}}
-
+      metrics:
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 75
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 80
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 300
 parameters:
   - name: NAME
     displayName: Name

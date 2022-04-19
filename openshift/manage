@@ -1223,6 +1223,24 @@ function orgBookV2Cleanup(){
     fi
   )
 }
+
+function loadTest()
+{
+  (
+    if [[ "${DEPLOYMENT_ENV_NAME}" != "prod" ]]; then
+      urlPrefix="${DEPLOYMENT_ENV_NAME}."
+    fi
+
+    echo
+    echo
+    for page in {1..5000}
+    do
+      echo -e "\e[1A\e[KReading page ${page} ..."
+      curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/topic?inactive=any&latest=any&ordering=first_effective_date&page=${page}&revoked=any&type_id=1"
+      sleep 0.25
+    done
+  )
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -1404,7 +1422,9 @@ case "${_cmd}" in
   untagapplicationimages)
     untagApplicationImages ${@}
     ;;
-
+  loadtest)
+    loadTest ${@}
+    ;;
   orgbookv2cleanup)
     orgBookV2Cleanup ${@}
     ;;

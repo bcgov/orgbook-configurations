@@ -1237,6 +1237,12 @@ function loadTest()
     do
       echo -e "\e[1A\e[KReading page ${page} ..."
       curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/topic?inactive=any&latest=any&ordering=first_effective_date&page=${page}&revoked=any&type_id=1"
+      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/search/credential/facets?page=${page}"
+      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/topic?page=${page}"
+
+      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/quickload"
+      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/topic?page=${page}"
+      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/topic?page=${page}"
       sleep 0.25
     done
   )

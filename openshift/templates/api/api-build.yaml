@@ -97,12 +97,12 @@ parameters:
     displayName: Source Image Name
     required: true
     description: The name of the source image.
-    value: bcgovimages/von-image
+    value: ubi9/python-39
   - name: SOURCE_IMAGE_TAG
     displayName: Source Image Tag
     required: true
     description: The tag of the source image.
-    value: py36-1.7-ew-0-s2i
+    value: 1-52
   - name: PIP_INDEX_URL
     displayName: Custom PyPi Index URL
     description: The custom PyPi index URL
@@ -111,7 +111,7 @@ parameters:
     displayName: Source Image Registry
     description: The name of the Source Image Registry.
     required: false
-    value: docker-remote.artifacts.developer.gov.bc.ca/
+    value: registry.access.redhat.com/
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag
     description: The tag given to the built image.

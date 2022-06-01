@@ -102,7 +102,7 @@ parameters:
     displayName: Source Image Tag
     required: true
     description: The tag of the source image.
-    value: 1-52
+    value: latest
   - name: PIP_INDEX_URL
     displayName: Custom PyPi Index URL
     description: The custom PyPi index URL

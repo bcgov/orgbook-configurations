@@ -99,7 +99,7 @@ parameters:
     required: true
     value: docker/Dockerfile
   - name: PULL_SECRET_NAME
-    displayName: Pull Secret Name
+    displayName: PULL_SECRET_NAME
     description: The name of the pull secret to use during the build.
     required: false
     value: artifactory-creds

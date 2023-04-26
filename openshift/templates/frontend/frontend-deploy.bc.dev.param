@@ -13,6 +13,9 @@
 # IMAGE_NAMESPACE=8ad0ea-tools
 # WEB_HOST_NAME=
 # WEB_HOST_PORT=8080
+# RATE_LIMIT_ORDERING='order rate_limit before basicauth'
+# DEFAULT_RATE_LIMIT='rate_limit {remote.ip} 50r/s'
+# API_RATE_LIMIT='rate_limit {remote.ip} 25r/s'
 # WEB_HOST_TLS=off
 # API_HOST=api
 # API_PORT=8080

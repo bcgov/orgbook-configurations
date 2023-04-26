@@ -1,5 +1,5 @@
-apiVersion: v1
 kind: Template
+apiVersion: template.openshift.io/v1
 metadata:
   annotations:
     description: Deployment template for a angular on nginx
@@ -98,6 +98,14 @@ objects:
                   value: ${API_HOST}${SUFFIX}
                 - name: API_PORT
                   value: ${API_PORT}
+
+                - name: RATE_LIMIT_ORDERING
+                  value: ${RATE_LIMIT_ORDERING}
+                - name: DEFAULT_RATE_LIMIT
+                  value: ${DEFAULT_RATE_LIMIT}
+                - name: API_RATE_LIMIT
+                  value: ${API_RATE_LIMIT}
+
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -280,6 +288,22 @@ parameters:
     description: The port number on which the api is listening.
     required: true
     value: "8080"
+
+  - name: RATE_LIMIT_ORDERING
+    displayName: Rate Limit Ordering
+    description: The directive defining where to order the rate limiter.
+    required: false
+    value:
+  - name: DEFAULT_RATE_LIMIT
+    displayName: Default Rate Limit
+    description: The default rate limit for the server.
+    required: false
+    value:
+  - name: API_RATE_LIMIT
+    displayName: API Rate Limit
+    description: The rate limit for API calls.
+    required: false
+    value:
 
   - name: CADDY_CONFIG_FILE_NAME
     displayName: Config File Name

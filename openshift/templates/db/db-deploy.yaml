@@ -153,6 +153,12 @@ objects:
                 items:
                   - key: ${AUTOVACUMM_CONFIG_FILE_NAME}
                     path: ${AUTOVACUMM_CONFIG_FILE_NAME}
+            - name: ${NAME}${SUFFIX}-dbconnections-config-volume
+              configMap:
+                name: ${DBCONNECTIONS_CONFIG_MAP_NAME}
+                items:
+                  - key: ${DBCONNECTIONS_CONFIG_FILE_NAME}
+                    path: ${DBCONNECTIONS_CONFIG_FILE_NAME}
           containers:
             - name: ${NAME}${SUFFIX}
               image: " "
@@ -198,6 +204,9 @@ objects:
                 - name: ${NAME}${SUFFIX}-autovacuum-config-volume
                   mountPath: ${AUTOVACUMM_CONFIG_MOUNT_PATH}${AUTOVACUMM_CONFIG_FILE_NAME}
                   subPath: ${AUTOVACUMM_CONFIG_FILE_NAME}
+                - name: ${NAME}${SUFFIX}-dbconnections-config-volume
+                  mountPath: ${DBCONNECTIONS_CONFIG_MOUNT_PATH}${DBCONNECTIONS_CONFIG_FILE_NAME}
+                  subPath: ${DBCONNECTIONS_CONFIG_FILE_NAME}
               livenessProbe:
                 tcpSocket:
                   port: 5432
@@ -457,6 +466,10 @@ parameters:
     description: The class of the volume; netapp-file-standard, netapp-file-extended, netapp-block-standard, or netapp-block-extended.
     required: false
     value: netapp-block-standard
+
+  # ===============================================================================
+  # Postgres Database Configuration
+  #--------------------------------------------------------------------------------
   - name: LOGGING_CONFIG_FILE_NAME
     displayName: Config File Name
     description: The name of the configuration file.
@@ -472,6 +485,7 @@ parameters:
     description: The path to use to mount the config file.
     required: true
     value: /opt/app-root/src/postgresql-cfg/
+
   - name: AUTOVACUMM_CONFIG_FILE_NAME
     displayName: Config File Name
     description: The name of the configuration file.
@@ -487,6 +501,27 @@ parameters:
     description: The path to use to mount the config file.
     required: true
     value: /opt/app-root/src/postgresql-cfg/
+
+  - name: DBCONNECTIONS_CONFIG_FILE_NAME
+    displayName: Config File Name
+    description: The name of the configuration file.
+    required: true
+    value: dbconnections.conf
+  - name: DBCONNECTIONS_CONFIG_MAP_NAME
+    displayName: Config Map Name
+    description: The name of the configuration map.
+    required: true
+    value: db-connections-conf-bc
+  - name: DBCONNECTIONS_CONFIG_MOUNT_PATH
+    displayName: Config Mount Path
+    description: The path to use to mount the config file.
+    required: true
+    value: /opt/app-root/src/postgresql-cfg/
+  # ===============================================================================
+
+  # ===============================================================================
+  # Resource Allocation
+  #--------------------------------------------------------------------------------
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.
@@ -507,3 +542,4 @@ parameters:
     description: The resources Memory limit (in Mi, Gi, etc) for this build.
     required: true
     value: 6000Mi
+  # ===============================================================================

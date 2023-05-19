@@ -25,6 +25,13 @@ OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
 printStatusMsg "Generating ConfigMap; ${CONFIG_MAP_NAME} ..."
 generateConfigMap "${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
 
+CONFIG_MAP_NAME=${DBCONNECTIONS_CONFIG_MAP_NAME:-db-connections-conf-bc}
+SOURCE_FILE=$( dirname "$0" )/config/postgresql-cfg/dbconnections.conf
+OUTPUT_FORMAT=json
+OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
+printStatusMsg "Generating ConfigMap; ${CONFIG_MAP_NAME} ..."
+generateConfigMap "${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
+
 if createOperation; then
   # Randomly generate a set of credentials without asking ...
   printStatusMsg "Creating a set of random user credentials ..."

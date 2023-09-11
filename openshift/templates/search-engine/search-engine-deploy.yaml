@@ -175,7 +175,9 @@ objects:
                 - name: SOLR_LOG_LEVEL
                   value: ${SOLR_LOG_LEVEL}
                 - name: LOG4J_FORMAT_MSG_NO_LOOKUPS
-                  value: 'true'
+                  value: ${LOG4J_FORMAT_MSG_NO_LOOKUPS}
+                - name: JAVA_OPTS
+                  value: ${JAVA_OPTS}
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
               imagePullPolicy: Always
@@ -198,7 +200,7 @@ parameters:
     description: The name assigned to all of the resources defined in this template.
     required: true
     value: search-engine
-    
+
   - name: ROLE
     displayName: Role
     description: Service Role
@@ -265,16 +267,23 @@ parameters:
     description: The TAG name for this environment, e.g., dev, test, prod
     required: true
     value: dev
+
   - name: PERSISTENT_VOLUME_SIZE
     displayName: Persistent Volume Size
     description: The size of the persistent volume , e.g. 512Mi, 1Gi, 2Gi.
     required: true
     value: 8Gi
+  - name: PERSISTENT_VOLUME_CLASS
+    displayName: Persistent Volume Class name
+    description: The class of the volume; netapp-file-standard, netapp-file-extended, netapp-block-standard, or netapp-block-extended. netapp-block-standard performs the best for Solr.
+    required: false
+    value: netapp-block-standard
   - name: MOUNT_PATH
     displayName: Mount Path
     description: The path to mount the persistent volume.
     required: true
     value: /var/solr/data
+
   - name: CORE_NAME
     displayName: Core Name
     description: The name of the Solr core configuration to load.
@@ -285,16 +294,22 @@ parameters:
     description: Defines the loggin level for Solr.
     required: true
     value: WARN
-  - name: PERSISTENT_VOLUME_CLASS
-    displayName: Persistent Volume Class name
-    description: The class of the volume; netapp-file-standard, netapp-file-extended, netapp-block-standard, or netapp-block-extended. netapp-block-standard performs the best for Solr.
-    required: false
-    value: netapp-block-standard
+  - name: LOG4J_FORMAT_MSG_NO_LOOKUPS
+    displayName: LOG4J format msg no lookups
+    description: Disable message lookups.
+    required: true
+    value: 'true'
+  - name: JAVA_OPTS
+    displayName: Java Options
+    description: Java runtime options.
+    required: true
+    value: '-Xms256m -Xmx512m'
+
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.
     required: true
-    value: 10m
+    value: 100m
   - name: CPU_LIMIT
     displayName: Resources CPU Limit
     description: The resources CPU limit (in cores) for this build.
@@ -304,7 +319,7 @@ parameters:
     displayName: Resources Memory Request
     description: The resources Memory request (in Mi, Gi, etc) for this build.
     required: true
-    value: 10Mi
+    value: 256Mi
   - name: MEMORY_LIMIT
     displayName: Resources Memory Limit
     description: The resources Memory limit (in Mi, Gi, etc) for this build.

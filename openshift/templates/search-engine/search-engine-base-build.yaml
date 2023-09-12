@@ -72,7 +72,7 @@ parameters:
     displayName: Git Reference
     description: The git reference or branch.
     required: true
-    value: "8.8.3"
+    value: "8.11.2"
   - name: SOURCE_CONTEXT_DIR
     displayName: Source Context Directory
     description: The source context directory.
@@ -87,7 +87,7 @@ parameters:
     displayName: Source Image Name
     description: The name of the Docker image to be used for the build. Overrides the FROM instruction in the Dockerfile.
     required: false
-    value: solr:8.8.1
+    value: solr:8.11.2
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag
     description: The tag given to the built image.

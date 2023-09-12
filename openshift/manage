@@ -1233,17 +1233,46 @@ function loadTest()
 
     echo
     echo
-    for page in {1..5000}
+
+    range="248818-253818"
+    for count in {1..5000}
     do
-      echo -e "\e[1A\e[KReading page ${page} ..."
-      curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/topic?inactive=any&latest=any&ordering=first_effective_date&page=${page}&revoked=any&type_id=1"
-      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/search/credential/facets?page=${page}"
-      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/topic?page=${page}"
+      echo -e "\e[1A\e[KReading page ${count} ..."
+
+      if ((${count}%2)); then
+        # /api/v4
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/credential?format=json&ordering=-score&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/credential?format=json&ordering=revoked_date&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/credential?format=json&ordering=score&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/credential?format=json&credential_type_id=1&inactive=any&ordering=-effective_date&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/credential?format=json&ordering=-revoked_date&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/credential?format=json&credential_type_id=1&inactive=any&ordering=effective_date&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/topic?format=json&ordering=-effective_date&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/credential?ordering=-score&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/topic?format=json&ordering=-score&page=$(shuf -i ${range} -n 1)"
+      else
+        # /api/v3
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v3/search/topic?format=json&topic_id=$(shuf -i ${range} -n 1)"
+
+        # /api/v2
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/search/autocomplete?format=json&ordering=score&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/search/credential/facets?format=json&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/search/credential/topic/facets?format=json&id=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/search/credential?format=json&id=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/search/autocomplete?format=json&ordering=revoked_date&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/search/autocomplete?format=json&ordering=-score&page=$(shuf -i ${range} -n 1)"
+        curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/search/autocomplete?ordering=-score&page=$(shuf -i ${range} -n 1)"
+      fi
+
+      # Other
+      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/topic/facets?q=Mayne+Island+School+Parent+Advisory+Council&inactive=&category:entity_type=&credential_type_id=&page=$(shuf -i ${range} -n 1)&revoked=false"
+      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/topic?inactive=any&latest=any&ordering=first_effective_date&page=$(shuf -i ${range} -n 1)&revoked=any&type_id=1"
+      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/search/topic?page=$(shuf -i ${range} -n 1)"
 
       # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/quickload"
-      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/topic?page=${page}"
-      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/topic?page=${page}"
-      sleep 0.25
+      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v2/topic?page=$(shuf -i ${range} -n 1)"
+      # curl -s -o /dev/null "https://${urlPrefix}orgbook.gov.bc.ca/api/v4/topic?page=$(shuf -i ${range} -n 1)"
+      # sleep 0.25
     done
   )
 }

@@ -22,9 +22,9 @@ TAG_NAME=prod
 # MOUNT_PATH=/var/solr/data
 # CORE_NAME=credential_registry
 # SOLR_LOG_LEVEL=WARN
-# LOG4J_FORMAT_MSG_NO_LOOKUPS=true
-# JAVA_OPTS=-Xms256m -Xmx512m
+# SOLR_JAVA_MEM=-Xms256m -Xmx1024m
+# GC_TUNE=-XX:+UseG1GC -XX:+PerfDisableSharedMem -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=250 -XX:+AlwaysPreTouch -XX:+ExplicitGCInvokesConcurrent -XX:InitiatingHeapOccupancyPercent=75
 # CPU_REQUEST=100m
 # CPU_LIMIT=750m
 # MEMORY_REQUEST=256Mi
-# MEMORY_LIMIT=3000Mi
+# MEMORY_LIMIT=2000Mi

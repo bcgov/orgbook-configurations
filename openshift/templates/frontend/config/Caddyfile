@@ -2,9 +2,23 @@
     #  See https://caddy.community/t/making-sense-of-auto-https-and-why-disabling-it-still-serves-https-instead-of-http/9761
     auto_https off
     {$RATE_LIMIT_ORDERING}
+
+    servers {
+        trusted_proxies static {$TRUSTED_PROXIES}
+        client_ip_headers X-Forwarded-For
+    }
 }
 
 {$WEB_HOST_NAME}:{$WEB_HOST_PORT} {
+
+    # Block list
+    @denied client_ip {$BLOCK_LIST}
+    handle @denied {
+        respond 403 {
+            close
+        }
+    }
+
     # Most common security headers
     header {
         # enable CSP
@@ -54,7 +68,6 @@
     route /api/* {
         {$API_RATE_LIMIT}
         reverse_proxy {$API_HOST}:{$API_PORT} {
-            trusted_proxies 0.0.0.0/0
             header_up Host {upstream_hostport}
             header_up X-Forwarded-Host {host}
         }
@@ -64,7 +77,6 @@
     route /hooks/* {
         {$API_RATE_LIMIT}
         reverse_proxy {$API_HOST}:{$API_PORT} {
-            trusted_proxies 0.0.0.0/0
             header_up Host {upstream_hostport}
             header_up X-Forwarded-Host {host}
         }

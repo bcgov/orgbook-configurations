@@ -19,5 +19,16 @@ OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
 printStatusMsg "Generating ConfigMap; ${CONFIG_MAP_NAME} ..."
 generateConfigMap "${CONFIG_MAP_NAME}${SUFFIX}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"
 
-unset SPECIALDEPLOYPARMS
+if createOperation; then
+  # Ask the user to supply the sensitive parameters ...
+  readParameter "TRUSTED_PROXIES - Please provide the list of trusted proxies for the frontend:" TRUSTED_PROXIES "" "false"
+  readParameter "BLOCK_LIST - Please provide the list of IP addresses to block for the frontend:" BLOCK_LIST "" "false"
+else
+  # Secrets are removed from the configurations during update operations ...
+  printStatusMsg "Update operation detected ...\nSkipping the prompts for TRUSTED_PROXIES, and BLOCK_LIST secrets ... \n"
+  writeParameter "TRUSTED_PROXIES" "prompt_skipped" "false"
+  writeParameter "BLOCK_LIST" "prompt_skipped" "false"
+fi
+
+SPECIALDEPLOYPARMS="--param-file=${_overrideParamFile}"
 echo ${SPECIALDEPLOYPARMS}

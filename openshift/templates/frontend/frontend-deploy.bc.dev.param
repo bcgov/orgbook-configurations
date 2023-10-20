@@ -16,6 +16,8 @@
 # RATE_LIMIT_ORDERING='order rate_limit before basicauth'
 # DEFAULT_RATE_LIMIT='rate_limit {remote.ip} 50r/s'
 # API_RATE_LIMIT='rate_limit {remote.ip} 25r/s'
+# TRUSTED_PROXIES=
+# BLOCK_LIST=
 # WEB_HOST_TLS=off
 # API_HOST=api
 # API_PORT=8080

@@ -49,7 +49,7 @@ objects:
         app.openshift.io/connects-to: >-
           [{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${API_HOST}${SUFFIX}"}]
     spec:
-      replicas: 2
+      replicas: 1
       selector:
         name: ${NAME}${SUFFIX}
         deploymentconfig: ${NAME}${SUFFIX}
@@ -106,6 +106,17 @@ objects:
                 - name: API_RATE_LIMIT
                   value: ${API_RATE_LIMIT}
 
+                - name: TRUSTED_PROXIES
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}${SUFFIX}
+                      key: trusted_proxies
+                - name: BLOCK_LIST
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}${SUFFIX}
+                      key: block_list
+
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -153,6 +164,22 @@ objects:
               kind: ImageStreamTag
               namespace: ${IMAGE_NAMESPACE}
               name: ${NAME}:${TAG_NAME}
+
+  - kind: Secret
+    apiVersion: v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    stringData:
+      trusted_proxies: ${TRUSTED_PROXIES}
+      block_list: ${BLOCK_LIST}
+    type: Opaque
 
   - kind: Service
     apiVersion: v1
@@ -320,6 +347,17 @@ parameters:
     description: The path to use to mount the config file.
     required: true
     value: /etc/caddy/
+
+  - name: TRUSTED_PROXIES
+    displayName: Trusted Proxies
+    description: The list of trusted proxies for the frontend.
+    required: true
+    value:
+  - name: BLOCK_LIST
+    displayName: Block List
+    description: The list of IP addresses to block at the frontend.
+    required: true
+    value:
 
   - name: APPLICATION_DOMAIN
     displayName: Application Hostname

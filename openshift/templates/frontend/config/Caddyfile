@@ -19,6 +19,14 @@
         }
     }
 
+    # Blocked user agents
+    @blocked header_regexp User-Agent {$USER_AGENT_REGEX}
+    handle @blocked {
+        respond 403 {
+            close
+        }
+    }
+
     # Most common security headers
     header {
         # enable CSP

@@ -18,6 +18,7 @@
 # API_RATE_LIMIT='rate_limit {remote.ip} 25r/s'
 # TRUSTED_PROXIES=
 # BLOCK_LIST=
+# USER_AGENT_REGEX=
 # WEB_HOST_TLS=off
 # API_HOST=api
 # API_PORT=8080

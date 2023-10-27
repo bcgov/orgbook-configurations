@@ -21,6 +21,7 @@
 # API_RATE_LIMIT='rate_limit {remote.ip} 25r/s'
 # TRUSTED_PROXIES=
 # BLOCK_LIST=
+# USER_AGENT_REGEX=
 # CADDY_CONFIG_FILE_NAME=Caddyfile
 # CADDY_CONFIG_MAP_NAME=caddy-conf
 # CADDY_CONFIG_MOUNT_PATH=/etc/caddy/

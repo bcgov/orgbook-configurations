@@ -116,6 +116,11 @@ objects:
                     secretKeyRef:
                       name: ${NAME}${SUFFIX}
                       key: block_list
+                - name: USER_AGENT_REGEX
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}${SUFFIX}
+                      key: user_agent_regex
 
               resources:
                 requests:
@@ -179,6 +184,7 @@ objects:
     stringData:
       trusted_proxies: ${TRUSTED_PROXIES}
       block_list: ${BLOCK_LIST}
+      user_agent_regex: ${USER_AGENT_REGEX}
     type: Opaque
 
   - kind: Service
@@ -356,6 +362,11 @@ parameters:
   - name: BLOCK_LIST
     displayName: Block List
     description: The list of IP addresses to block at the frontend.
+    required: true
+    value:
+  - name: USER_AGENT_REGEX
+    displayName: User Agent Regex
+    description: The regex to use to identify user agents to block.
     required: true
     value:
 

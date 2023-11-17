@@ -24,12 +24,14 @@ if createOperation; then
   readParameter "TRUSTED_PROXIES - Please provide the list of trusted proxies for the frontend:" TRUSTED_PROXIES "" "false"
   readParameter "BLOCK_LIST - Please provide the list of IP addresses to block for the frontend:" BLOCK_LIST "" "false"
   readParameter "USER_AGENT_REGEX - Please provide the regex to use to identify the user agents to block for the frontend:" USER_AGENT_REGEX "" "false"
+  readParameter "FILTER_EXPRESSION - Please provide the expression to use for filtering requests for the frontend:" FILTER_EXPRESSION "" "false"
 else
   # Secrets are removed from the configurations during update operations ...
-  printStatusMsg "Update operation detected ...\nSkipping the prompts for TRUSTED_PROXIES, BLOCK_LIST, and USER_AGENT_REGEX secrets ... \n"
+  printStatusMsg "Update operation detected ...\nSkipping the prompts for TRUSTED_PROXIES, BLOCK_LIST, USER_AGENT_REGEX, and FILTER_EXPRESSION secrets ... \n"
   writeParameter "TRUSTED_PROXIES" "prompt_skipped" "false"
   writeParameter "BLOCK_LIST" "prompt_skipped" "false"
   writeParameter "USER_AGENT_REGEX" "prompt_skipped" "false"
+  writeParameter "FILTER_EXPRESSION" "prompt_skipped" "false"
 fi
 
 SPECIALDEPLOYPARMS="--param-file=${_overrideParamFile}"

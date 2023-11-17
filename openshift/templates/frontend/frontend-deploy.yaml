@@ -121,7 +121,11 @@ objects:
                     secretKeyRef:
                       name: ${NAME}${SUFFIX}
                       key: user_agent_regex
-
+                - name: FILTER_EXPRESSION
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}${SUFFIX}
+                      key: filter_expression
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -185,6 +189,7 @@ objects:
       trusted_proxies: ${TRUSTED_PROXIES}
       block_list: ${BLOCK_LIST}
       user_agent_regex: ${USER_AGENT_REGEX}
+      filter_expression: ${FILTER_EXPRESSION}
     type: Opaque
 
   - kind: Service
@@ -367,6 +372,11 @@ parameters:
   - name: USER_AGENT_REGEX
     displayName: User Agent Regex
     description: The regex to use to identify user agents to block.
+    required: true
+    value:
+  - name: FILTER_EXPRESSION
+    displayName: Filter Expression
+    description: The expression to use for filtering requests.
     required: true
     value:
 

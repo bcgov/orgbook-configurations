@@ -24,7 +24,7 @@ TAG_NAME=dev
 # SOLR_LOG_LEVEL=WARN
 # SOLR_JAVA_MEM=-Xms256m -Xmx1024m
 # GC_TUNE=-XX:+UseG1GC -XX:+PerfDisableSharedMem -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=250 -XX:+AlwaysPreTouch -XX:+ExplicitGCInvokesConcurrent -XX:InitiatingHeapOccupancyPercent=75
-# CPU_REQUEST=100m
+# CPU_REQUEST=10m
 # CPU_LIMIT=750m
-# MEMORY_REQUEST=256Mi
+# MEMORY_REQUEST=10Mi
 # MEMORY_LIMIT=2000Mi

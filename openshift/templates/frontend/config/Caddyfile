@@ -11,10 +11,20 @@
 
 {$WEB_HOST_NAME}:{$WEB_HOST_PORT} {
 
+    # Filter Expression
+    @filter expression `{$FILTER_EXPRESSION}`
+    handle @filter {
+        header Msg "Bad Request"
+        respond "Bad Request" 400 {
+            close
+        }
+    }
+
     # Block list
     @denied client_ip {$BLOCK_LIST}
     handle @denied {
-        respond 403 {
+        header Msg "Access denied"
+        respond "Access denied" 403 {
             close
         }
     }
@@ -22,7 +32,8 @@
     # Blocked user agents
     @blocked header_regexp User-Agent {$USER_AGENT_REGEX}
     handle @blocked {
-        respond 403 {
+        header Msg "Access blocked"
+        respond "Access blocked" 403 {
             close
         }
     }

@@ -342,6 +342,8 @@ objects:
                   value: ${AGENT_TRACE_TAG}
                 - name: ACAPY_TRACE_LABEL
                   value: ${AGENT_TRACE_LABEL}
+                - name: ACAPY_DEBUG_WEBHOOKS
+                  value: ${AGENT_DEBUG_WEBHOOKS}
                 - name: TAILS_FILES_DIR
                   value: ${TAILS_FILES_DIR}
                 - name: TAILS_SERVER_BASE_URL
@@ -579,6 +581,11 @@ parameters:
     description: Label (agent name) used logging events.  Supports environment variables, '${HOSTNAME}' for example.
     required: false
     value: "'${HOSTNAME}'"
+  - name: AGENT_DEBUG_WEBHOOKS
+    displayName: Debug Webooks
+    description: When set to 'true' the webhooks contain the full webhook payload rather than the default abbreviated payload.
+    required: true
+    value: "true"
   # ===============================================================================
   # Tails Files Configuration
   #--------------------------------------------------------------------------------

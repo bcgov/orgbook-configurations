@@ -28,12 +28,12 @@ usage () {
       - Reset the environment.
       - All data will be lost.
         The following operations will be performed:
-          - The process pauses at the beginning to ensure the related ICIA reset process has started.
-          - The wallet is reset, by restoring initial copy of ICOB Wallet.
+          - The process pauses at the beginning to ensure the related BC Registries Agent reset process has started.
+          - The wallet is reset, by restoring initial copy of OrgBook Wallet.
           - The 'db' is reset and reinitialized.
           - The search indexes are reset.
-          - The process pauses to ensure the related ICIA registration process has had time to complete.
-          - The ICIA registration is verified.\n
+          - The process pauses to ensure the related BC Registries Agent registration process has had time to complete.
+          - The BC Registries Agent registration is verified.\n
 
     resetDatabase
       - Drop and recreate the database.
@@ -357,19 +357,19 @@ offlineIndexerResourceSuffix=${offlineIndexerResourceSuffix:--oli}
 # Process the local command line arguments and pass everything else along.
 # - The 'getopts' options string must start with ':' for this to work.
 # -----------------------------------------------------------------------------------------------------------------
-  for arg in "$@"; do
-    # Remove recognized arguments from the list after processing.
-    shift
-    case "$arg" in
-      --hard-reset)
-        HARD_RESET=1
-        ;;
-      *)
-        # If not recognized, save it for later processing ...
-        set -- "$@" "$arg"
-        ;;
-    esac
-  done
+for arg in "$@"; do
+  # Remove recognized arguments from the list after processing.
+  shift
+  case "$arg" in
+    --hard-reset)
+      HARD_RESET=1
+      ;;
+    *)
+      # If not recognized, save it for later processing ...
+      set -- "$@" "$arg"
+      ;;
+  esac
+done
 
 while [ ${OPTIND} -le $# ]; do
   if getopts :s: FLAG; then
@@ -501,7 +501,7 @@ function reset() {
 
     # Explain what is about to happen and wait for confirmation ...
 txtMsg=$(cat <<-EOF
-The [${targetNamespace}] ICOB environment will be reset using the following settings:
+The [${targetNamespace}] OrgBook environment will be reset using the following settings:
   - agentPod: ${agentPod}${resourceSuffix}
   - apiPod: ${apiPod}${resourceSuffix}
   - msgQueuePod: ${msgQueuePod}${resourceSuffix}
@@ -520,24 +520,24 @@ EOF
 txtMsg+=$(cat <<-EOF
 \n
 \033[0;31mYou have requested a Hard Reset.  The following operations will be performed (ALL DATA WILL BE LOST):
-  \033[1;33m- The process will pause at the beginning to ensure the related ICIA reset process has started.
+  \033[1;33m- The process will pause at the beginning to ensure the related BC Registries Agent reset process has started.
   - The wallet will be deleted and recreated.
   - The 'db' will be reset and reinitialized.
   - The search indexes will be reset.
-  - The process will pause to ensure the related ICIA registration process has had time to complete.
-  - The ICIA registration will be verified.\n
+  - The process will pause to ensure the related BC Registries Agent registration process has had time to complete.
+  - The BC Registries Agent registration will be verified.\n
 EOF
 )
     else
 txtMsg+=$(cat <<-EOF
 \n
 The following operations will be performed (ALL DATA WILL BE LOST):
-  - The process will pause at the beginning to ensure the related ICIA reset process has started.
-  - The wallet will be reset, by restoring initial copy of ICOB Wallet.
+  - The process will pause at the beginning to ensure the related BC Registries Agent reset process has started.
+  - The wallet will be reset, by restoring initial copy of OrgBook Wallet.
   - The 'db' will be reset and reinitialized.
   - The search indexes will be reset.
-  - The process will pause to ensure the related ICIA registration process has had time to complete.
-  - The ICIA registration will be verified.\n
+  - The process will pause to ensure the related BC Registries Agent registration process has had time to complete.
+  - The BC Registries Agent registration will be verified.\n
 EOF
 )
     fi
@@ -547,21 +547,21 @@ EOF
       exit 1
     fi
 
-    # - scaledown ICIA controller and agent
-    printAndWait "Please ensure the reset process in the corresponding ICIA environment has been started and it has indicated it is safe to process before continuing ..."
+    # - scaledown BC Registries Agent controller and agent
+    printAndWait "Please ensure the reset process in the corresponding BC Registries Agent environment has been started and it has indicated it is safe to process before continuing ..."
 
-    # - scaledown ICOB agent, api, msg-queue, and msg-queue-worker
+    # - scaledown OrgBook agent, api, msg-queue, and msg-queue-worker
     echo "Scaling down ${agentPod}${resourceSuffix}, ${apiPod}${resourceSuffix}, ${msgQueuePod}${resourceSuffix} and ${msgQueueWorkerPod}${resourceSuffix} ..."
     scaleDown -w "${apiPod}${resourceSuffix}" "${msgQueueWorkerPod}${resourceSuffix}" "${agentPod}${resourceSuffix}" "${msgQueuePod}${resourceSuffix}"
     exitOnError
 
     if hardReset; then
       # - Delete Wallet Database
-      echoError "Deleteing ${walletDbPod}${resourceSuffix} ..."
+      echoError "Deleting ${walletDbPod}${resourceSuffix} ..."
       deleteDatabase "${walletDbPod}"
       exitOnError
     else
-      # - reset ICOB Wallet Database, by restoring initial copy of ICOB Wallet.
+      # - reset OrgBook Wallet Database, by restoring initial copy of OrgBook Wallet.
       echo "Resetting ${walletDbPod}${resourceSuffix} ..."
       if isScaledUp ${backupPod}${resourceSuffix}; then
         local backupStarted=1
@@ -582,7 +582,7 @@ EOF
         exitOnError
       fi
 
-      # - verify ICOB  Wallet - There should only be 4 items.
+      # - verify OrgBook  Wallet - There should only be 4 items.
       recordCounts=$(getRecordCounts "${walletDbPod}" "${walletDbName}")
       numItems=$(echo "${recordCounts}" | grep items | awk '{print $5}')
       if (( ${numItems} == 4 )); then
@@ -594,42 +594,42 @@ EOF
       exitOnError
     fi
 
-    # - scaleup ICOB agent
+    # - scaleup OrgBook agent
     echo "Scaling up ${agentPod}${resourceSuffix} ..."
     scaleUp -w "${agentPod}${resourceSuffix}"
     exitOnError
 
-    # - reset ICOB database
+    # - reset OrgBook database
     echo "Resetting ${dbPod}${resourceSuffix} ..."
     resetDatabase "${apiPod}" "${dbPod}"
     exitOnError
 
-    # - scaleup ICOB msg-queue and msg-queue-worker
+    # - scaleup OrgBook msg-queue and msg-queue-worker
     echo "Scaling up ${apiPod}${resourceSuffix}, ${msgQueuePod}${resourceSuffix} and ${msgQueueWorkerPod}${resourceSuffix} ..."
     scaleUp -w "${msgQueuePod}${resourceSuffix}" "${msgQueueWorkerPod}${resourceSuffix}"
     exitOnError
-    printAndWait "The ICOB reset process is complete.  Please wait here for the associated ICIA instance to finish it's registration process before continuing ..."
+    printAndWait "The OrgBook reset process is complete.  Please wait here for the associated BC Registries Agent instance to finish it's registration process before continuing ..."
 
-    # - verify ICIA registered with ICOB
+    # - verify BC Registries Agent registered with OrgBook
     #   - >= 3 credential_type records
     #   - >= 3 schema records
     #   - >= 1 issuer record
-    echo "Verifying ICIA registered with ICOB ..."
+    echo "Verifying BC Registries Agent registered with OrgBook ..."
     recordCounts=$(getRecordCounts "${dbPod}")
     recordCounts=$(echo "${recordCounts}" | tail -n +4)
     numCredentialTypes=$(echo "${recordCounts}" | grep credential_type | awk '{print $5}')
     numSchemas=$(echo "${recordCounts}" | grep schema | awk '{print $5}')
     numIssuers=$(echo "${recordCounts}" | grep issuer | awk '{print $5}')
     if (( ${numCredentialTypes} >= 3 )) && (( ${numSchemas} >= 3 )) && (( ${numIssuers} >= 1 )); then
-      echo "ICIA registration verified; credential_type:${numCredentialTypes}, schema:${numSchemas}, and issuer:${numIssuers} records found."
+      echo "BC Registries Agent registration verified; credential_type:${numCredentialTypes}, schema:${numSchemas}, and issuer:${numIssuers} records found."
     else
-      echoError "ICIA registration verification failed;  credential_type:${numCredentialTypes}, schema:${numSchemas}, and issuer:${numIssuers} records found.  Please fix the issue and try again."
+      echoError "BC Registries Agent registration verification failed;  credential_type:${numCredentialTypes}, schema:${numSchemas}, and issuer:${numIssuers} records found.  Please fix the issue and try again."
       exit 1
     fi
     exitOnError
 
     # - Test posting a few credentials using the pipelines
-    echo "Provided ICIA has successfully registered with ICOB you can now test things by issuing a few credentials."
+    echo "Provided BC Registries Agent has successfully registered with OrgBook you can now test things by issuing a few credentials."
   )
 }
 

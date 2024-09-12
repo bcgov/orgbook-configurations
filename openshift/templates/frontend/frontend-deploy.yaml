@@ -98,6 +98,10 @@ objects:
                   value: ${API_HOST}${SUFFIX}
                 - name: API_PORT
                   value: ${API_PORT}
+                - name: VC_SERVICE_HOST
+                  value: ${VC_SERVICE_HOST}${SUFFIX}
+                - name: VC_SERVICE_PORT
+                  value: ${VC_SERVICE_PORT}
 
                 - name: RATE_LIMIT_ORDERING
                   value: ${RATE_LIMIT_ORDERING}
@@ -326,6 +330,16 @@ parameters:
     description: The port number on which the api is listening.
     required: true
     value: "8080"
+  - name: VC_SERVICE_HOST
+    displayName: VC SERVICE HOST
+    description: The hostname of the VC service.
+    required: true
+    value: vc-service
+  - name: VC_SERVICE_PORT
+    displayName: VC SERVICE Port
+    description: The port number on which the VC service is listening.
+    required: true
+    value: "80"
 
   - name: RATE_LIMIT_ORDERING
     displayName: Rate Limit Ordering

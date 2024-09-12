@@ -1,0 +1,282 @@
+kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  name: ${NAME}${SUFFIX}-deployment-template
+  annotations:
+    description: Deployment template for a FastAPI service.
+    tags: fastapi
+    iconClass: icon-python
+objects:
+
+  - kind: NetworkPolicy
+    apiVersion: networking.k8s.io/v1
+    metadata:
+      name: ${NAME}${SUFFIX}-inbound
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow the vcr-api and frontend to access the vc-service.
+      ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                  role: ${API_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+            - podSelector:
+                matchLabels:
+                  role: ${FRONTEND_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+          ports:
+            - protocol: TCP
+              port: 80
+      podSelector:
+        matchLabels:
+          role: ${VC_SERVICE_ROLE}
+          app: ${APP_NAME}${SUFFIX}
+          env: ${TAG_NAME}
+  
+  - kind: NetworkPolicy
+    apiVersion: networking.k8s.io/v1
+    metadata:
+      name: ${NAME}${SUFFIX}-outbound
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      description: |
+        Allow the vc-service to access the vcr-api.
+      ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                  role: ${VC_SERVICE_ROLE}
+                  app: ${APP_NAME}${SUFFIX}
+                  env: ${TAG_NAME}
+              namespaceSelector:
+                matchLabels:
+                  name: ${NAMESPACE}
+                  environment: ${TAG_NAME}
+          ports:
+            - protocol: TCP
+              port: 8080
+      podSelector:
+        matchLabels:
+          role: ${API_ROLE}
+          app: ${APP_NAME}${SUFFIX}
+          env: ${TAG_NAME}
+
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      ports:
+        - name: 8080-tcp
+          port: 8080
+          protocol: TCP
+          targetPort: 80
+      selector:
+        name: ${NAME}${SUFFIX}
+
+  - kind: Deployment
+    apiVersion: apps/v1
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      strategy:
+        type: RollingUpdate
+      replicas: 1
+      selector:
+        name: ${NAME}${SUFFIX}
+      template:
+        metadata:
+          name: ${NAME}${SUFFIX}
+          labels:
+            name: ${NAME}${SUFFIX}
+            app: ${APP_NAME}${SUFFIX}
+            app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
+            app-group: ${APP_GROUP}
+            role: ${ROLE}
+            env: ${TAG_NAME}
+        spec:
+          containers:
+            - name: ${NAME}${SUFFIX}
+              image: " "
+              ports:
+                - containerPort: 80
+                  protocol: TCP
+              readinessProbe:
+                failureThreshold: 5
+                periodSeconds: 30
+                initialDelaySeconds: 3
+                timeoutSeconds: 40
+                httpGet:
+                  path: /health
+                  port: 8080
+              livenessProbe:
+                failureThreshold: 5
+                periodSeconds: 60
+                initialDelaySeconds: 30
+                timeoutSeconds: 40
+                httpGet:
+                  path: /health
+                  port: 8080
+              env:
+                - name: ARIES_VCR_URL
+                  value: ${ARIES_VCR_URL}
+              resources:
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+
+  - kind: HorizontalPodAutoscaler
+    apiVersion: autoscaling/v2
+    metadata:
+      name: ${NAME}${SUFFIX}
+      labels:
+        name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${ROLE}
+        env: ${TAG_NAME}
+    spec:
+      scaleTargetRef:
+        apiVersion: apps.openshift.io/v2
+        kind: DeploymentConfig
+        name: ${NAME}${SUFFIX}
+      minReplicas: ${{MIN_REPLICAS}}
+      maxReplicas: ${{MAX_REPLICAS}}
+      metrics:
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 75
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 80
+      behavior:
+        scaleDown:
+          stabilizationWindowSeconds: 300
+parameters:
+  - name: NAME
+    displayName: Name
+    description: The name assigned to all of the OpenShift resources associated to the server instance.
+    required: true
+    value: vc-service
+  - name: VC_SERVICE_ROLE
+    displayName: Role
+    description: Service Role
+    required: true
+    value: vc-service
+  - name: API_ROLE
+    displayName: Role
+    description: Service Role
+    required: true
+    value: api
+  - name: FRONTEND_ROLE
+    displayName: Frontend Role
+    description: Frontend Role
+    required: true
+    value: frontend
+  - name: NAMESPACE
+    displayName: The target namespace for the resources.
+    required: true
+    value: 8ad0ea
+  - name: SUFFIX
+    displayName: Suffix
+    description: A name suffix used for all objects
+    required: false
+    value: -bc
+  - name: APP_NAME
+    displayName: App Name
+    description: Used to group components together in the OpenShift console.
+    required: true
+    value: orgbook
+  - name: APP_GROUP
+    displayName: App Group
+    description: The name assigned to all of the deployments in this project.
+    required: true
+    value: aries-vcr
+  - name: IMAGE_NAMESPACE
+    displayName: Image Namespace
+    required: true
+    description: The namespace of the OpenShift project containing the imagestream for the application.
+    value: 8ad0ea-tools
+  - name: ARIES_VCR_URL
+    displayName: URL for the Aries VCR Service
+    description: used to route traffic to the OrgBook API.
+    required: true
+    value: http://api-bc:8080
+
+  - name: MIN_REPLICAS
+    displayName: Minimum Replicas
+    description: The minimum number of pods to have running.
+    required: true
+    value: "2"
+  - name: MAX_REPLICAS
+    displayName: Maximum Replicas
+    description: The maximum number of pods to have running.
+    required: true
+    value: "4"
+
+  - name: CPU_REQUEST
+    displayName: Resources CPU Request
+    description: The resources CPU request (in cores) for this build.
+    required: true
+    value: 10m
+  - name: CPU_LIMIT
+    displayName: Resources CPU Limit
+    description: The resources CPU limit (in cores) for this build.
+    required: true
+    value: 300m
+  - name: MEMORY_REQUEST
+    displayName: Resources Memory Request
+    description: The resources Memory request (in Mi, Gi, etc) for this build.
+    required: true
+    value: 10Mi
+  - name: MEMORY_LIMIT
+    displayName: Resources Memory Limit
+    description: The resources Memory limit (in Mi, Gi, etc) for this build.
+    required: true
+    value: 128Mi

@@ -43,7 +43,7 @@ objects:
                   environment: ${TAG_NAME}
           ports:
             - protocol: TCP
-              port: 80
+              port: 8080
       podSelector:
         matchLabels:
           role: ${VC_SERVICE_ROLE}
@@ -99,7 +99,7 @@ objects:
         - name: 8080-tcp
           port: 8080
           protocol: TCP
-          targetPort: 80
+          targetPort: 8080
       selector:
         name: ${NAME}${SUFFIX}
 
@@ -147,7 +147,7 @@ objects:
             - name: ${NAME}${SUFFIX}
               image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${TAG_NAME}
               ports:
-                - containerPort: 80
+                - containerPort: 8080
                   protocol: TCP
               readinessProbe:
                 failureThreshold: 5

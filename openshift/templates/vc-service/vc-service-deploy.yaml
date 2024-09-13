@@ -16,7 +16,7 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        role: ${ROLE}
+        role: ${VC_SERVICE_ROLE}
         env: ${TAG_NAME}
     spec:
       description: |
@@ -58,7 +58,7 @@ objects:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        role: ${ROLE}
+        role: ${VC_SERVICE_ROLE}
         env: ${TAG_NAME}
     spec:
       description: |
@@ -92,7 +92,7 @@ objects:
         app: ${APP_NAME}${SUFFIX}
         app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        role: ${ROLE}
+        role: ${VC_SERVICE_ROLE}
         env: ${TAG_NAME}
     spec:
       ports:
@@ -112,7 +112,7 @@ objects:
         app: ${APP_NAME}${SUFFIX}
         app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        role: ${ROLE}
+        role: ${VC_SERVICE_ROLE}
         env: ${TAG_NAME}
     spec:
       strategy:
@@ -120,6 +120,18 @@ objects:
       replicas: 1
       selector:
         name: ${NAME}${SUFFIX}
+        app: ${APP_NAME}${SUFFIX}
+        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
+        role: ${VC_SERVICE_ROLE}
+        env: ${TAG_NAME}
+        matchLabels:
+            name: ${NAME}${SUFFIX}
+            app: ${APP_NAME}${SUFFIX}
+            app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
+            app-group: ${APP_GROUP}
+            role: ${VC_SERVICE_ROLE}
+            env: ${TAG_NAME}
       template:
         metadata:
           name: ${NAME}${SUFFIX}
@@ -128,12 +140,12 @@ objects:
             app: ${APP_NAME}${SUFFIX}
             app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
             app-group: ${APP_GROUP}
-            role: ${ROLE}
+            role: ${VC_SERVICE_ROLE}
             env: ${TAG_NAME}
         spec:
           containers:
             - name: ${NAME}${SUFFIX}
-              image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${IMAGE_TAG}
+              image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${TAG_NAME}
               ports:
                 - containerPort: 80
                   protocol: TCP
@@ -173,7 +185,7 @@ objects:
         app: ${APP_NAME}${SUFFIX}
         app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
         app-group: ${APP_GROUP}
-        role: ${ROLE}
+        role: ${VC_SERVICE_ROLE}
         env: ${TAG_NAME}
     spec:
       scaleTargetRef:
@@ -243,7 +255,7 @@ parameters:
     required: true
     description: The namespace of the OpenShift project containing the imagestream for the application.
     value: 8ad0ea-tools
-  - name: IMAGE_TAG
+  - name: TAG_NAME
     displayName: Image Tag
     required: true
     description: The image tag to be used when deploying the service.

@@ -1,0 +1,22 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: .
+# Template File: ../openshift/templates/vc-service/vc-service-deploy.yaml
+#=========================================================
+NAME=vc-service
+VC_SERVICE_ROLE=vc-service
+API_ROLE=api
+FRONTEND_ROLE=frontend
+NAMESPACE=8ad0ea
+SUFFIX=-bc
+APP_NAME=orgbook
+APP_GROUP=aries-vcr
+IMAGE_NAMESPACE=8ad0ea-tools
+TAG_NAME=dev
+ARIES_VCR_URL=http://api-bc:8080
+MIN_REPLICAS=2
+MAX_REPLICAS=4
+CPU_REQUEST=10m
+CPU_LIMIT=300m
+MEMORY_REQUEST=10Mi
+MEMORY_LIMIT=128Mi

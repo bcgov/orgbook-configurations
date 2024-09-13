@@ -133,7 +133,7 @@ objects:
         spec:
           containers:
             - name: ${NAME}${SUFFIX}
-              image: " "
+              image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${IMAGE_TAG}
               ports:
                 - containerPort: 80
                   protocol: TCP
@@ -243,6 +243,11 @@ parameters:
     required: true
     description: The namespace of the OpenShift project containing the imagestream for the application.
     value: 8ad0ea-tools
+  - name: IMAGE_TAG
+    displayName: Image Tag
+    required: true
+    description: The image tag to be used when deploying the service.
+    value: dev
   - name: ARIES_VCR_URL
     displayName: URL for the Aries VCR Service
     description: used to route traffic to the OrgBook API.

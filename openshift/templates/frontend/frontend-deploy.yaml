@@ -339,7 +339,7 @@ parameters:
     displayName: VC SERVICE Port
     description: The port number on which the VC service is listening.
     required: true
-    value: "80"
+    value: "8080"
 
   - name: RATE_LIMIT_ORDERING
     displayName: Rate Limit Ordering

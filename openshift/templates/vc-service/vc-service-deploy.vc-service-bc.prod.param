@@ -14,6 +14,7 @@
 # IMAGE_NAMESPACE=8ad0ea-tools
 TAG_NAME=prod
 # ARIES_VCR_URL=http://api-bc:8080
+# ISSUER_SERVICE_URL=https://bcgov.github.io/digital-trust-toolkit/registrations/issuers/prod.json
 # MIN_REPLICAS=2
 # MAX_REPLICAS=4
 # CPU_REQUEST=10m

@@ -168,6 +168,8 @@ objects:
               env:
                 - name: ARIES_VCR_URL
                   value: ${ARIES_VCR_URL}
+                - name: ISSUER_REGISTRY_URL
+                  value: ${ISSUER_REGISTRY_URL}
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -265,6 +267,11 @@ parameters:
     description: used to route traffic to the OrgBook API.
     required: true
     value: http://api-bc:8080
+  - name: ISSUER_REGISTRY_URL
+    displayName: URL for the Issuer Registry Configuration File
+    description: Used to configure the allow-list of issuers that can issue credentials to Aries VCR.
+    required: true
+    value: https://bcgov.github.io/digital-trust-toolkit/registrations/issuers/dev.json
 
   - name: MIN_REPLICAS
     displayName: Minimum Replicas

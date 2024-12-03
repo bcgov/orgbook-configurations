@@ -14,6 +14,7 @@ objects:
       labels:
         name: ${NAME}${SUFFIX}
         app: ${APP_NAME}${SUFFIX}
+        app-group: ${APP_GROUP}
         env: ${TAG_NAME}
     spec:
       description: |
@@ -32,7 +33,7 @@ objects:
             - podSelector:
                 matchLabels:
                   role: ${BACKUP_ROLE}
-                  app: ${BACKUP_APP_NAME}${SUFFIX}
+                  app: ${BACKUP_APP_NAME}${BACKUP_SUFFIX}
                   env: ${TAG_NAME}
               namespaceSelector:
                 matchLabels:
@@ -85,7 +86,7 @@ objects:
             from:
               kind: ImageStreamTag
               namespace: ${IMAGE_NAMESPACE}
-              name: ${SOURCE_IMAGE_NAME}:${TAG_NAME}
+              name: ${SOURCE_IMAGE_NAME}:${IMAGE_TAG_NAME}
         - type: ConfigChange
       replicas: 1
       test: false
@@ -127,22 +128,22 @@ objects:
                 - name: POSTGRESQL_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}${SUFFIX}
+                      name: ${NAME}${CREDENTIAL_SUFFIX}
                       key: database-user
                 - name: POSTGRESQL_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}${SUFFIX}
+                      name: ${NAME}${CREDENTIAL_SUFFIX}
                       key: database-password
                 - name: POSTGRESQL_ADMIN_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}${SUFFIX}
+                      name: ${NAME}${CREDENTIAL_SUFFIX}
                       key: admin-password
                 - name: POSTGRESQL_DATABASE
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}${SUFFIX}
+                      name: ${NAME}${CREDENTIAL_SUFFIX}
                       key: database-name
               resources:
                 requests:
@@ -279,6 +280,11 @@ parameters:
     description: The App Name associated with the backup container.
     required: true
     value: Backup
+  - name: BACKUP_SUFFIX
+    displayName: Backup App Suffix
+    description: The suffix of the Backup App, this could be different then SUFFIX.
+    required: true
+    value: -bc
 
   - name: AUDIT_ROLE
     displayName: Audit Role
@@ -310,6 +316,12 @@ parameters:
     description: A name suffix used for all objects
     required: false
     value: -bc
+  - name: CREDENTIAL_SUFFIX
+    displayName: Credential Suffix
+    description: A name suffix used for linking credentials.
+    required: false
+    value: -bc
+
   - name: APP_NAME
     displayName: App Name
     description: Used to group components together in the OpenShift console.
@@ -330,6 +342,11 @@ parameters:
     description: The name of the image to use for this resource.
     required: true
     value: db
+  - name: IMAGE_TAG_NAME
+    displayName: Image TAG name
+    description: Image TAG name
+    required: true
+    value: dev
   - name: TAG_NAME
     displayName: Environment TAG name
     description: The TAG name for this environment, e.g., dev, test, prod
@@ -373,6 +390,10 @@ parameters:
     description: The class of the volume; netapp-block-standard, netapp-block-standard, netapp-file-extended, or netapp-block-extended.
     required: false
     value: netapp-block-standard
+
+  # ===============================================================================
+  # Postgres Database Configuration
+  #--------------------------------------------------------------------------------
   - name: LOGGING_CONFIG_FILE_NAME
     displayName: Config File Name
     description: The name of the configuration file.
@@ -403,6 +424,11 @@ parameters:
     description: The path to use to mount the config file.
     required: true
     value: /opt/app-root/src/postgresql-cfg/
+  # ===============================================================================
+
+  # ===============================================================================
+  # Resource Allocation
+  #--------------------------------------------------------------------------------
   - name: CPU_REQUEST
     displayName: Resources CPU Request
     description: The resources CPU request (in cores) for this build.
@@ -423,3 +449,4 @@ parameters:
     description: The resources Memory limit (in Mi, Gi, etc) for this build.
     required: true
     value: 8000Mi
+  # ===============================================================================

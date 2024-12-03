@@ -8,11 +8,14 @@
 # AGENT_ROLE=agent
 # BACKUP_ROLE=backup
 # BACKUP_APP_NAME=Backup
+# BACKUP_SUFFIX=-bc
 # SUFFIX=-bc
+# CREDENTIAL_SUFFIX=-bc
 # APP_NAME=orgbook
 # APP_GROUP=aries-vcr
 # IMAGE_NAMESPACE=8ad0ea-tools
 # SOURCE_IMAGE_NAME=db
+IMAGE_TAG_NAME=test
 TAG_NAME=test
 # POSTGRESQL_DATABASE_NAME=default_wallet
 # POSTGRESQL_USER=[a-zA-Z_][a-zA-Z0-9_]{10}

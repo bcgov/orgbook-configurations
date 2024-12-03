@@ -745,7 +745,7 @@ function updateSearchIndex() {
 }
 
 function indexSynced() {
-  _quickLoadUrl=${1:-https://orgbook.gov.bc.ca/api/quickload}
+  _quickLoadUrl=${1:-https://orgbook.gov.bc.ca/api/v2/quickload}
   _apiPodName=${2}
   _dbPodName=${3}
 
@@ -757,6 +757,7 @@ function indexSynced() {
   indexInfo=$(curl -s ${_quickLoadUrl})
   actualCount=$(echo ${indexInfo} | jq -r '.counts.actual_item_count')
   indexCount=$(echo ${indexInfo} | jq -r '.credential_counts.total_indexed_items')
+
   indexDiff=$(( ${actualCount} - ${indexCount} ))
 
   if (( ${indexCount} == ${actualCount} )); then
@@ -1012,7 +1013,9 @@ function swapIndexStorage() {
     # echoWarning "\nofflineSearchEngineVolume:\n${offlineSearchEngineVolume}\n"
     # echoWarning "\nofflineSearchEnginePvc:\n${offlineSearchEnginePvc}\n"
 
-    printAndAskToContinue "If you contiune the following PVC swap will be performed:\n  - PVC[${onlineSearchEnginePvc}] from DC[${_onlineSearchEngine}] to DC[${_offlineSearchEngine}]\n  - PVC[${offlineSearchEnginePvc}] from DC[${_offlineSearchEngine}] to DC[${_onlineSearchEngine}]"
+    if ( ! printAndWaitForYes "If you contiune the following PVC swap will be performed:\n  - PVC[${onlineSearchEnginePvc}] from DC[${_onlineSearchEngine}] to DC[${_offlineSearchEngine}]\n  - PVC[${offlineSearchEnginePvc}] from DC[${_offlineSearchEngine}] to DC[${_onlineSearchEngine}]\n" ); then
+      exit 1
+    fi
 
     # Prep patches needed to swap the PVCs
     onlineVolumePatch=$(getVolumePatch "${onlineSearchEngineVolume}" "${offlineSearchEnginePvc}")

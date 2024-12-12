@@ -101,7 +101,8 @@ objects:
           protocol: TCP
           targetPort: 8080
       selector:
-        name: ${NAME}${SUFFIX}
+        matchLabels:
+          name: ${NAME}${SUFFIX}
 
   - kind: Deployment
     apiVersion: apps/v1
@@ -116,22 +117,16 @@ objects:
         env: ${TAG_NAME}
     spec:
       strategy:
-        type: RollingUpdate
+        type: RollingUpdateUpdate
       replicas: 1
       selector:
-        name: ${NAME}${SUFFIX}
-        app: ${APP_NAME}${SUFFIX}
-        app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
-        app-group: ${APP_GROUP}
-        role: ${VC_SERVICE_ROLE}
-        env: ${TAG_NAME}
         matchLabels:
-            name: ${NAME}${SUFFIX}
-            app: ${APP_NAME}${SUFFIX}
-            app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
-            app-group: ${APP_GROUP}
-            role: ${VC_SERVICE_ROLE}
-            env: ${TAG_NAME}
+          name: ${NAME}${SUFFIX}
+          app: ${APP_NAME}${SUFFIX}
+          app.kubernetes.io/part-of: ${APP_NAME}${SUFFIX}
+          app-group: ${APP_GROUP}
+          role: ${VC_SERVICE_ROLE}
+          env: ${TAG_NAME}
       template:
         metadata:
           name: ${NAME}${SUFFIX}
@@ -191,8 +186,8 @@ objects:
         env: ${TAG_NAME}
     spec:
       scaleTargetRef:
-        apiVersion: apps.openshift.io/v2
-        kind: DeploymentConfig
+        apiVersion: apps/v1
+        kind: Deployment
         name: ${NAME}${SUFFIX}
       minReplicas: ${{MIN_REPLICAS}}
       maxReplicas: ${{MAX_REPLICAS}}

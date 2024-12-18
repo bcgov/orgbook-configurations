@@ -116,7 +116,7 @@ parameters:
     displayName: Build Image Name
     description: The name of the Docker image to be used for the build stage.
     required: false
-    value: node:gallium
+    value: node:22-alpine3.19
   - name: CADDY_BUILDER_IMAGE_NAME
     displayName: Caddy Builder Image Name
     description: The name of the Docker image to be used for the caddy build stage.

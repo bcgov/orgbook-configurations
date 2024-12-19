@@ -17,7 +17,7 @@ fi
 CONFIG_MAP_NAME=${CONFIG_MAP_NAME:-schema-spy-caddy-conf}
 SOURCE_FILE=$( dirname "$0" )/Caddyfile
 OUTPUT_FORMAT=json
-OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
+OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_Deployment.json
 
 printStatusMsg "Generating ConfigMap; ${CONFIG_MAP_NAME} ..."
 generateConfigMap "${CONFIG_MAP_NAME}${SUFFIX}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"

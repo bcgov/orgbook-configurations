@@ -58,8 +58,8 @@ objects:
           env: ${TAG_NAME}
 
 
-  - kind: DeploymentConfig
-    apiVersion: v1
+  - kind: Deployment
+    apiVersion: apps/v1
     metadata:
       name: ${NAME}${SUFFIX}
       generation: 1
@@ -73,25 +73,11 @@ objects:
     spec:
       strategy:
         type: Recreate
-        recreateParams:
-          timeoutSeconds: 600
-        resources: {}
-        activeDeadlineSeconds: 21600
-      triggers:
-        - type: ImageChange
-          imageChangeParams:
-            automatic: true
-            containerNames:
-              - ${NAME}${SUFFIX}
-            from:
-              kind: ImageStreamTag
-              namespace: ${IMAGE_NAMESPACE}
-              name: ${SOURCE_IMAGE_NAME}:${IMAGE_TAG_NAME}
-        - type: ConfigChange
       replicas: 1
       test: false
       selector:
-        name: ${NAME}${SUFFIX}
+        matchLabels:
+          name: ${NAME}${SUFFIX}
       template:
         metadata:
           labels:
@@ -120,7 +106,7 @@ objects:
                     path: ${AUTOVACUMM_CONFIG_FILE_NAME}
           containers:
             - name: ${NAME}${SUFFIX}
-              image: " "
+              image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${TAG_NAME}
               ports:
                 - containerPort: 5432
                   protocol: TCP
@@ -249,7 +235,8 @@ objects:
           port: 5432
           targetPort: 5432
       selector:
-        name: ${NAME}${SUFFIX}
+        matchLabels:
+          name: ${NAME}${SUFFIX}
       type: ClusterIP
       sessionAffinity: None
 

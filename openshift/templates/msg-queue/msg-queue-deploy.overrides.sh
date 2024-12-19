@@ -15,7 +15,7 @@ CONFIG_MAP_NAME=${CONFIG_MAP_NAME:-enabled-plugins}
 SOURCE_FILE=$( dirname "$0" )/enabled_plugins
 
 OUTPUT_FORMAT=json
-OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_DeploymentConfig.json
+OUTPUT_FILE=${CONFIG_MAP_NAME}-configmap_Deployment.json
 
 printStatusMsg "Generating ConfigMap; ${CONFIG_MAP_NAME} ..."
 generateConfigMap "${NAME}${SUFFIX}-${CONFIG_MAP_NAME}" "${SOURCE_FILE}" "${OUTPUT_FORMAT}" "${OUTPUT_FILE}"

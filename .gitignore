@@ -1,5 +1,6 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 *_DeploymentConfig.json
+*_Deployment.json
 *_BuildConfig.json
 *.crt
 *.key

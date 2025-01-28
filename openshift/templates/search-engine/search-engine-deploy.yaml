@@ -73,8 +73,8 @@ objects:
           port: 8983
           targetPort: 8983
       selector:
-        name: ${NAME}${SUFFIX}
-        deploymentconfig: ${NAME}${SUFFIX}
+        matchLabels:
+          name: ${NAME}${SUFFIX}
       type: ClusterIP
       sessionAffinity: None
 
@@ -97,8 +97,8 @@ objects:
         requests:
           storage: ${PERSISTENT_VOLUME_SIZE}
 
-  - kind: DeploymentConfig
-    apiVersion: v1
+  - kind: Deployment
+    apiVersion: apps/v1
     metadata:
       name: ${NAME}${SUFFIX}
       labels:
@@ -111,25 +111,11 @@ objects:
     spec:
       strategy:
         type: Recreate
-        recreateParams:
-          timeoutSeconds: 600
-        resources: {}
-        activeDeadlineSeconds: 21600
-      triggers:
-        - type: ConfigChange
-        - type: ImageChange
-          imageChangeParams:
-            automatic: true
-            containerNames:
-              - ${NAME}${SUFFIX}
-            from:
-              kind: ImageStreamTag
-              namespace: ${IMAGE_NAMESPACE}
-              name: ${NAME}:${IMAGE_TAG_NAME}
       replicas: 1
       test: false
       selector:
-        name: ${NAME}${SUFFIX}
+        matchLabels:
+          name: ${NAME}${SUFFIX}
       template:
         metadata:
           labels:
@@ -146,7 +132,7 @@ objects:
                 claimName: ${NAME}${SUFFIX}
           containers:
             - name: ${NAME}${SUFFIX}
-              image: ""
+              image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${TAG_NAME}
               ports:
                 - containerPort: 8983
                   protocol: TCP

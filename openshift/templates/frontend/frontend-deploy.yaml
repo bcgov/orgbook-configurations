@@ -125,7 +125,6 @@ objects:
                   cpu: ${CPU_REQUEST}
                   memory: ${MEMORY_REQUEST}
                 limits:
-                  cpu: ${CPU_LIMIT}
                   memory: ${MEMORY_LIMIT}
               volumeMounts:
                 - name: ${NAME}${SUFFIX}-caddy-config-volume
